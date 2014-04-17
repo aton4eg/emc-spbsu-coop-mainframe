@@ -3,6 +3,7 @@
 &LABEL   EQU   *                                                        00030001
          GBLC  &CURPROC                                                 00040000
          GBLC  &CSECT                                                   00050000
+         GBLC  &OLOLO
                                                                         00060000
          AIF   ('&CURPROC' EQ '').GENPR1                                00070000
          MNOTE 'SOME ROUTINE IS CURRENTLY DESCRIBING'                   00080003
