@@ -1,0 +1,54 @@
+         MACRO                                                          00010000
+&LABEL   PROCBGN                                                        00020000
+&LABEL   EQU   *                                                        00030001
+         GBLC  &CURPROC                                                 00040000
+         GBLC  &CSECT                                                   00050000
+                                                                        00060000
+         AIF   ('&CURPROC' EQ '').GENPR1                                00070000
+         MNOTE 'SOME ROUTINE IS CURRENTLY DESCRIBING'                   00080003
+         MEXIT                                                          00090000
+                                                                        00100000
+.GENPR1  ANOP                                                           00110000
+         AIF   ('&CSECT' NE '').GENPR2                                  00120000
+         MNOTE 'CSECT WAS NOT DEFINED'                                  00130000
+         MEXIT                                                          00140000
+                                                                        00150000
+.GENPR2  ANOP                                                           00160000
+&CURPROC SETC  '&LABEL'                    &CURPROC:=&LABEL             00170000
+         USING &LABEL._SAVE,R13            SET SA ADDRESSATION          00180000
+                                                                        00190000
+         STM   R14,R12,12(R13)             STORE REGISTERS              00200000
+       GETMAIN R,LV=&LABEL._SAVELEN        CREATE SAVEAREA              00210000
+         LR    R3,R1                       R3:=R1                       00220000
+                                                                        00230000
+         L     R0,&LABEL._SAVE_R0                                       00240000
+         L     R1,&LABEL._SAVE_R1                                       00250000
+         L     R15,&LABEL._SAVE_R15        RESTORE R0,R1,R15            00260000
+                                                                        00270000
+         ST    R13,4(R3)                   STORE OLD SA                 00280000
+         LR    R2,R13                                                   00290000
+         LR    R13,R3                      SET NEW SA                   00300000
+         ST    R13,8(R2)                   STORE ADDR OF NEW SA TO OLD  00310000
+                                                                        00320000
+*CREATE DSECT FOR SAVEAREA                                              00330000
+&LABEL._SAVE DSECT                                                      00340000
+&LABEL._SAVE_AREA DS 0C                                                 00350000
+&LABEL._RESERVED  DS 1F                                                 00360000
+&LABEL._OLD_SAVE  DS A                                                  00370000
+&LABEL._NEW_SAVE  DS A                                                  00380000
+&LABEL._SAVE_R14  DS 1F                                                 00390000
+&LABEL._SAVE_R15  DS 1F                                                 00400000
+         LCLA  &I                                                       00410000
+                                                                        00420000
+.LOOP1   AIF   (&I EQ 13).ENDLP1                                        00430000
+&LABEL._SAVE_R&I DS 1F                                                  00440000
+&I       SETA  &I+1                                                     00450000
+         AGO   .LOOP1                                                   00460000
+.ENDLP1  ANOP                                                           00470000
+&LABEL._SAVELEN EQU *-&LABEL._SAVE                                      00480000
+&CSECT CSECT                                                            00490000
+*        BASR  R12,0                                                    00500002
+*        USING *,R12                       SET ADDRESSATION             00510002
+                                                                        00520000
+         MEND                                                           00530000
+
