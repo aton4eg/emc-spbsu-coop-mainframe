@@ -1,0 +1,3 @@
+This is SLIP Trace project.
+
+The main purpose of this project is to make an easy way to parse GTF SLIP traces (with an appropriate narrowing the scope of stuff you're interested into).
