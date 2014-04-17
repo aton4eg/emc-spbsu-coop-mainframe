@@ -1,0 +1,11 @@
+         MACRO                                                          00001001
+         DSTACK &NAME=DSTACK,&SIZE=65535F                               00002004
+&NAME    DSECT                                                          00010001
+TOP      DS    1F                                                       00020001
+STACK    DS    &SIZE                                                    00030001
+STACKSIZ EQU   *-TOP                                                    00040001
+         END                                                            00050001
+         MEXIT                                                          00051001
+.ERROR   MNOTE 'USE NAME=DSECT NAME,SIZE= DECIMAL MUNBER_TYPE'          00052001
+         MEND                                                           00060001
+
