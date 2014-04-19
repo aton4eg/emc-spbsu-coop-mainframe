@@ -15,7 +15,7 @@
 LSUM#&E1 EQU   *                  *GET ONE SIMBOL                       00100005
          MVC   &STR(1),&STR                                             00101004
          CLI   &STR,C'0'          *START SWITCH                         00110001
-         BNE   L1#&E1             *?????????????????????                00120005
+         BNE   L1#&E1                                                   00120005
          LA    R5,0                                                     00130006
          B     LGORNER#&E1                                              00140005
 L1#&E1   CLI   &STR,C'1'                                                00150005
@@ -79,14 +79,14 @@ LF#&E1   CLI   &STR,C'F'                                                00710005
          LA    R5,15                                                    00730006
          B     LGORNER#&E1      *END SWITCH;SIMBOL NOT FOUND=>ERROR     00740005
 LGORNER#&E1 EQU *                                                       00750006
-         CFI   R7,X'1'     *COMPARE RLENGTH WITH 1                      00760006
+         CFI   R7,X'1'          *COMPARE RLENGTH WITH 1                 00760006
          BE    LEND#&E1                                                 00770005
-         AR    R6,R5          *RSUM:=RSUM+RV                            00780006
-         SLA   R6,4           *RSUM:=RSUM*16                            00790006
+         AR    R6,R5            *RSUM:=RSUM+RV                          00780006
+         SLA   R6,4             *RSUM:=RSUM*16                          00790006
          MVC   &STR,&STR+1      *SHIFT LINE FOR ONE SIMBOL              00800001
-         BCTR  R7,0        *RLENGTH:=RLENGTH-1                          00810006
+         BCTR  R7,0             *RLENGTH:=RLENGTH-1                     00810006
          B     LSUM#&E1                                                 00820005
-LEND#&E1 AR    R6,R5          *LAST DIGIT WITHOUT MULTIPLY BY 16        00830006
+LEND#&E1 AR    R6,R5            *LAST DIGIT WITHOUT MULTIPLY BY 16      00830006
 LERROR#&E1 EQU *                                                        00840005
          LA    R5,16                                                    00850006
          MEND                                                           00860001
