@@ -1,0 +1,120 @@
+         GENREG                                                         00010000
+CONCOLE  CSECT                                                          00020000
+         RMODE ANY                                                      00020102
+         AMODE 31                                                       00020203
+         STM   R14,R12,12(R13)                   STORE REGISTERS        00021010
+         BASR  R12,0                             GET NEW CSECT OFFSET   00022010
+         USING *,R12                             USE IT                 00023010
+                                                                        00023116
+       GETMAIN R,LV=STORAGE_                     GET MAIN DATA SEGMENT  00023312
+         LR    R11,R1                            LOAD IT INTO R11       00023510
+         USING STORAGE,R11                       USE IT                 00023810
+                                                                        00023916
+       GETMAIN RU,LV=800,LOC=BELOW                GET OUTAREA ADDR      00024026
+         ST    R1,OUTAREA                                               00024116
+                                                                        00024210
+         ST    R13,SAVEAREA+4                                           00024314
+         LR    R2,R13                                                   00024414
+         LA    R13,SAVEAREA                                             00024514
+         ST    R13,8(R2)                                                00024630
+                                                                        00024725
+       MODESET KEY=ZERO,MODE=SUP                 BECOME SUPERVISOR      00024928
+                                                                        00025025
+         L     R2,DCBLNGBS                                              00025814
+       GETMAIN RU,LV=(R2),LOC=BELOW            GET MEMORY FOR DCB       00025918
+         LR    R10,R1                                                   00026014
+         USING IHADCB,R10                        SET R11 TO IHADCB      00026114
+         XR    R1,R1                                                    00026214
+         ST    R1,IHADCB                                                00026314
+         MVC   IHADCB+1(DCBLNGBS-1),IHADCB       ZERIONG DATA AREA      00026414
+         MVC   DCBDDNAM(8),OUTNAME               SET OUTPUT OPTIONS     00026714
+         OI    DCBMACR2,DCBMRPUT+DCBMRMVP                               00026814
+         OI    DCBDSORG,DCBDSGPS                                        00026914
+         OI    DCBOFLGS,DCBOFUEX                                        00027014
+         L     R1,=X'00000001'                                          00027114
+         ST    R1,DCBBUFCB                                              00027314
+         ST    R1,DCBIOBAD                                              00027614
+                                                                        00027719
+         OPEN  ((R10),OUTPUT)                                           00027819
+         XR    R1,R1                                                    00028119
+         LHI   R1,X'FF'                                                 00028219
+         ST    R1,MECB                           MECB:=FF               00028319
+*     TESTAUTH FCTN=1                                                   00028425
+       MCSOPER REQUEST=ACTIVATE,NAME=TESTCONS,CONSID=CID,              X00028625
+               TERMNAME=TESTTERM,                                      X00028724
+               MCSCSA=CSA,                                             X00028824
+               MCSCSAA=CSA,                                            X00028924
+               MSGECB=MECB                       ACTIVATE MCS CONS      00029024
+*        XR    R7,R7                                                    00029525
+*        LHI   R7,X'2'                                                  00029625
+                                                                        00029725
+         WTO   'OLOLO'                                                  00031127
+HANDLER  EQU   *                                 //LOOP HANDLER         00031225
+         WAIT  ECB=MECB                                                 00031325
+*        WTO   '1'                                                      00031428
+         SAC   512                                                      00031527
+      MCSOPMSG REQUEST=GETMSG,                                         X00031925
+               CONSID=CID                        GET MESSAGE            00032025
+*        WTO   '3'                                                      00032728
+         USING MDB,R1                            R9=MDB HEADER ADDR     00032827
+         AHI   R1,MDBHLEN                        R9:=NEX OBJ            00033628
+                                                                        00033728
+         USING MDBT,R1                           SWITCH USING TO MDBT   00034528
+         XR    R9,R9                                                    00034727
+         LH    R9,MDBTTYPE                       R9:=MDBTTYPE           00034828
+COMPARE  EQU   *                                                        00034926
+         C     R9,=X'00000004'                   IF R9=4 GOTO           00035028
+         BE    FOUNDED                           GOTO FOUNDED           00035126
+         AH    R1,MDBTLEN                        R1:=R1+BLKLEN          00035228
+         LH    R9,MDBTTYPE                       R9:=MDBTTYPE           00035328
+         B     COMPARE                           GOTO COMPARE           00035426
+FOUNDED  EQU   *                                                        00035526
+*        SAC   0                                                        00035628
+*        WTO   'OLOLO1'                                                 00035728
+         XR    R3,R3                                                    00035925
+         XR    R2,R2                                                    00036025
+         LH    R3,MDBTLEN                                               00036126
+         LHI   R2,MDBTMBOB                       R3:=MDBTMBOB;          00036328
+         SR    R3,R2                             R2:=MDBTLEN-R3         00036626
+                                                                        00036728
+         L     R5,OUTAREA                        R5:=OUTAREA ADDR       00037125
+         XR    R2,R2                                                    00037225
+         LHI   R2,X'1'                           R2:=1;                 00037325
+         XR    R9,R9                             R1:=0;                 00037427
+COPY     EQU   *                                 ////                   00037525
+         LB    R4,MDBTMSGT(R9)                   R4:=BYTE(MESSAGE[R1])  00037627
+         STC   R4,0(R5,R9)                       OUTAREA[R1]:=BYTE(R4)  00037727
+         BXLE  R9,R2,COPY                        ////                   00037827
+         SAC   0                                                        00037928
+         WTO   'OLOLO2'                                                 00038028
+         PUT   (R10),(R5)                                               00038128
+*        BCT   R7,HANDLER                        //                     00038228
+                                                                        00038325
+       MCSOPER REQUEST=DEACTIVATE,                                     X00038425
+               CONSID=CID                        DEACTIVATE MCS CONS    00038525
+                                                                        00038625
+       MODESET KEYADDR=PSWTEMP,WORKREG=2                                00038725
+                                                                        00038825
+         CLOSE ((R10))                                                  00038928
+         L     R13,4(R13)                                               00039025
+      FREEMAIN R,LV=STORAGE_,A=(R11)                                    00039125
+         LM    R14,R12,12(R13)                   RESTORE REGISTERS      00039225
+         XR    R15,R15                           RETURN CODE 00         00039325
+         BR    R14                               RETURN                 00039425
+         LTORG                                                          00039525
+TESTCONS DC    CL8'CONCOL01'                                            00039625
+TESTTERM DC    CL8'CONCOL01'                                            00039725
+OUTNAME  DC    CL8'OUTSET'                                              00039825
+         IEAVM105                                                       00039925
+         DCBD  DSORG=(BS),DEVD=(DA)                                     00040025
+                                                                        00040125
+STORAGE  DSECT                                                          00040225
+SAVEAREA DS    18F                                                      00040325
+OUTAREA  DS    1F                                                       00040425
+MECB     DS    1F                                                       00040525
+CSA      DS    1F                                                       00040625
+CID      DS    1F                                                       00040725
+PSWTEMP  DS    CL1                                                      00040821
+STORAGE_ EQU   *-SAVEAREA                                               00041013
+         END                                                            00050013
+
