@@ -1,5 +1,5 @@
          MACRO                                                          00010000
-         PREPDCB &PARM=PUT,&DDNAME,&RESULT                              00020002
+         PREPDCB &PARM=PUT,&DDNAME,&EODAD=NO,&RESULT
 *CHANGES R1,R2,R3,R4                                                    00021001
          GBLA  &E5                                                      00030000
          LCLA  &N                                                       00040000
@@ -50,7 +50,20 @@ SDNM&E5  EQU   *                                                        00240000
          OI    DCBOFLGS,DCBOFUEX                                        00490000
          L     R1,=X'00000001'                                          00500000
          ST    R1,DCBBUFCB                                              00510000
-         ST    R1,DCBIOBAD                                              00520000
+         ST    R1,DCBIOBAD
+
+         AIF   ('&EODAD' EQ 'NO').SKIPEOD
+         AIF   ('&EODAD'(1,1) EQ '(').REGEOD
+.FLDEOD  ANOP
+         LA    R1,&EODAD
+         ST    R1,DCBEODAD
+         AGO   .SKIPEOD
+.REGEOD  ANOP
+&N       SETA  K'&EODAD-2
+&TEMP    SETC  '&EODAD'(2,&N)
+         ST    &TEMP,DCBEODAD
+.SKIPEOD ANOP
+
          DROP  R4                                                       00530001
                                                                         00540000
          AIF   ('&RESULT'(1,1) EQ '(').REGRES                           00550000

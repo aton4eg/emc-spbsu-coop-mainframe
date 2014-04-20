@@ -5,9 +5,8 @@
          L     R13,&LABEL._OLD_SAVE                                     00050000
          ST    R0,&LABEL._SAVE_R0                                       00060000
          ST    R1,&LABEL._SAVE_R1                                       00070000
-      FREEMAIN R,LV=&LABEL._SAVELEN,A=(R2)                              00080000
          LCLC  &TEMP                                                    00090000
-         LCLA  &LENGTH                                                  00100000
+         LCLA  &LENGTH
 &TEMP    SETC  '&RC'                                                    00110000
 &LENGTH  SETA  K'&RC                                                    00120000
          AIF   ('&TEMP'(1,1) EQ '(').REGISTR                            00130000
@@ -34,7 +33,9 @@
          L     R15,&TEMP                                                00340000
          AGO   .EXIT                                                    00350000
                                                                         00360000
-.EXIT    ST    R15,&LABEL._SAVE_R15                                     00370000
+.EXIT    ANOP
+         ST    R15,&LABEL._SAVE_R15                                     00370000
+      FREEMAIN R,LV=&LABEL._SAVELEN,A=(R2)
          LM    R14,R12,12(R13)                                          00380000
 *        USING *,R12                                                    00390003
          DROP  R13                                                      00400000
