@@ -1,0 +1,4 @@
+ ANONYMOUSLEVEL 3                                                       00020000
+ ANONYMOUSFILEACCESS HFS                                                00030000
+ FTPLOGGING TRUE                                                        00040000
+ STARTDIRECTORY HFS                                                     00050000

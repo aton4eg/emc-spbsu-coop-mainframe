@@ -1,0 +1,184 @@
+                                                                        00040121
+         GENREG                                                         00040221
+         MACRO                                                          00040322
+         PREPAREDCB &PARM=PUT,&DDNAME,&RESULT                           00040422
+         GBLA  &E5                                                      00040522
+         LCLA  &N                                                       00040622
+         LCLC  &TEMP                                                    00040722
+&E5      SETA  &E5+1                                                    00040822
+*CHANGES R1,R2,R3,R11                                                   00040922
+         AIF   ('&DDNAME'(1,1) EQ '''').CONSTDD                         00041022
+         AIF   ('&DDNAME'(1,1) EQ '(').REGDD                            00041122
+*ELSE   FLD                                                             00041222
+.FLDDD   ANOP                                                           00041322
+         LA    R3,&DDNAME                                               00041422
+         AGO   .NXT5                                                    00041522
+                                                                        00041622
+.REGDD   ANOP                                                           00041722
+&N       SETA  K'&DDNAME-2                                              00041822
+&TEMP    SETC  '&DDNAME'(2,&N)                                          00041922
+         LR    R3,&TEMP                                                 00042022
+         AGO   .NXT5                                                    00042122
+                                                                        00042222
+.CONSTDD ANOP                                                           00042322
+         B     SDNM&E5                                                  00042422
+DNM&E5   DC    CL8&DDNAME                                               00042522
+SDNM&E5  EQU   *                                                        00042622
+         LA    R3,DNM&E5                                                00042722
+                                                                        00042822
+.NXT5    ANOP                                                           00042922
+                                                                        00043022
+         L     R2,DCBLNGBS                                              00043122
+       GETMAIN RU,LV=(R2),LOC=BELOW              GET MEMORY FOR DCB     00043222
+         LR    R11,R1                                                   00043322
+         USING IHADCB,R11                        SET R11 TO IHADCB      00043422
+                                                                        00043522
+         XR    R1,R1                                                    00043622
+         ST    R1,IHADCB                                                00043722
+         MVC   IHADCB+1(DCBLNGBS-1),IHADCB       ZERIONG DATA AREA      00043822
+                                                                        00043922
+         MVC   DCBDDNAM(8),0(R3)                 SET DDNAME             00044022
+                                                                        00044122
+         AIF   ('&PARM' NE 'PUT').NXT1                                  00044222
+         OI    DCBMACR2,DCBMRPUT+DCBMRMVP        PUT                    00044322
+.NXT1    AIF   ('&PARM' NE 'GET').NXT2                                  00044422
+         OI    DCBMACR1,DCBMRGET+DCBMRMVG        GET                    00044522
+.NXT2    ANOP                                                           00044622
+                                                                        00044722
+         OI    DCBMACR1,DCBMRGET+DCBMRMVG        OTHER FLAGS            00044822
+         OI    DCBDSORG,DCBDSGPS                                        00044922
+         OI    DCBOFLGS,DCBOFUEX                                        00045022
+         L     R1,=X'00000001'                                          00045122
+         ST    R1,DCBBUFCB                                              00045222
+         ST    R1,DCBIOBAD                                              00045322
+         DROP  R11                                                      00045422
+                                                                        00045522
+         AIF   ('&RESULT'(1,1) EQ '(').REGRES                           00045622
+*ELSE   FLD                                                             00045722
+.FLDRES  ANOP                                                           00045822
+         ST    R11,&RESULT                                              00045922
+         AGO   .NXT6                                                    00046022
+                                                                        00046122
+.REGRES  ANOP                                                           00046222
+&N       SETA  K'&RESULT-2                                              00046322
+&TEMP    SETC  '&RESULT'(2,&N)                                          00046422
+         LR    &TEMP,R11                                                00046522
+.NXT6    ANOP                                                           00046622
+                                                                        00046722
+         MEND                                                           00046822
+                                                                        00046922
+                                                                        00047022
+         MACRO                                                          00047122
+         CREATERECB &RESULT,&CHAIN                                      00047222
+         GBLA  &E4                                                      00047322
+&E4      SETA  &E4+1                                                    00047422
+         LCLC  &CHAIN_                                                  00047522
+         LCLC  &RESULT_                                                 00047622
+         LCLA  &CF                                                      00047722
+         LCLA  &RF                                                      00047822
+                                                                        00047922
+         AIF   ('&RESULT'(1,1) EQ '(').REGRSLT                          00048022
+*ELSE FLD                                                               00048122
+.FLDRSLT ANOP                                                           00048222
+&RESULT_ SETC  'R5'                                                     00048322
+&RF      SETA  1                                                        00048422
+         AGO   .NXT3                                                    00048522
+                                                                        00048622
+.REGRSLT ANOP                                                           00048722
+&N       SETA  K'&RESULT-2                                              00048822
+&RESULT_ SETC  '&RESULT'(2,&N)                                          00048922
+                                                                        00049022
+.NXT3    AIF   ('&CHAIN'(1,1) EQ '(').REGCHN                            00049122
+*ELSE FLD                                                               00049222
+.FLDCHN  ANOP                                                           00049322
+&CHAIN_  SETC  'R3'                                                     00049422
+&CF      SETA  1                                                        00049522
+         L     R3,&CHAIN                                                00049622
+         AGO   .NXT4                                                    00049722
+                                                                        00049822
+.REGCHN  ANOP                                                           00049922
+&N       SETA  K'&CHAIN-2                                               00050022
+&CHAIN_  SETC  '&CHAIN'(2,&N)                                           00050122
+                                                                        00050222
+.NXT4    ANOP                                                           00050322
+         L     R2,SZRECB                                                00050422
+       GETMAIN R,LV=(R2)                                                00050522
+                                                                        00050622
+         C     &CHAIN_,=X'00000000'                                     00050722
+         BE    NCH#7&E4             IF CHAIN<>0                         00050822
+                                                                        00050922
+         LR    R3,&CHAIN_           SET ADDRESSABITILY TO CHAIN         00051022
+         USING RECB,R3                                                  00051122
+                                                                        00051222
+LP#7&E4  EQU   *                                                        00051322
+         LR    R4,R3                                                    00051422
+         L     R3,NEXT@                                                 00051522
+         C     R3,=X'00000000'                                          00051622
+         BNE   LP#7&E4              FIND LAST BLOCK                     00051722
+                                                                        00051822
+         LR    R3,R4                                                    00051922
+         ST    R2,NEXT@                                                 00052022
+         LR    &RESULT_,R2                                              00052122
+NCH#7&E4 EQU   *                    ELSE CREATE CHAIN                   00052222
+         LR    &CHAIN_,R2                                               00052322
+                                                                        00052422
+         AIF   (&RF EQ 0).NXT1                                          00052522
+         ST    &RESULT_,&RESULT                                         00052622
+.NXT1    AIF   (&CF EQ 0).NXT2                                          00052722
+         ST    &CHAIN_,&CHAIN                                           00052822
+.NXT2    ANOP                                                           00052922
+         MEND                                                           00053022
+                                                                        00053122
+MYPROGRM CSECT                                                          00053222
+*PROC MACRO SYSTEM MACRO INITIALIZATION                                 00053322
+         GBLC  &CSECT                                                   00053422
+         GBLC  &CURPROC                                                 00053522
+&CSECT   SETC  'MYPROGRM'                                               00053622
+&CURPROC SETC  ''                                                       00053722
+                                                                        00053822
+         STM   R14,R12,12(R13)                                          00053922
+         BASR  R12,0                                                    00054022
+         USING *,R12                                                    00054122
+         LR    R2,R13                                                   00054222
+         ST    R13,SAVEAREA+4                                           00054322
+         LA    R13,SAVEAREA                                             00055000
+         ST    R13,8(R2)                                                00060000
+                                                                        00060107
+*LALA    PROCBGN                                                        00060214
+*        WTO   'LALALA'                                                 00060314
+*LALA    PROCEND RC=(R15)                                               00060414
+         LR    R6,R1                                                    00060517
+         LA    R5,NAME                                                  00060622
+    PREPAREDCB PARM=PUT,NAME,(R10)                                      00060722
+         OPEN  ((R10),OUTPUT)                                           00060822
+         PUT   (R10),TEST2                                              00060922
+         CLOSE ((R10))                                                  00070022
+         L     R13,4(R13)                                               00080001
+         LM    R14,R12,12(R13)                                          00090001
+         BR    R14                                                      00100001
+         LTORG                                                          00100201
+SAVEAREA DS    18F                                                      00100301
+OUT      DCB   DDNAME=OUTSET,MACRF=PM,DSORG=PS                          00101004
+IN       DCB   DDNAME=INSET,MACRF=GM,DSORG=PS                           00101104
+         DS    F                                                        00101209
+TEMPAREA DS    XL98                                                     00101305
+SD       DS    XL18                                                     00101405
+NAME     DC    CL8'OUTSET  '                                            00101522
+TEST     DC    CL255'OLOLO'                                             00101615
+         DC    CL255'OLOLO'                                             00101715
+TEST2    DC    CL255'OLOLH'                                             00101815
+         DC    CL255'OLOLH'                                             00101915
+RECORD   DC    CL8'OLOLOSHA'                                            00102015
+*       DSTACK                                                          00102115
+SZRECB   DC    X'00000040'                                              00102222
+RECB@    DS    F                                                        00102322
+         DCBD  DSORG=(BS),DEVD=(DA)                                     00102422
+RECB     DSECT                                                          00102522
+LENGTH   DS    F                                                        00102622
+POS      DS    F                                                        00102722
+NEXT@    DS    F                                                        00102822
+ID@      DS    F                                                        00102922
+OFFSET   DS    FD                                                       00103022
+INSTR    DS    FD                                                       00103122
+RECB#    EQU   *-OFFSET                                                 00104022
+         END                                                            00110001

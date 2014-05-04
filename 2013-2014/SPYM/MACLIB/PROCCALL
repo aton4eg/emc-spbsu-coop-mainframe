@@ -1,0 +1,11 @@
+         MACRO                                                          00001400
+         PROCCALL &NAME=TEMP,&REG                                       00001500
+         LCLA  &N                                                       00001600
+         LCLC  &NAME_                                                   00001700
+&N       SETA  K'&REG-2                                                 00001800
+&REG_    SETC  '&REG'(2,&N)                                             00001900
+         LR    &REG_,R14                                                00002000
+         L     R15,=A(&NAME)                                            00002109
+         BASR  R14,R15                                                  00002209
+         LR    R14,&REG_                                                00002309
+         MEND                                                           00002409

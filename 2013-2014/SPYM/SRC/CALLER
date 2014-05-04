@@ -1,0 +1,512 @@
+                                                                        00001017
+         GENREG                                                         00010000
+         MACRO                                                          00010119
+      TEXTUNIT &UTYPE=DISP,&PARM=SHR,&PARMLENGTH=X'0001',&LAST=FALSE    00010220
+*CHANGES R1,R2,R3 RETURNS S99TXTP IN R8                                 00010321
+*DYNAMICALLY YOU CAN PASS ONLY DATASET NAME OR MEMBER NAME              00010419
+         GBLA  &E3                                                      00010521
+&E3      SETA  &E3+1                                                    00010621
+         LCLA  &N                                                       00010720
+         LCLC  &PARMLENGTH_                                             00010820
+         LCLC  &PARM_                                                   00010921
+                                                                        00011020
+         AIF   ('&PARMLENGTH'(1,1) EQ '=').LITLEN                       00012120
+         AIF   ('&PARMLENGTH'(1,1) EQ 'X').SYMLEN                       00012220
+         AIF   ('&PARMLENGTH'(1,1) EQ '(').REGLEN                       00012320
+*ALSO IF FLD DO THE SAME AS LITERAL                                     00012420
+.LITLEN  ANOP                                                           00012620
+&PARMLENGTH_ SETC 'R2'                                                  00012720
+         L     R2,&PARMLENGTH                                           00012821
+                                                                        00012920
+.SYMLEN  ANOP                                                           00013020
+&PARMLENGTH_ SETC 'R2'                                                  00013120
+         LHI   R2,&PARMLENGTH                                           00013221
+                                                                        00013320
+.REGLEN  ANOP                                                           00013420
+&N       SETA  K'&PARMLENGTH-1                                          00013520
+&PARMLENGTH_ SETC '&PARMLENGTH'(2,&N)                                   00013620
+                                                                        00013720
+       GETMAIN R,LV=(&PARMLENGTH)                                       00013820
+                                                                        00013920
+         LR    R8,R1                                                    00014020
+         USING S99TUNIT,R8                                              00014120
+                                                                        00014220
+         XR    R1,R1                                                    00014320
+         AIF   (&UTYPE NE 'DISP').NXT1                                  00014420
+         LHI   R1,DALSTATS                                              00014520
+         STH   R1,S99TUKEY             DISP   KEY SETTED                00014620
+         AGO   .NXT4                                                    00014720
+                                                                        00014820
+.NXT1    AIF   (&UTYPE EQ 'DSNAME').NXT2                                00014920
+         LHI   R1,DALDSNAM                                              00015020
+         STH   R1,S99TUKEY             DSNAME KEY SETTED                00015120
+         AGO   .NXT4                                                    00015220
+                                                                        00015320
+.NXT2    AIF   (&UTYPE EQ 'DDNAME').NXT3                                00015420
+         LHI   R1,DALDDNAM                                              00015520
+         STH   R1,S99TUKEY             DDNAME KEY SETTED                00015620
+         AGO   .NXT4                                                    00015720
+                                                                        00015820
+.NXT3    AIF   (&UTYPE EQ 'MEMBER').NXT4                                00015920
+         LHI   R1,DALMEMBR                                              00016020
+         STH   R1,S99TUKEY             MEMBR  KEY SETTED                00016120
+                                                                        00016220
+.NXT4    ANOP                                                           00016320
+                                                                        00016420
+         AIF   ('&PARM'(1,1) EQ '(').REGPARM                            00016521
+         AIF   ('&PARM'(1,1) EQ '''').CONSTPARM                         00016621
+*ELSE FLD PARM                                                          00016721
+         LA    R3,&PARM                                                 00016821
+&PARM_   SETC  'R3'                                                     00016921
+         AGO   .ENDPARM                                                 00017021
+                                                                        00017121
+.REGPARM ANOP                                                           00017221
+&N       SETA  K'&PARM-2                                                00017321
+&PARM_   SETC  &PARM(2,&N)                                              00017421
+         AGO   .ENDPARM                                                 00017521
+                                                                        00017621
+.CONSTPARM ANOP                                                         00017721
+&N       SETC  K'&PARMLENGTH-3                                          00017821
+&PARMLENGTH_ SETC '&PARMLENGTH_'(3,&N)                                  00017921
+TEMP&E3  DC    CL&PARMLENGTH_.&PARM                                     00018021
+         LA    R3,TEMP&E3                                               00018121
+&PARMLENGTH_ SETC 'R2'                                                  00018221
+&PARM_   SETC  'R3'                                                     00018321
+                                                                        00018421
+.ENDPARM ANOP                                                           00018521
+                                                                        00018621
+         XR    R1,R1                                                    00018721
+         LHI   R1,X'0001'                                               00018821
+         STH   R1,S99TUNUM                                              00018921
+                                                                        00019021
+         ST    &PARMLENGTH_,S99TULNG                                    00019121
+                                                                        00019221
+         B     S&E3                                                     00019321
+SND&E3   MVC   S99TUPAR(0),0(&PARM_)                                    00019421
+S&E3     EX    R2,SND&E3                                                00019521
+         AIF   ('&LAST' EQ 'FALSE').ENDING                              00019621
+         O     R8,=X'80000000'                                          00019721
+.ENDING  ANOP                                                           00019821
+         MEND                                                           00019921
+                                                                        00020019
+CALLER   CSECT                                                          00020100
+                                                                        00020217
+         AMODE 31                                                       00021000
+         RMODE ANY                                                      00022000
+         B     STARTC                                                   00023017
+                                                                        00023117
+DALLOC   PROCBGN                                                        00024017
+*R0 ADDR OF PARM AREA, R1 -                                             00024117
+       GETMAIN R,LV=20                 GET MEMORY FOR S99RB             00024617
+         LR    R10,R1                  R10:=R1                          00024717
+         USING S99RB,R10               S99RB~R10                        00024819
+                                                                        00024917
+         ST    R1,RB@                  RB@:=R1                          00025017
+                                                                        00025118
+         XR    R1,R1                                                    00025419
+         LHI   R1,X'0020'                                               00025519
+         ST    R1,S99RBLN              SET S99RB LENGTH                 00025619
+                                                                        00025719
+         OI    S99VERB,S99VRBAL        SET ACTION ALLOCATE              00025819
+                                                                        00025919
+         L     R3,TXTPL@               R3:=TXT POINTER LIST LENGTH      00026019
+                                                                        00026119
+       GETMAIN R,LV=(R3)               GET MEMORY FOR TEXT POINTER LIST 00026219
+         LR    R9,R1                   S99TXTP~R9                       00026319
+                                                                        00026418
+         ST    R9,S99TXTPP             SET TEXT POINTER LIST            00026519
+                                                                        00026621
+         B     SCTB&E3                                                  00026721
+RIGHT    DC    CL1'00'                                                  00026821
+         DC    CL1')'                                                   00026921
+COMMA    DC    CL1'00'                                                  00027021
+         DC    CL1','                                                   00027121
+SCANTAB  DC    256X'00'            SCANTAB SET                          00027221
+         ORG   SCANTAB+C')'                                             00027321
+         DC    C')'                                                     00027421
+         ORG   SCANTAB+C','                                             00027521
+         DC    C','                                                     00027621
+         ORG                                                            00027721
+SCTB&E3  EQU   *                                                        00027821
+                                                                        00027921
+         TRT   0(0,R0),SCANTAB     GET IN R1 ADDR OF )                  00028021
+         LR    R5,R1                                                    00028121
+                                                                        00028219
+      TEXTUNIT UTYPE=DISP,PARM=SHR,PARMLENGTH=X'0001',LAST=FALSE        00028321
+         ST    R8,4(R9)                                                 00028419
+                                                                        00028519
+      TEXTUNIT UTYPE=DSNAME,PARM=(R0),PARMLENGTH=(R5),LAST=FALSE        00028721
+         ST    R8,8(R9)                                                 00028819
+                                                                        00028919
+      TEXTUNIT UTYPE=DDNAME,PARM='TESTDD',PARMLENGTH=X'0006',LAST=TRUE  00029021
+         ST    R8,12(R9)                                                00029121
+                                                                        00029221
+       GETMAIN R,LV=4                                                   00029321
+         ST    R10,0(R1)                                                00029421
+         DYNALLOC ,                                                     00029521
+      FREEMAIN R,LV=4,A=(R1)                                            00029621
+DALLOC   PROCEND                                                        00030117
+                                                                        00030217
+STARTC   STM   R14,R12,12(R13)         SAVE REGISTERS                   00030317
+                                                                        00031000
+         BASR  R12,0                                                    00040000
+         USING *,R12                   SET R12 CALLER BASE              00050000
+                                                                        00060000
+         LR    R3,R1                   R3:=PARAM ADDRESS                00061003
+                                                                        00062001
+       GETMAIN R,LV=STORAGE_                                            00070000
+         LR    R11,R1                                                   00071000
+         USING STORAGE,R11             SET R11 STORAGE BASE             00072000
+                                                                        00072103
+         L     R3,0(R3)                                                 00072209
+         XR    R1,R1                                                    00072410
+         LH    R1,0(R3)                                                 00072510
+         ST    R1,PARM@                PARM@:=PARM LENGTH               00072610
+         A     R3,=X'00000002'         MOVE TO LENGTH                   00072710
+         ST    R3,PARM                 PARM:=R3                         00072810
+                                                                        00073000
+         ST    R13,SAVEAREA+4                                           00074000
+         LR    R2,R13                                                   00075000
+         LA    R13,SAVEAREA                                             00076000
+         ST    R13,8(R2)               SET NEW SAVEAREA                 00077000
+                                                                        00077115
+         L     R1,CSPACE                                                00077215
+         STC   R1,MEMBR                                                 00077315
+         MVC   MEMBR+1(7),MEMBR                                         00077415
+*ALLOCATE                                                               00077504
+         XR    R2,R2                                                    00077603
+         LB    R2,=X'14'               R2:=20 - LENGTH FOR SIMPLE S99RB 00077710
+                                                                        00077904
+       GETMAIN R,LV=(R2)               GET MEMORY FOR S99RB             00078003
+                                                                        00078103
+         ST    R1,RB@                  S99RB:=R1                        00078203
+                                                                        00078303
+         LR    R10,R1                                                   00078403
+         USING S99RB,R10               LET'S USE R10 AS BASE FOR S99RB  00078503
+                                                                        00078606
+         OPEN  (OUT,OUTPUT)            DEBUG DATASET                    00078706
+         L     R1,CSPACE                                                00078815
+      PUTINTNR OUT,(R1)                                                 00078915
+         XR    R1,R1                                                    00079003
+         ST    R1,0(R10)                                                00079103
+         ST    R1,4(R10)                                                00079203
+         ST    R1,8(R10)                                                00079303
+         ST    R1,12(R10)                                               00079410
+         ST    R1,16(R10)              ZEROING S99RB                    00079510
+                                                                        00079605
+         STC   R2,S99RBLN              STORE LENGTH                     00079710
+         OI    S99VERB,S99VRBAL        SET ACTION ALLOCATE              00079805
+                                                                        00079905
+         L     R3,TXTPL@               R3:=TXT POINTER LIST LENGTH      00080010
+                                                                        00080104
+       GETMAIN R,LV=(R3)               GET MEMORY FOR TEXT POINTER LIST 00080203
+         LR    R9,R1                                                    00080304
+*======================================================                 00080403
+         USING S99TUNIT,R8                            =                 00080503
+         XR    R5,R5                                  =                 00080610
+         LHI   R5,X'0001'                             =                 00080712
+         XR    R1,R1                                  =                 00080812
+                                                                        00080910
+         XR    R4,R4                                  =                 00081003
+         L     R6,=X'00000004'                        =                 00081103
+         L     R7,TXTPLC@                             =                 00081210
+*======================================================                 00081303
+TXTCR    EQU   *                                      =                 00081403
+       GETMAIN R,LV=TXTU@              CREATE TXTUNIT =                 00081510
+         ST    R1,0(R4,R9)             STORE TO LIST  =                 00081610
+         LR    R8,R1                                  =                 00081712
+                                                                        00081803
+         STH   R5,S99TUNUM             S99TUNUM:=0001 =                 00082110
+         STC   R1,S99TUPAR                            =                 00082212
+         MVC   S99TUPAR+1(43),S99TUPAR PARM ZERIONG   =                 00082312
+                                                                        00082403
+         BXLE  R4,R6,TXTCR                            =                 00082603
+*======================================================                 00082703
+         L     R1,8(R9)                                                 00082813
+         O     R1,=X'80000000'                                          00082907
+         ST    R1,8(R9)               SET END OF LIST                   00083013
+                                                                        00083106
+         ST    R9,S99TXTPP             STORE TXT LIST POINTER           00083210
+                                                                        00083313
+*NOW LET'S MAKE OPTIONS                                                 00083403
+         XR    R1,R1                                                    00083610
+         L     R8,8(R9)                DISP=SHR                         00084710
+         LHI   R1,DALSTATS                                              00084904
+         STH   R1,S99TUKEY             STATUS KEY SETTED                00085010
+         LB    R1,SHR                                                   00085205
+         STC   R1,S99TUPAR             SHR SET                          00085310
+         LH    R1,=X'0001'                                              00085407
+         STH   R1,S99TULNG             SET LENGTH                       00085510
+*=========================================================              00085710
+         XR    R1,R1                                                    00085910
+         L     R8,12(R9)               MEMBER=(...)                     00086710
+         LHI   R1,DALMEMBR                                              00086807
+         STH   R1,S99TUKEY             MEMBER KEY SETTED                00086910
+                                                                        00087013
+         L     R2,PARM                 MEMBR NAME                       00087207
+         L     R1,PARM@                                                 00087410
+         S     R1,=X'00000001'                                          00087510
+         C     R1,=X'00000003'         IF R1<2 THEN PARFALSE            00087610
+         BL    PARFALSE                                                 00087710
+         XR    R3,R3                                                    00087910
+                                                                        00088013
+PARTH    EQU   *                                                        00088110
+         LB    R3,0(R1,R2)                                              00088210
+*        LHI   R5,CPARTH                                                00088315
+*     PUTINTNR OUT,(R5)                                                 00088415
+*        CLOSE (OUT)                                                    00088515
+         C     R3,=X'0000004D'        IF R3=(                           00088615
+         BE    PARTRUE                                                  00088710
+         BCT   R1,PARTH                                                 00088810
+                                                                        00088912
+         B     PARFALSE                                                 00089010
+PARTRUE  EQU   *                                                        00089110
+*        L     R5,CPARTH                                                00089215
+*     PUTINTNR OUT,(R5)                                                 00089315
+*====================================                                   00089410
+         ST    R1,PARENTH           =  PARENTH:=( POSITION              00089510
+         A     R1,=X'00000001'      =  R1:=SYMBOL AFTER ( POSITION      00089610
+         L     R6,=X'00000001'      =  R6:=1 INCREMENT                  00089710
+         L     R7,PARM@             =                                   00089810
+         S     R7,=X'00000002'      =  R7:=SYMBOL BEFORE ) POSITION     00089910
+                                                                        00090110
+         LR    R5,R7                =                                   00090210
+         SR    R5,R1                =                                   00090310
+         A     R5,=X'00000001'      =  R5:=MEMBER NAME LENGTH           00090410
+         ST    R5,MEMBR@            =                                   00090513
+                                                                        00090610
+         XR    R15,R15              =                                   00090710
+         XR    R3,R3                =                                   00090812
+                                                                        00090910
+COPY1    EQU   *                    =                                   00091010
+         LB    R3,0(R1,R2)          =                                   00091110
+         STC   R3,S99TUPAR(R15)     =  SAVE TO S99TUPAR                 00091212
+         STC   R3,MEMBR(R15)           SAVE TO MEMBR                    00091312
+         A     R15,=X'00000001'     =                                   00091410
+         BXLE  R1,R6,COPY1          =                                   00091510
+         B     CONT1                =                                   00091612
+*====================================                                   00091710
+PARFALSE EQU   *                                                        00091810
+         WTO   'ERROR MEMBER NAME'                                      00091910
+         B     ERROR                                                    00092010
+CONT1    EQU   *                                                        00092110
+                                                                        00092213
+*        MVC   S99TUPAR(5),18(R2)      SET MEMBER NAME                  00092310
+*        LH    R1,=X'0005'                                              00092410
+         STH   R5,S99TULNG             LENGTH SET                       00092510
+         PUT   OUT,S99TUPAR                                             00092610
+*=========================================================              00092710
+         XR    R1,R1                   DDNAME=...                       00092810
+         L     R8,0(R9)                                                 00092908
+         LHI   R1,DALDDNAM                                              00093004
+         STH   R1,S99TUKEY             DDNAME KEY SETTED                00093110
+         MVC   S99TUPAR(6),DDNAME      DDNAME SETTED                    00093210
+         L     R1,DDNAME@                                               00093310
+         STH   R1,S99TULNG             LENGTH SETTED                    00093410
+*=========================================================              00093510
+         XR    R1,R1                                                    00093610
+         L     R8,4(R9)                DSNAME=...                       00093710
+         LHI   R1,DALDSNAM                                              00093807
+         STH   R1,S99TUKEY             DSN KEY SET                      00093910
+                                                                        00094010
+*===========================================                            00094110
+         L     R2,PARM                     =   R2->PARM                 00094210
+         L     R6,=X'00000001'             =   STEP                     00094310
+         L     R7,PARENTH                  =                            00094410
+         S     R7,=X'00000001'             =   R7:=PARENTH POSITION-1   00094510
+         ST    R7,DSNAME@                                               00094612
+         XR    R1,R1                       =   R1 COUNTER               00094710
+         XR    R3,R3                                                    00094810
+                                                                        00094910
+COPY2    EQU   *                           =                            00095010
+         LB    R3,0(R1,R2)                 =                            00095112
+         STC   R3,S99TUPAR(R1)             =                            00095210
+         STC   R3,DSNAME(R1)               =                            00095312
+         BXLE  R1,R6,COPY2                 =                            00095412
+*===========================================                            00095512
+                                                                        00095612
+                                                                        00095712
+                                                                        00095812
+*        MVC   S99TUPAR(14),2(R2)      DSNAME SET                       00095912
+*        LH    R1,=X'0014'                                              00096012
+*        SHT   R1,S99TULNG             LENGTH SETTED                    00096112
+         L     R1,PARENTH                                               00096212
+         STH   R1,S99TULNG                                              00096312
+         PUT   OUT,S99TUPAR                                             00096412
+                                                                        00096512
+*ALLOCATE END                                                           00097012
+*        L     R8,0(R9)                                                 00097112
+*        LH    R1,DALDDNAM                                              00097212
+*        STH   R1,S99TYKEY                                              00097312
+*        MVC   S99TUPAR(26),DDNAME                                      00097412
+         WTO   'BEFORE DYNALL'                                          00097512
+       GETMAIN R,LV=4                 CREATE POINTER BLOCK              00097612
+         ST    R1,PBLOCKA                                               00097712
+         LR    R2,R10                                                   00097812
+         O     R2,=X'80000000'          SET END OF POINTER BLOCK        00097912
+         ST    R2,0(R1)                                                 00098012
+*        LR    R1,R10                                                   00098112
+      DYNALLOC ,                                                        00098212
+ERROR    LR    R2,R15                                                   00098312
+*     PUTINTNR OUT,(R2)                 DEBUG INFO                      00098415
+*        XR    R2,R2                                                    00098515
+*        LB    R2,S99VERB                                               00098615
+*     PUTINTNR OUT,(R2)                 DEBUG INFO                      00098715
+*        XR    R2,R2                                                    00098815
+*        LH    R2,S99ERROR                                              00098915
+*     PUTINTNR OUT,(R2)                 DEBUG INFO                      00099015
+*        XR    R1,R1                                                    00099115
+*        LH    R1,S99INFO                                               00099215
+*     PUTINTNR OUT,(R1)                 DEBUG INFO                      00099315
+*        CLOSE (OUT)                                                    00099413
+         OPEN  (TESTDCB,INPUT)                                          00099514
+*==================================                                     00099612
+         L     R2,=X'00000008'                                          00099715
+                                                                        00099813
+       GETMAIN R,LV=80                                                  00099914
+         LR    R8,R1                                                    00100012
+         ST    R8,LIST                                                  00100112
+                                                                        00100213
+         XR    R1,R1                                                    00100312
+         ST    R1,0(R8)                                                 00100413
+         MVC   1(79,R8),0(R8)                                           00100514
+         LHI   R1,X'0001'                                               00100612
+         STH   R1,0(R8)                                                 00100712
+                                                                        00100813
+         L     R1,=X'0000004C'                                          00100914
+         STH   R1,2(R8)                                                 00101012
+                                                                        00101112
+         LR    R3,R2                                                    00101212
+         S     R3,=X'00000001'                                          00101313
+         L     R2,=X'00000001'                                          00101412
+         XR    R1,R1                                                    00101512
+                                                                        00101612
+COPY3    EQU   *                                                        00101712
+         LB    R4,MEMBR(R1)                                             00101812
+         STC   R4,4(R1,R8)                                              00101913
+         BXLE  R1,R2,COPY3                                              00102012
+                                                                        00102115
+         PUT   OUT,(R8)                                                 00103313
+      PUTINTNR OUT,(R3)                                                 00103414
+*        CLOSE (OUT)                                                    00103514
+*==================================                                     00103612
+         LA    R2,TESTDCB                                               00103714
+         BLDL  (R2),(R8)                                                00103814
+      PUTINTNR OUT,(R15)                                                00103914
+         PUT   OUT,(R8)                                                 00104015
+         CLOSE (OUT)                                                    00104114
+                                                                        00104214
+*        LOAD  EP=KDKDK,DCB=TESTDCB,ERRET=ERROL                         00104316
+         A     R8,=X'00000004'                                          00104415
+         LOAD  DE=(R8),DCB=TESTDCB,ERRET=ERROL                          00104516
+         LR    R15,R0                                                   00104612
+         CALL  (15)                                                     00104712
+         B     NERROL                                                   00104812
+*        LHI   R1,X'FF'                                                 00104912
+*     PUTINTNR TESTDCB,(R1)                                             00105012
+ERROL    EQU   *                                                        00105112
+         WTO   'LOAD ERROR'                                             00105212
+NERROL   EQU   *                                                        00105312
+         WTO   'OK'                                                     00105412
+         CLOSE (TESTDCB)                                                00105512
+                                                                        00105612
+*DEALLOCATE                                                             00105712
+         XR    R2,R2                                                    00105812
+         LB    R2,=X'14'                                                00105912
+                                                                        00106012
+       GETMAIN R,LV=(R2)               GET MEMORY FOR S99RB             00106112
+                                                                        00106212
+         ST    R1,RB@                  S99RB:=R1                        00106312
+                                                                        00106412
+         LR    R10,R1                                                   00106512
+                                                                        00106612
+         XR    R1,R1                                                    00106712
+         ST    R1,0(R10)                                                00106812
+         ST    R1,4(R10)                                                00106912
+         ST    R1,8(R10)                                                00107012
+         ST    R1,12(R10)              ZEROING                          00107112
+         ST    R1,16(R10)              ZEROING                          00107212
+                                                                        00107312
+         ST    R2,S99RBLN              STORE LENGTH                     00107412
+         OI    S99VERB,S99VRBUN        SET ACTION DEALLOCATE            00107512
+                                                                        00107612
+         XR    R3,R3                                                    00107712
+         LB    R3,=X'04'                                                00107812
+                                                                        00107912
+       GETMAIN R,LV=(R3)               GET MEMORY FOR TEXT POINTER LIST 00108012
+         LR    R9,R1                                                    00108112
+                                                                        00108212
+       GETMAIN R,LV=TXTU@                                               00108312
+         O     R1,=X'80000000'                                          00108412
+         ST    R1,0(R9)                                                 00108512
+         LR    R8,R1                                                    00108612
+                                                                        00108712
+         XR    R1,R1                                                    00108812
+                                                                        00108912
+         LHI   R1,X'0001'              ONE                              00109012
+         STH   R1,S99TUNUM                                              00109112
+                                                                        00109212
+         LHI   R1,DALDDNAM             SET KEY DDNAME                   00109312
+         STH   R1,S99TUKEY                                              00109412
+                                                                        00109512
+         L     R1,DDNAME@              LENGTH                           00109612
+         STH   R1,S99TULNG                                              00109712
+                                                                        00109812
+         MVC   S99TUPAR(6),DDNAME      DDNAME                           00109912
+                                                                        00110012
+       GETMAIN R,LV=4                                                   00110112
+         ST    R1,PBLOCKD                                               00110212
+         LR    R2,R10                                                   00110312
+         O     R2,=X'80000000'                                          00110412
+         ST    R2,0(R1)                                                 00110512
+      DYNALLOC ,                                                        00110612
+*END OF DYNALLOC                                                        00110712
+                                                                        00110812
+         L     R13,4(R13)              RESTORE SAVEAREA                 00110912
+                                                                        00111012
+*     FREEMAIN R,LV=10,A=RB@                                            00111112
+*     FREEMAIN R,LV=STORAGE_,A=(R11)   DELETE STORAGE                   00111212
+                                                                        00111312
+         LM    R14,R12,12(R13)         RESTORE REGISTERS                00111412
+                                                                        00111512
+         XR    R15,R15                                                  00111612
+         BR    R14                     QUIT                             00111712
+                                                                        00111812
+         LTORG                                                          00111912
+TEST     DC    CL4'00000000'                                            00112015
+CPARTH   DC    CL3'000000'                                              00112115
+         DC    C'('                                                     00112215
+CSPACE   DC    CL3'000000'                                              00112315
+         DC    C' '                                                     00112415
+TXTPL@   DC    X'00000010'                                              00112612
+TXTPLC@  DC    X'0000000C'                                              00112713
+TXTU@    DC    X'0032'                                                  00112812
+TXTUP@   DC    X'002C'                                                  00112912
+SHR      DC    X'08'                                                    00113012
+DDNAME   DC    CL6'INPROG'                                              00113112
+         DS    0F                                                       00113212
+DDNAME@  DC    X'00000006'             REMEMBER ABOUT MVC               00113312
+TESTDCB  DCB   DDNAME=INPROG,DSORG=PS,MACRF=(GM)                       X00113412
+                                                                        00113512
+OUT      DCB   DDNAME=OUTSET,MACRF=(PM),DSORG=PS                        00113612
+TEST     DS    4F                                                       00113712
+E__      EQU   X'80'                                                    00113812
+         DS    0F                                                       00113912
+      IEFZB4D0 ,                       SVC99 PARAM LIST                 00114012
+         DS    0F                                                       00114112
+      IEFZB4D2 ,                       MNEMONICS FOR TEXT UNITS         00114212
+STORAGE  DSECT                                                          00114312
+SAVEAREA DS    18F                                                      00114412
+RB@      DS    1F                                                       00114512
+PARM     DS    1F                                                       00114612
+PARM@    DS    1F                                                       00114712
+PBLOCKA  DS    1F                                                       00114812
+PBLOCKD  DS    1F                                                       00114912
+PARENTH  DS    1F                                                       00115012
+LIST     DS    1F                                                       00115112
+MEMBR    DS    CL8                                                      00115215
+MEMBR@   DS    1F                                                       00115312
+DSNAME   DS    CL44                                                     00115412
+DSNAME@  DS    1F                                                       00115512
+STORAGE_ EQU   *-STORAGE                                                00116010
+         END                                                            00120000

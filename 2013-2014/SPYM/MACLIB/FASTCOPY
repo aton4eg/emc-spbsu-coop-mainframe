@@ -1,0 +1,96 @@
+         MACRO
+         FASTCOPY &TO,&FROM,&LENGTH
+*R1 R2 R3 R8 R9 MAY CHANGE
+         GBLA  &E2
+&E2      SETA  &E2+1
+         LCLA  &N
+         LCLC  &FROM_
+         LCLC  &TO_
+         LCLC  &LENGTH_
+*======================================================================
+         AIF   ('&FROM'(1,1) EQ '(').FROMREG  &FROM IS REGISTER
+         AIF   ('&FROM'(1,1) EQ '=').FROMLIT  &FROM IS LITERAL
+
+.FROMFLD ANOP
+         LA    R8,&FROM                       &FROM IS FIELD
+&FROM_   SETC  'R8'
+         AGO   .TESTTO
+
+.FROMLIT ANOP
+         L     R8,&FROM                       &FROM IS LTERAL
+&FROM_   SETC  'R8'
+         AGO   .TESTTO
+
+.FROMREG ANOP
+&N       SETA  K'&FROM-2                      &FROM IS REGISTER
+&FROM_   SETC  '&FROM'(2,&N)
+         AGO   .TESTTO
+*======================================================================
+.TESTTO  ANOP
+         AIF   ('&TO'(1,1) EQ '(').TOREG      &TO IS REGISTER
+         AIF   ('&TO'(1,1) EQ '=').TOLIT      &TO IS LITERAL
+
+.TOFLD   ANOP
+         LA    R9,&TO                         &TO IS FIELD
+&TO_     SETC  'R9'
+         AGO   .TESTLEN
+
+.TOLIT   ANOP
+         L     R9,&TO                         &TO IS LITERAL
+&TO_     SETC  'R9'
+         AGO   .TESTLEN
+
+.TOREG   ANOP
+&N       SETA  K'&TO-2                        &TO IS REGISTER
+&TO_     SETC  '&TO'(2,&N)
+         AGO   .TESTLEN
+*======================================================================
+.TESTLEN ANOP
+&N       SETA  K'&LENGTH
+         AIF   ('&LENGTH'(1,1) EQ '(').LENREG &LENGTH IS REGISTER
+         AIF   ('&LENGTH'(1,1) EQ '=').LENLIT &LENGTH IS LITERAL
+         AIF   ('&LENGTH'(&N,1) EQ '#').LENEQU &LENGTH IS EQU
+         AIF   ('&LENGTH'(1,1) EQ 'X').LENEQU &LENGTH IS SYMBOL
+
+.LENFLD  ANOP
+         L     R3,&LENGTH                     &LENGTH IS FIELD
+&LENGTH_ SETC  'R3'
+         AGO   .TESTEND
+
+.LENLIT  ANOP
+         L     R3,&LENGTH                     &LENGTH IS LITERAL
+&LENGTH_ SETC  'R3'
+         AGO   .TESTEND
+
+.LENEQU  ANOP
+         XR    R3,R3
+         LHI   R3,&LENGTH                     &LENGTH IS LITERAL
+&LENGTH_ SETC  'R3'
+         AGO   .TESTEND
+
+.LENREG  ANOP
+&N       SETA  K'&LENGTH-2                    &LENGTH IS REGISTER
+&LENGTH_ SETC  '&LENGTH'(2,&N)
+         LR    R3,&LENGTH_
+         AGO   .TESTEND
+*======================================================================
+.TESTEND ANOP
+         XR    R2,R2
+         XR    R1,R1
+         LHI   R1,X'FF'
+         DR    R2,R1                 LENGTH - PAIR OF REGISTERS (E-O)
+
+         C     R3,=X'00000000'
+         BE    SKIP#&E2
+
+LP#&E2   EQU   *
+         MVC   0(255,&TO_),0(&FROM_)
+         AHI   &TO_,X'FF'
+         AHI   &FROM_,X'FF'
+         BCT   R3,LP#&E2
+         B     SKIP#&E2
+REM#&E2  MVC   0(0,&TO_),0(&FROM_)
+SKIP#&E2 EQU   *
+         BCTR  R2,0
+         EX    R2,REM#&E2
+         MEND

@@ -1,0 +1,70 @@
+BLDPRM   PROCBGN
+*GOT IN R0 ADDR OF LIBRARY NAME IN PARM FORMAT
+*GOT IN R1 ADDR OF MODULE NAME IN PARM FORMAT
+*RETURNS IN R0 POINTER TO MEMORY AREA, WHICH CONTAINS
+*CONCATENATED DATASET NAME IN PARM FORMAT
+         LR    R6,R0
+         AHI   R6,X'0002'      R6:=ADDR OF LIBRARY NAME START
+
+         LR    R7,R1
+         AHI   R7,X'0002'      R7:=ADDR OF MODULE NAME START
+
+         XR    R2,R2           R2:=0
+         XR    R3,R3           R3:=0
+         XR    R4,R4           R4:=0
+
+         LR    R10,R0          R10:=R0 TO AVOID ERROR WITH R0
+         LH    R3,0(,R10)       R3:= SIZE OF LIBRARY NAME
+         LH    R4,0(,R1)       R4:= SIZE OF MODULE NAME
+
+         LR    R2,R3
+         AR    R2,R4           R2:=R3+R4
+         LA    R2,4(,R2)       R2:=R2+4 PARENTHESES AND LENGTH
+
+       GETMAIN RU,LV=(R2),LOC=ANY
+         LR    R8,R1           R8:= RESULT MEM AREA
+
+         B     SKPMVC#1
+PARL#2   DC    X'00'
+         DC    C'('
+PARR#2   DC    X'00'
+         DC    C')'
+BLDMVC   MVC   0(0,R8),0(R6)
+SKPMVC#1 EQU   *
+
+         BCTR  R2,0
+         BCTR  R2,0            R2:=R2-2
+         STH   R2,0(,R8)       STORE R2    - TOTAL LENGTH
+
+         LR    R9,R8           SAVE RESULT MEMAREA
+         LA    R8,2(,R8)       R8:=R8+2
+
+         BCTR  R3,0
+         EX    R3,BLDMVC       COPY LIB NAME TO (R8) LENGTH R3
+
+         LA    R3,1(,R3)
+         AR    R8,R3           R8:=R8+LENGTH OF LIB NAME
+
+         XR    R1,R1
+         LH    R1,PARL#2       0(R8):=(
+         STC   R1,0(,R8)
+
+         LA    R8,1(,R8)
+
+         LR    R6,R7           R6:= ADDR OF MODULE NAME START
+         BCTR  R4,0
+         EX    R4,BLDMVC       COPY MODULE NAME TO (R8) LENGTH R4
+
+         LA    R4,1(,R4)
+         AR    R8,R4
+
+         XR    R1,R1
+         LH    R1,PARR#2
+         STC   R1,0(,R8)       0(R8):=)
+
+         LR    R0,R9           RETURN RESULT MEMAREA
+
+         L     R15,=X'00001222'
+DATA#3   EQU   *
+BLDPRM   PROCEND RC=(R15)
+
