@@ -1,0 +1,21 @@
+*---------------------------------------------------------------------* 00001005
+* Module information:                                                 * 00002005
+*                                                                     * 00003005
+* Name:               REGS                                            * 00004005
+* Type:               MACRO                                           * 00005005
+* Description:        Generates EQUs for R0-R15 once for AMS module   * 00006005
+* Usage:                                                              * 00007005
+*        REGS                                                         * 00008005
+*---------------------------------------------------------------------* 00009005
+         MACRO                                                          00010000
+         REGS                                                           00011004
+         LCLA  &N                                                       00012003
+         GBLB  &RegsGenerated                                           00014007
+         AIF   (&RegsGenerated).EXIT                                    00015006
+.GENER   ANOP                                                           00016004
+R&N      EQU   &N                                                       00017004
+&N       SETA  &N+1                                                     00018004
+         AIF   (&N LE 15).GENER                                         00019005
+&RegsGenerated SETB  (1)                                                00020004
+.EXIT    ANOP                                                           00030004
+         MEND                                                           13040000

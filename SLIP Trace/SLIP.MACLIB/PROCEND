@@ -1,0 +1,103 @@
+*---------------------------------------------------------------------* 00010050
+* Module information:                                                 * 00020050
+*                                                                     * 00030050
+* NAME:               PROCBGN                                         * 00040050
+* Type:               MACRO                                           * 00050050
+* DESCRIPTION:        Intro to procedures                             * 00060050
+* Usage:                                              Default value   * 00070050
+* label  PROCEND      RC={(REG#)|@|[VAL]}             [0]             * 00080050
+*                     TYPE=[MAIN|COMMON]              COMMON          * 00090050
+* Note: R0 and R1 are left as is.                                     * 00100050
+*                                                                     * 00110050
+*---------------------------------------------------------------------* 00120050
+         MACRO                                                          00130050
+&LABEL   PROCEND &RC=[0],&TYPE=COMMON                                   00140050
+         GBLC &CURPROC                           Name of current proc   00150050
+         GBLC &CSECT                             Name of current CSECT  00160050
+         LCLC &RC2                                                      00170050
+         GBLB &GlobVars                          GlobVars?              00180050
+         GBLC &GlobR                             GlobReg                00190050
+                                                                        00200050
+.* Check compulsory variables & environment                             00210050
+         AIF  ('&CURPROC' EQ '').ERR_NOPROC      No procname?  -> error 00220050
+         AIF  ('&CSECT' EQ '').ERR_NOCSECT       No CSECTname? -> error 00230050
+         AIF  ('&RC' EQ '').ERR_NORC             No RC?        -> error 00240050
+         AIF  ('&TYPE' EQ 'MAIN').PARMS_OK                              00250050
+         AIF  ('&TYPE' EQ 'COMMON').PARMS_OK                            00260050
+         AGO  .ERR_TYPE                                                 00270050
+                                                                        00280050
+.PARMS_OK ANOP                                                          00290050
+.*                                                                      00300050
+.* Preserve R0 and R1 in old SaveArea                                   00310050
+.* Parse RC field                                                       00320050
+.PUT_RC  ANOP                                                           00330050
+         AIF   ('&RC'(1,1) EQ '(').CHECK_RC_REG  1st sym '('?  -> reg?  00340050
+         AIF   ('&RC'(1,1) EQ '[').CHECK_RC_VAL  1st sym '['?  -> val?  00350050
+.* Chack that RC is @                                                   00360050
+.CHECK_RC_@ ANOP                                                        00370050
+         AIF   ('&RC'(K'&RC,1) EQ ')').ERR_BADRC Last sym '('? -> error 00380050
+         AIF   ('&RC'(K'&RC,1) EQ ']').ERR_BADRC Last sym '['? -> error 00390050
+         L     R15,&RC                           Load RC from addr      00400050
+         AGO   .RC_DONE                          Continue               00410050
+.* Chack that RC is reg#                                                00420050
+.CHECK_RC_REG ANOP                                                      00430050
+         AIF   ('&RC'(K'&RC,1) NE ')').ERR_BADRC Last sym ')'? -> Ok    00440050
+&RC2     SETC  '&RC'(2,K'&RC-2)                  &RC = (&RC2)           00450050
+         LR    R15,&RC2                          Load RC from register  00460050
+         AGO   .RC_DONE                          Continue               00470050
+.* Chack that RC is value                                               00480050
+.CHECK_RC_VAL ANOP                                                      00490050
+         AIF   ('&RC'(K'&RC,1) NE ']').ERR_BADRC Last sym ']'? -> Ok    00500050
+&RC2     SETC  '&RC'(2,K'&RC-2)                  &RC = [&RC2]           00510050
+         LA    R15,&RC2                          Load RC from value     00520050
+                                                                        00530050
+.* Done with RC                                                         00540050
+.RC_DONE ANOP                                                           00550050
+                                                                        00560050
+         L     R14,&CURPROC._SAVE_OLD_SAVE       Get addr of old SA     00570050
+         STM   R15,R1,16(R14)                    Preserve R15-R1        00580050
+.* Free SaveArea for current proc                                       00590050
+         LR    R1,R13                            Copy addr of SaveArea  00600050
+         LR    R13,R14                           Get R13 to old SA      00610050
+         STORAGE RELEASE,                        Release storage       +00620050
+               LENGTH=&CURPROC._SAVELEN,                               +00630050
+               ADDR=(R1)                                                00640050
+.* Now need to check if we are ending the main logic                    00660050
+         AIF   ('&TYPE' EQ 'COMMON').RESTORE                            00670050
+         AIF   (NOT &GlobVars).RESTORE                                  00680050
+         STORAGE RELEASE,                        Release storage       +00690050
+               LENGTH=&CSECT._GLOBVAR_LEN,                             +00700050
+               ADDR=(&GlobR)                                            00710050
+.RESTORE ANOP                                                           00730050
+.* Restore registers                                                    00740050
+         LM    R14,R12,12(R13)                   Restore R14-R12        00750050
+.* Done without errors                                                  00760050
+.OK      ANOP                                                           00770050
+         BR    R14                                                      00780050
+                                                                        00781051
+         DROP  ,                                                        00782051
+*                                                                       00790050
+.* Finish                                                               00800050
+         AGO   .EXIT                             Go to exit             00810050
+.ERR_NOPROC ANOP                                                        00820050
+         MNOTE 12,'No PROCBGN for PROCEND'                              00830050
+         MEXIT                                                          00840050
+.ERR_NOCSECT ANOP                                                       00850050
+         MNOTE 12,'No CSECT'                                            00860050
+         MEXIT                                                          00870050
+.ERR_NORC ANOP                                                          00880050
+         MNOTE 12,'No RC'                                               00890050
+         MEXIT                                                          00900050
+.ERR_BADRC ANOP                                                         00910050
+         MNOTE 12,'Bad RC'                                              00920050
+         MEXIT                                                          00930050
+.ERR_TYPE ANOP                                                          00940050
+         MNOTE 12,'Errorneous TYPE. Have ''&TYPE'', can be MAIN|COMMON' 00950050
+         MEXIT                                                          00960050
+.EXIT    ANOP                                                           00970050
+&CSECT   CSECT                                                          00980050
+&CSECT._LOC LOCTR ,                                                     00990050
+&CURPROC._PROC_LOC LOCTR ,                                              01000050
+&CURPROC SETC  ''                                                       01010050
+         LTORG ,                                                        01020050
+         MEND                                                           01030050

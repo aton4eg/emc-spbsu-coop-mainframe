@@ -1,0 +1,207 @@
+*---------------------------------------------------------------------* 00010001
+* Module information:                                                 * 00020001
+*                                                                     * 00030001
+* NAME:               #GTFSLIP                                        * 00040001
+* Type:               MACRO                                           * 00050001
+* DESCRIPTION:        Lists the DSECT for the GTF SLIP trace records  * 00060001
+* Usage:                                              Default value   * 00070001
+* label  #GTFSLIP     [TYPE={STD|USER|BOTH}]          STD             * 00080007
+*                     [MODE={64|31}]                  31              * 00090008
+*---------------------------------------------------------------------* 00100001
+         MACRO                                                          00110001
+&LABEL   #GTFSLIP &TYPE=STD,&MODE=31                                    00120008
+         GBLC &CSECT                             Name of current CSECT  00130001
+         LCLC &NAME                              Name fo this GTFSLIP   00140001
+                                                                        00150001
+.* Check compulsory variables & environment                             00160001
+         AIF  ('&MODE' EQ '31').MODE_OK                                 00170008
+         AIF  ('&MODE' EQ '64').MODE_OK                                 00170108
+         AGO  .ERR_MODE                                                 00170208
+.MODE_OK ANOP                                                           00170308
+         AIF  ('&TYPE' EQ 'STD').TYPE_OK                                00172008
+         AIF  ('&TYPE' EQ 'USER').TYPE_OK                               00180001
+         AIF  ('&TYPE' EQ 'BOTH').TYPE_OK                               00190001
+         AGO  .ERR_TYPE                                                 00200005
+.TYPE_OK ANOP                                                           00210002
+         AIF  ('&CSECT' EQ '').ERR_NOCSECT       No CSECTname? -> error 00220001
+&NAME    SETC '&LABEL'                           Copy proc name         00230001
+                                                                        00240001
+&NAME._GTFSLIP            DSECT                                         00250002
+         AIF  ('&TYPE' EQ 'USER').USER_ONLY                             00260002
+.STD_SLIP ANOP                                                          00270002
+.* DSECT for STD (or BOTH)                                              00280002
+* SLIP STD fields                                                       00290002
+&NAME._GTFSLIP_ASCB       DS  XL4    ASCB address                       00300006
+&NAME._GTFSLIP_CPU        DS  XL2    CPUID                              00310002
+&NAME._GTFSLIP_JOBN       DS  CL8    Jobname from current addres space  00320002
+&NAME._GTFSLIP_TID        DS  CL4    SLIP trap ID                       00330002
+&NAME._GTFSLIP_ASID       DS  XL2    ASID of current adress space       00340002
+&NAME._GTFSLIP_JSP        DS  CL8    Job step program name              00350002
+&NAME._GTFSLIP_TCB        DS  XL4    TCB address                        00360006
+&NAME._GTFSLIP_MFLG       DS  XL2    System mode indicators             00370002
+                          ORG &NAME._GTFSLIP_MFLG                       00380002
+&NAME._GTFSLIP_MFLG1      DS  X      System mode indicators, byte 1:    00390002
+&NAME._GTFSLIP_MFLG1_SUCM EQU X'80'  Supervisor control mode            00400002
+&NAME._GTFSLIP_MFLG1_DIEX EQU X'40'  Disabled for I/O and              +00410002
+                                       external interupts               00420002
+&NAME._GTFSLIP_MFLG1_GSPL EQU X'20'  Global spin lock held              00430002
+&NAME._GTFSLIP_MFLG1_GSUL EQU X'10'  Global suspend lock held           00440002
+&NAME._GTFSLIP_MFLG1_LLOC EQU X'08'  Local lock held                    00450002
+&NAME._GTFSLIP_MFLG1_SVC1 EQU X'04'  Type 1 SVC in control              00460002
+&NAME._GTFSLIP_MFLG1_SRBM EQU X'02'  SRB mode                           00470002
+&NAME._GTFSLIP_MFLG1_TCBM EQU X'01'  TCB mode                           00480002
+                                                                        00490001
+&NAME._GTFSLIP_MFLG2      DS  X      System mode indicators, byte 2:    00500002
+&NAME._GTFSLIP_MFLG2_RECV EQU X'80'  Recovery routine in control        00510002
+&NAME._GTFSLIP_MFLG2_PROB EQU X'40'  Problem program state              00520002
+&NAME._GTFSLIP_MFLG2_SUP  EQU X'20'  Supervisor state                   00530002
+&NAME._GTFSLIP_MFLG2_SYSK EQU X'10'  System key                         00540002
+&NAME._GTFSLIP_MFLG2_PRPK EQU X'08'  Problem program key                00550002
+&NAME._GTFSLIP_MFLG2_GLLK EQU X'04'  Any global lock held               00560002
+&NAME._GTFSLIP_MFLG2_LOCK EQU X'02'  Any lock held                      00570002
+                                                                        00580002
+&NAME._GTFSLIP_EFLG       DS  XL2    Error indicators                   00590002
+                          ORG &NAME._GTFSLIP_EFLG                       00600002
+&NAME._GTFSLIP_EFLG1      DS  X      Error indicators, byte 1:          00610002
+&NAME._GTFSLIP_EFLG1_PCHK EQU X'80'  Program check interrupt            00620002
+&NAME._GTFSLIP_EFLG1_REST EQU X'40'  Restart interrupt                  00630002
+&NAME._GTFSLIP_EFLG1_SVC  EQU X'20'  SVC error                          00640002
+&NAME._GTFSLIP_EFLG1_ABND EQU X'10'  Abend; task issued SVC 13          00650002
+&NAME._GTFSLIP_EFLG1_PGIO EQU X'08'  Paging I/O error                   00660002
+&NAME._GTFSLIP_EFLG1_DAT  EQU X'04'  Dynamic address translation error  00670002
+&NAME._GTFSLIP_EFLG1_MCHK EQU X'02'  Software error caused by          +00680002
+                                       machine check                    00690002
+&NAME._GTFSLIP_EFLG1_AAST EQU X'01'  Abnormal address space termination 00700002
+                                                                        00710002
+&NAME._GTFSLIP_EFLG2      DS  X      Error indicators, byte 2:          00720002
+&NAME._GTFSLIP_EFLG2_MTRM EQU X'80'  Memterm                            00730002
+                                                                        00740002
+&NAME._GTFSLIP_SFLG       DS  X      SLIP flags                         00750002
+&NAME._GTFSLIP_SFLG_DBUG  EQU X'80'  DEBUG record                       00760002
+&NAME._GTFSLIP_SFLG_REGS  EQU X'40'  Registers collected                00770002
+                                                                        00780002
+&NAME._GTFSLIP_DAUN       DS  XL2    Data unavailible counter           00790002
+                                                                        00800002
+.* The following fields apply only to PER interrupts otherwise set to  +00810002
+                                       N/A (or N for one-byte field)    00820002
+&NAME._GTFSLIP_MODN       DS  CL8    Load module name                  +00830002
+                                       in which the interrupt          +00840002
+                                       occured | (U/A|N/A)              00850002
+&NAME._GTFSLIP_OFFS       DS  XL4    Offset in load module | (U/A|N/A)  00860006
+         AIF  ('&MODE' EQ '31').IADR_MODE_31                            00861010
+&NAME._GTFSLIP_IADR       DS  XL8    Address of the instruction that   +00870008
+                                       caused the PER interrupt         00880002
+         AGO  .IADR_DONE                                                00880108
+.IADR_MODE_31 ANOP                                                      00881010
+&NAME._GTFSLIP_IADR       DS  XL4    Address of the instruction that   +00882008
+                                       caused the PER interrupt         00883008
+.IADR_DONE ANOP                                                         00884009
+&NAME._GTFSLIP_INS        DS  XL6    Instruction content               +00890002
+                                       (6 bytes of data beginning at   +00900002
+                                       the address of instruction      +00910002
+                                       that caused the PER interrupt)  +00920002
+                                       | (U/A|N/A)                      00930002
+         AIF  ('&MODE' EQ '31').EXIAD_MODE_31                           00932010
+&NAME._GTFSLIP_EXSIAD     DS  XL8    Target instruction address if     +00940010
+                                       EXECUTE instruction | (U/A|N/A)  00950002
+         AGO  .EXIAD_DONE                                               00951010
+.EXIAD_MODE_31 ANOP                                                     00952010
+&NAME._GTFSLIP_EXSIAD     DS  XL4    Target instruction address if     +00953010
+                                       EXECUTE instruction | (U/A|N/A)  00954010
+.EXIAD_DONE ANOP                                                        00955010
+&NAME._GTFSLIP_EXINS      DS  XL6    Target instruction content if     +00960002
+                                       EXECUTE instruction             +00970002
+                                       (6 bytes of data beginning at   +00980002
+                                       the target instruction address) +00990002
+                                       | (U/A|N/A)                      01000002
+&NAME._GTFSLIP_BRNGA      DS  XL4    Low 4 bytes of                    +01010006
+                                       beginning range virtual address +01020002
+                                       if SA specified on SLIP command +01030002
+                                       | (N/A)                          01040002
+                                                                        01050002
+&NAME._GTFSLIP_BRNGD      DS  XL4    4 bytes of storage starting at    +01060002
+                                       beginning range virtual address +01070002
+                                       if SA specified | (U/A|N/A)      01080002
+         AIF  ('&MODE' EQ '31').OPSW_MODE_31                            01081010
+&NAME._GTFSLIP_OPSW       DS  XL16   Program old PSW                    01090002
+.OPSW_MODE_31 ANOP                                                      01090110
+&NAME._GTFSLIP_OPSW       DS  XL8    Program old PSW                    01091010
+.OPSW_DONE ANOP                                                         01092010
+&NAME._GTFSLIP_PICILC     DS  XL4    Program interrupt code (PIC) and  +01100002
+                                       instruction length code (ILC)    01110002
+&NAME._GTFSLIP_PERC       DS  X      PER interrupt code:                01120002
+&NAME._GTFSLIP_PERC_SBE   EQU X'80'  Successful-branch event (SB)       01130002
+&NAME._GTFSLIP_PERC_IFE   EQU X'40'  Instruction-fetch event (IF)       01140002
+&NAME._GTFSLIP_PERC_SAE   EQU X'20'  Storage-alteration event (SA)      01150010
+                                                                        01160002
+&NAME._GTFSLIP_TYP        DS  X      PER trap mode:                     01170002
+&NAME._GTFSLIP_PERC_SBM   EQU X'80'  Successful-branch monitoring (SB)  01180002
+&NAME._GTFSLIP_PERC_IFM   EQU X'40'  Instruction-fetch monitoring (IF)  01190002
+&NAME._GTFSLIP_PERC_SAM   EQU X'20'  Starage-alteration monitoring (SA) 01200002
+&NAME._GTFSLIP_PERC_RESV  EQU X'10'  Reserved                           01210002
+&NAME._GTFSLIP_PERC_PTRP  EQU X'08'  PER trap                           01220002
+&NAME._GTFSLIP_PERC_RCVS  EQU X'04'  Recovery specified                 01230002
+&NAME._GTFSLIP_PERC_MSG1  EQU X'02'  Message flag                       01240002
+&NAME._GTFSLIP_PERC_MSG2  EQU X'01'  Message flag                       01250002
+                                                                        01260002
+&NAME._GTFSLIP_PKM        DS  XL2    Key mask                           01270002
+&NAME._GTFSLIP_SASID      DS  XL2    Secondary ASID                     01280002
+&NAME._GTFSLIP_AX         DS  XL2    Authorization index                01290002
+&NAME._GTFSLIP_PASID      DS  XL2    Primary ASID                       01300002
+                                                                        01310002
+&NAME._GTFSLIP_ASC        DS  X      PSW ASC mode indicator:            01320002
+&NAME._GTFSLIP_ASC_PRAM   EQU X'F0'                                     01330002
+&NAME._GTFSLIP_ASC_ARAM   EQU X'F1'                                     01340002
+&NAME._GTFSLIP_ASC_SNAM   EQU X'F2'                                     01350002
+&NAME._GTFSLIP_ASC_HMAM   EQU X'F3'                                     01360002
+                                                                        01370002
+&NAME._GTFSLIP_SASPACE    DS  XL13   Storage Alteration                +01380002
+                                       Space Identifier:               +01390002
+                                         For an address space:         +01400002
+                                           contains the ASID           +01410002
+                                         For a data space:             +01420002
+                                           contains the owning ASID    +01430002
+                                           and the dataspace name       01440002
+&NAME._GTFSLIP_BRNGH      DS  XL4    High 4 bytes of                   +01450006
+                                       beginning range virtual address +01460002
+                                       if SA specified on SLIP command  01470002
+&NAME._GTFSLIP_RESRV      DS  X      Reserved                           01480002
+                                                                        01490002
+.* Determine, whether we need other fields (TYPE=BOTH)                  01500002
+         AIF   ('&TYPE' EQ 'STD').DSECT_END                             01510002
+                                                                        01520002
+.BOTH_SLIP_USER ANOP                                                    01530002
+.* Fields for the SLIP Standart + User trace record                     01540002
+* User data fields                                                      01550002
+&NAME._GTFSLIP_ULEN       DS  XL2    Length of user-defined data        01560002
+&NAME._GTFSLIP_UDATA      DS  X      Here tha data starts.             +01570002
+                                       Actual length is above           01580002
+         AGO   .DSECT_END                                               01590002
+                                                                        01600002
+.USER_ONLY ANOP                                                         01610002
+.* DSECT for SLIP user trace record                                     01620002
+* SLIP user trace record                                                01630002
+&NAME._GTFSLIP_CPU        DS  XL2    CPUID                              01640002
+&NAME._GTFSLIP_EXTN       DS  XL2    Extension number                   01650002
+&NAME._GTFSLIP_CLEN       DS  X      Continuation length                01660002
+&NAME._GTFSLIP_ULEN       DS  XL2    Length of user-defined data        01670002
+&NAME._GTFSLIP_UDATA      DS  X      Here tha data starts.             +01680002
+                                       Actual length is above           01690002
+.DSECT_END ANOP                                                         01700002
+&NAME._GTFSLIP_LENGTH     EQU *-&NAME._GTFSLIP                          01710002
+                                                                        01720002
+.* Continue CSECT                                                       01730002
+&CSECT   CSECT                                                          01740002
+.* Done                                                                 01750001
+         AGO   .EXIT                                                    01760001
+.ERR_MODE ANOP                                                          01761008
+         MNOTE 12,'Incorrect TYPE. Have &MODE, can be 31|64'            01762008
+         MEXIT                                                          01763008
+.ERR_TYPE ANOP                                                          01770002
+         MNOTE 12,'Incorrect TYPE. Have &TYPE, can be STD|USER|BOTH'    01780002
+         MEXIT                                                          01790001
+.ERR_NOCSECT ANOP                                                       01800001
+         MNOTE 12,'No CSECT'                                            01810001
+         MEXIT                                                          01820001
+.EXIT    ANOP                                                           01830001
+         MEND                                                           01840001

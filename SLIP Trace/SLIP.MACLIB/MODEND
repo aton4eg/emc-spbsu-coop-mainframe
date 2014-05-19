@@ -1,0 +1,26 @@
+*---------------------------------------------------------------------* 00010000
+* Module information:                                                 * 00020000
+*                                                                     * 00030000
+* NAME:               MODEND                                          * 00040000
+* Type:               MACRO                                           * 00050000
+* DESCRIPTION:        Ending to ASM module logic                      * 00060000
+* Usage:                                              Default value   * 00070000
+* label  MODEND       RC={(reg#),[val],@}             [0]             * 00080000
+*---------------------------------------------------------------------* 00082000
+         MACRO                                                          00083000
+&LABEL   MODEND &RC=[0]                                                 00084000
+         GBLC &CSECT                             Name of current CSECT  00086000
+                                                                        00087000
+.* Check compulsory variables & environment                             00088000
+         AIF  ('&CSECT' EQ '').ERR_NOCSECT       No CSECTname? -> error 00089001
+.* All parms OK                                                         00101900
+                                                                        00102100
+.* Begin processing                                                     00102200
+&CSECT._MAIN PROCEND RC=&RC,TYPE=MAIN                                   00102903
+.* Done                                                                 00103000
+         AGO   .EXIT                                                    00103100
+.ERR_NOCSECT ANOP                                                       00103200
+         MNOTE 12,'No CSECT'                                            00104000
+         MEXIT                                                          00105000
+.EXIT    ANOP                                                           00160000
+         MEND                                                           00170000

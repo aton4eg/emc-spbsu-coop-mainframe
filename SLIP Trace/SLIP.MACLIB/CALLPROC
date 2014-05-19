@@ -1,0 +1,31 @@
+*---------------------------------------------------------------------* 00010000
+* Module information:                                                 * 00020000
+*                                                                     * 00030000
+* NAME:               CALLPROC                                        * 00040000
+* Type:               MACRO                                           * 00050000
+* DESCRIPTION:        Call the procedure       c                      * 00060000
+* Usage:                                              Default value   * 00070000
+* label  CALLPROC     Procname                        N/A             * 00080000
+*---------------------------------------------------------------------* 00081000
+         MACRO                                                          00082000
+&LABEL   CALLPROC &Procname                                             00083001
+         GBLC &CSECT                             Name of current CSECT  00084000
+                                                                        00085000
+.* Check compulsory variables & environment                             00086000
+         AIF  ('&CSECT' EQ '').ERR_NOCSECT       No CSECTname? -> error 00087000
+         AIF  ('&Procname' EQ '').ERR_NOProcname  No Procname? -> error 00087102
+.* All parms OK                                                         00088000
+                                                                        00089000
+.* Begin processing                                                     00090000
+         L    R15,=A(&Procname)                                         00100002
+         BALR R14,R15                                                   00100100
+.* Done                                                                 00101000
+         AGO   .EXIT                                                    00102000
+.ERR_NOCSECT ANOP                                                       00103000
+         MNOTE 12,'No CSECT'                                            00104000
+         MEXIT                                                          00105000
+.ERR_NOProcname ANOP                                                    00105100
+         MNOTE 12,'No Procname'                                         00105200
+         MEXIT                                                          00105300
+.EXIT    ANOP                                                           00106000
+         MEND                                                           00107000
