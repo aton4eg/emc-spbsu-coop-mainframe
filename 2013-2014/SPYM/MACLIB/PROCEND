@@ -41,7 +41,7 @@ L#&E14   EQU   *
                                                                         00360000
 .EXIT    ANOP
          ST    R15,&LABEL._SAVE_R15                                     00370000
-      FREEMAIN RU,LV=&LABEL._SAVE_AREA,A=(R2)
+      FREEMAIN RU,LV=&LABEL._SAVELEN,A=(R2)
          LM    R14,R12,12(R13)                                          00380000
          DROP  R12
          USING *,R12                                                    00390003

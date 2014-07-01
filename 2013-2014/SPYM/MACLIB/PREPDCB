@@ -26,7 +26,8 @@ SDNM&E5  EQU   *                                                        00240000
          LA    R3,DNM&E5                                                00250000
                                                                         00260000
 .NXT5    ANOP                                                           00270000
-                                                                        00280000
+
+         XR    R2,R2                                                    00280000
          LHI   R2,DCBLNGBS                                              00290000
        GETMAIN RU,LV=(R2),LOC=BELOW                 GET MEMORY FOR DCB  00300000
          LR    R4,R1                                                    00310001

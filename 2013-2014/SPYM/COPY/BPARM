@@ -22,6 +22,7 @@ BLDPRM   PROCBGN
          LA    R2,4(,R2)       R2:=R2+4 PARENTHESES AND LENGTH
 
        GETMAIN RU,LV=(R2),LOC=ANY
+
          LR    R8,R1           R8:= RESULT MEM AREA
 
          B     SKPMVC#1

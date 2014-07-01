@@ -1,6 +1,6 @@
-         GENREG                                                         00001000
-         GBLC  &CSECT                                                   00001109
-&CSECT   SETC  ''                                                       00001209
+         GENREG                                                         00004300
+         GBLC  &CSECT                                                   00004409
+&CSECT   SETC  ''                                                       00005009
                                                                         00029000
 MAINLINE CSECT                                                          00029100
 MAINLINE AMODE 24                                                       00029218
@@ -58,10 +58,11 @@ PREPMDL  PROCBGN                                                        00111800
          USING USA,R11             SET ADDRESSABILITY TO USA            00112100
                                                                         00112208
          LR    R5,R1                                                    00112315
-         STM   R14,R12,12(R13)                                          00112408
-         L     R6,TOPM@                                                 00112515
-      PSHSTRCT PARAMS,(R5),(R6)                                         00112615
-         LM    R14,R12,12(R13)     INSERT RTOPM IN LIST                 00112708
+         WTO   'TEST2'                                                  00112422
+         STM   R14,R12,12(R13)                                          00112508
+         L     R6,TOPM@                                                 00112615
+      PSHSTRCT PARAMS,(R5),(R6)                                         00112715
+         LM    R14,R12,12(R13)     INSERT RTOPM IN LIST                 00112808
       FREEMAIN RU,LV=TOPM#,A=(R5)                                       00112920
        CRTRECB (R6),RECB@          NOW WE HAVE ADDR OF LAST RECB IN R6  00113112
                                                                         00113215
@@ -132,24 +133,25 @@ GETINIT  PROCBGN                                                        00121900
 *INIT GETS ADDRESS OF PARM AREA INTO R1                                 00122000
          L     R6,0(,R1)                                                00122100
          NILH  R6,B'0111111111111111'                                   00122200
-                                                                        00122315
-*        OPEN  (OUT,DEBUG)                                              00122400
-*        B     SKIP#45                                                  00122500
-*EMAR#45 DS    18F                                                      00122600
-*KIP#45  EQU   *                                                        00122700
-*       PUTINT DEBUG,(R3*                                               00122800
-*      GETMAIN RU,LV=400000,LOC=ANY                                     00122920
-*      GETMAIN RU,LV=400000,LOC=ANY                                     00123018
-*        DC    X'00000000'                                              00123118
-       GETMAIN RU,LV=USA#,LOC=ANY         CREATE USA                    00123218
-         LR    R11,R1                                                   00123318
-         USING USA,R11           ESTABLISH ADDRESSABILITY               00123418
-                                                                        00123518
+*        GETM  RU,LV=4,LOC=ANY                                          00122322
+*        WTO   'HEY'                                                    00122422
+*        OPEN  (OUT,DEBUG)                                              00122500
+*        B     SKIP#45                                                  00122600
+*EMAR#45 DS    18F                                                      00122700
+*KIP#45  EQU   *                                                        00122800
+*       PUTINT DEBUG,(R3*                                               00122900
+*      GETMAIN RU,LV=400000,LOC=ANY                                     00123020
+*      GETMAIN RU,LV=400000,LOC=ANY                                     00123118
+*        DC    X'00000000'                                              00123218
+       GETMAIN RU,LV=USA#,LOC=ANY         CREATE USA                    00123322
+         LR    R11,R1                                                   00123418
+         USING USA,R11           ESTABLISH ADDRESSABILITY               00123518
+                                                                        00123618
          XR    R2,R2                                                    00123918
          LHI   R2,TRTBLSZ        CREATE TRTBL                           00124018
          LR    R3,R2                                                    00124118
          AHI   R3,CBHEAD#                                               00124218
-       GETMAIN RU,LV=(R3),LOC=ANY                                       00124318
+       GETMAIN RU,LV=(R3),LOC=ANY                                       00124322
          ST    R1,TRTBL@                                                00124418
          ST    R2,0(,R1)         STORE LENGTH                           00124518
          XR    R2,R2                                                    00124618
@@ -162,7 +164,7 @@ GETINIT  PROCBGN                                                        00121900
          LHI   R2,ICBSZ          CREATE ICB                             00125318
          LR    R3,R2                                                    00125418
          AHI   R3,CBHEAD#                                               00125518
-       GETMAIN RU,LV=(R3),LOC=ANY                                       00125618
+       GETMAIN RU,LV=(R3),LOC=ANY                                       00125622
          ST    R1,ICB@                                                  00125718
          ST    R2,0(R1)          STORE LENGTH                           00125818
          XR    R2,R2                                                    00125918
@@ -170,14 +172,14 @@ GETINIT  PROCBGN                                                        00121900
                                                                         00126118
          XR    R2,R2                                                    00126218
          LHI   R2,RSA#           CREATE RSA                             00126318
-       GETMAIN RU,LV=(R2),LOC=ANY                                       00126418
+       GETMAIN RU,LV=(R2),LOC=ANY                                       00126422
          ST    R1,RSA@                                                  00126518
                                                                         00126618
          XR    R2,R2                                                    00126718
          LHI   R2,TRTBLSZ        CREATE TOPM                            00126818
          LR    R3,R2                                                    00126918
          AHI   R3,CBHEAD#                                               00127018
-       GETMAIN RU,LV=(R3),LOC=ANY                                       00127118
+       GETMAIN RU,LV=(R3),LOC=ANY                                       00127122
          ST    R1,TOPM@                                                 00127218
          ST    R2,0(R1)          STORE LENGTH                           00127318
          XR    R2,R2                                                    00127418
@@ -187,7 +189,7 @@ GETINIT  PROCBGN                                                        00121900
          LHI   R2,PARAMSSZ       CREATE PARAMS                          00127818
          LR    R3,R2                                                    00127918
          AHI   R3,CBHEAD#                                               00128018
-       GETMAIN RU,LV=(R3),LOC=ANY                                       00128118
+       GETMAIN RU,LV=(R3),LOC=ANY                                       00128122
          ST    R1,PARAMS@                                               00128218
          ST    R2,0(R1)          STORE LENGTH                           00128318
          XR    R2,R2                                                    00128418
@@ -195,22 +197,22 @@ GETINIT  PROCBGN                                                        00121900
                                                                         00128618
          XR    R2,R2                                                    00128718
          LHI   R2,TOPM#          CREATE TOPM RECORD                     00128818
-       GETMAIN RU,LV=(R2),LOC=ANY                                       00128918
+       GETMAIN RU,LV=(R2),LOC=ANY                                       00128922
          ST    R1,RTOPM@                                                00129018
                                                                         00129118
          XR    R2,R2                                                    00129218
          LHI   R2,RECB#          CREATE RECB RECORD                     00129318
-       GETMAIN RU,LV=(R2),LOC=ANY                                       00129418
+       GETMAIN RU,LV=(R2),LOC=ANY                                       00129422
          ST    R1,RRECB@                                                00129518
                                                                         00129618
          XR    R2,R2                                                    00129718
          LHI   R2,ICB#           CREATE ICB  RECORD                     00129818
-       GETMAIN RU,LV=(R2),LOC=ANY                                       00129918
+       GETMAIN RU,LV=(R2),LOC=ANY                                       00129922
          ST    R1,RICB@                                                 00130018
                                                                         00130118
          XR    R2,R2                                                    00130218
          LHI   R2,PARAMS#        CREATE PARAMS RECORD                   00130318
-       GETMAIN RU,LV=(R2),LOC=ANY                                       00130418
+       GETMAIN RU,LV=(R2),LOC=ANY                                       00130422
          ST    R1,RPARAMS@                                              00130518
                                                                         00130618
 *HERE WILL BE READER OF INSTRUCTIONS FROM DCB INTO ICB INSTEAD OF THIS: 00130718
