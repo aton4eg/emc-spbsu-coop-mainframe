@@ -1,0 +1,739 @@
+SLIP     MODBGN AMODE=ANY,GBLVAR=Y,GBLREG=R11                           00010063
+* Initialize the programm                                               00020063
+         CALLPROC Initialize              Init                          00030063
+         LTR   R15,R15                   Ok?                            00040063
+         BNZ   SLIP_MAIN_Release          . No                          00050063
+* Initialize passed Ok                                                  00060063
+         L     R4,SYSIN@                  Get SYSIN @                   00070063
+         L     R5,SYSOUT@                 Get SYSOUT @                  00080063
+                                                                        00090099
+         MVI   Line,C' '                  Clear                         00100063
+         MVC   Line+1(159),Line                Line                     00110063
+         MVC   Line+0(12),=CL12'LoadModule: ' Print                     00110199
+         MVC   Line+12(8),NeedMod                  LoadMod name         00111099
+         MVC   Line+21(11),=CL11'AsmModule: ' Print                     00111199
+         MVC   Line+32(8),NeedAsm                  AsmMod name          00111299
+         MVC   Line+41(12),=CL12'Offs start: ' P                        00111399
+         LA    R6,NeedOffS                      r                       00111499
+         ST    R6,Hex@                           i                      00111599
+         LA    R6,Line+53                         n                     00111699
+         ST    R6,EBC@                             t                    00111799
+         LA    R6,4                                                     00111899
+         ST    R6,HexLen                            o                   00111999
+         CALLPROC HexToEBC                           f                  00112099
+*                                                     f                 00112199
+         MVC   Line+62(10),=CL10'Offs end: '           s                00112299
+         LA    R6,NeedOffE                              e               00112399
+         ST    R6,Hex@                                   t              00112499
+         LA    R6,Line+72                                 s             00112599
+         ST    R6,EBC@                                                  00112699
+         LA    R6,4                                                     00112799
+         ST    R6,HexLen                                                00112899
+         CALLPROC HexToEBC                                              00112999
+                                                                        00113099
+         PUT   (R5),Line                  Print the header              00113171
+         MVI   Line,C' '                  Clear                         00113299
+         MVC   Line+1(159),Line                Line                     00114071
+* Set up the header                                                     00120063
+         MVC   Line+1(8),=CL8'FROM '      FROM                          00130099
+         MVC   Line+39(3),=CL3'|| '       ||                            00140099
+         MVC   Line+42(3),=CL3'TO '       TO                            00150099
+         MVC   Line+45(8),NeedMod         TO                            00151099
+         LA    R6,Load@                                                 00151199
+         ST    R6,Hex@                                                  00151299
+         LA    R6,Line+60                                               00151399
+         ST    R6,EBC@                                                  00151499
+         LA    R6,4                                                     00151599
+         ST    R6,HexLen                                                00151699
+         CALLPROC HexToEBC                                              00151799
+         PUT   (R5),Line                  Print the header              00152099
+                                                                        00152199
+         MVI   Line,C' '                  Clear                         00153099
+         MVC   Line+1(159),Line                Line                     00154099
+         MVC   Line+1(9),=CL9'Asm Name ' Process Asm Name               00170099
+         MVC   Line+10(9),=CL9'Asm Offs ' and offs in it                00170299
+         MVC   Line+19(2),=CL2'| '        |                             00170399
+         MVC   Line+21(9),=CL9'CSECT '  Process CSECT                   00171099
+         MVC   Line+30(9),=CL9'OffInCs '  and offs in it                00172099
+         MVC   Line+39(3),=CL3'|| '       ||                            00172299
+         MVC   Line+42(9),=CL9'Asm Name ' Process Asm Name              00172399
+         MVC   Line+51(9),=CL9'Asm Offs ' and offs in it                00172499
+         MVC   Line+60(2),=CL2'| '        |                             00172599
+         MVC   Line+62(9),=CL9'CSECT '  Process CSECT                   00172699
+         MVC   Line+71(9),=CL9'OffInCs '  and offs in it                00172899
+         PUT   (R5),Line                  Print the header              00180063
+* The main loop - get lines one by one and process them                 00190063
+Loop     DS    0H                                                       00200063
+         GET   (R4)                       Get a ptr to the next line    00210063
+         CLC   4(2,R1),=XL2'FF04'        Needed type?                   00211099
+         BNE   Loop                       . No                          00212099
+         LA    R3,16(R1)                  Copy GTF data @               00220063
+         CALLPROC Process_Line            Process GTF data              00230063
+         LTR   R15,R15                   Will put Line?                 00231067
+         BNZ   Loop                       . No                          00232067
+         PUT   (R5),Line                  Print the result              00240063
+         B     Loop                       Unconditionally continue      00250063
+* We come here as soon as really existing SYSIN ends - so we close it   00260063
+SYSINEOF DS 0H                                                          00270063
+         MVC   PARMLIST(CLOSELL),CLOSEL   Copy CLOSE parms              00280063
+         L     R4,SYSIN@                  Get SYSIN @                   00290063
+         CLOSE ((R4)),MODE=31,MF=(E,PARMLIST)   Close SYSIN             00300063
+         XC    SYSIN@,SYSIN@              Clear its @                   00310063
+* This is the ending stuff - release the storage for DCB, etc.          00320063
+SLIP_MAIN_Release DS 0H                                                 00330063
+         CALLPROC Release                 Release                       00340063
+         MODEND  RC=(R15)                 Return                        00350063
+*********************************************************************** 00360063
+*                                                                     * 00370063
+*    S     U     B     R     O     U     T     I     N     E     S    * 00380063
+*                                                                     * 00390063
+*********************************************************************** 00400063
+*---------------------------------------------------------------------+ 00410063
+* Initialize                                                          + 00420063
+*                                                                     + 00430063
+*                                                                     + 00440063
+*---------------------------------------------------------------------+ 00450063
+Initialize PROCBGN                                                      00460063
+         MVI   Line,C' '                  Clear                         00460164
+         MVC   Line+1(132),Line                Line                     00460264
+         MVC   NeedMod(8),Line                 NeedMod                  00460366
+         MVC   NeedAsm(8),Line                 NeedAsm                  00460499
+         XC    NeedOffS,NeedOffS               NeedOffS                 00460599
+         MVC   NeedOffE(4),=XL4'FFFFFFFF'      NeedOffE                 00460699
+         XC    OffsLst@,OffsLst@               OffsLst@                 00460799
+         XC    OffsCur@,OffsCur@               OffsCur@                 00460899
+         XC    Parms_Done,Parms_Done           Parms_Done               00460999
+         XC    DCB@,DCB@                  Clear @ of DCB area           00470063
+                                                                        00480099
+* Check that both SYSOUT and SYSIN are defined                          00500063
+         DEVTYPE =CL8'SYSIN',TEMP         Check SYSIN                   00510063
+         BNZ   Initialize_SYSIN_ERROR     Not Ok -> error and end       00520063
+         DEVTYPE =CL8'SYSOUT',TEMP        Check SYSOUT                  00530063
+         BNZ   Initialize_SYSOUT_ERROR    Not Ok -> error and end       00540063
+                                                                        00550063
+* Get the storage for DCBs (below the lline - PUT/GET support)          00560063
+         STORAGE OBTAIN,COND=NO,LOC=24,                                +00570063
+               ADDR=(R7),LENGTH=DCBSECTL                                00580063
+                                                                        00590063
+* Copy DCBs below the line and save their addresses into GlobVars       00600063
+         ST    R7,DCB@                    Save DCB @                    00610063
+* Process SYSIN                                                         00620063
+         ST    R7,SYSIN@                  Save SYSIN @                  00630063
+         USING IHADCB,R7                                                00640063
+         MVC   0(SYSINDCBL,R7),SYSINDCB   Copy SYSIN DCB under 16M      00650063
+         LA    R0,SYSINDCE                                              00660063
+         ST    R0,DCBDCBE                 Save DCBE @ for SYSIN         00670063
+* Process SYSOUT                                                        00670164
+         LA    R7,SYSINDCBL(R7)                                         00670264
+         ST    R7,SYSOUT@                 Save SYSOUT @                 00670364
+         USING IHADCB,R7                                                00670464
+         MVC   0(SYSOUTDCBL,R7),SYSOUTDCB Copy SYSOUT DCB under 16M     00670564
+         LA    R0,SYSOUTDCE(R7)                                         00670664
+         ST    R0,DCBDCBE                 Save DCBE @ for SYSOUT        00670764
+* Process ASMOFFS                                                       00671064
+         XC    ASMOFFS@,ASMOFFS@          Clear ASMOFFS @               00671164
+         DEVTYPE =CL8'ASMOFFS',TEMP       Check ASMOFFS                 00671264
+         BNZ   Initialize_No_ASMOFFS      Not Ok -> don't copy it       00671364
+         LA    R7,SYSOUTDCBL(R7)                                        00671564
+         ST    R7,ASMOFFS@                Save ASMOFFS @                00672064
+         USING IHADCB,R7                                                00673064
+         MVC   0(ASMOFFSDCBL,R7),ASMOFFSDCB Copy ASMOFFS DCB under 16M  00674064
+         LA    R0,ASMOFFSDCE                                            00675064
+         ST    R0,DCBDCBE                 Save DCBE @ for ASMOFFS       00676064
+Initialize_No_ASMOFFS DS 0H                                             00750064
+* Done with DCBs copying                                                00760063
+                                                                        00780063
+* Open all needed DCBs (INPUT and SYSIN,ASMOFFS - inp, SYSOUT - outp)   00790064
+* If not all of them present - WTO an error and Finish work             00800063
+         MVC   PARMLIST(OPENLL),OPENL     Copy OPEN(input) parms        00810063
+         L     R4,SYSIN@                  Get SYSIN @                   00820063
+         OPEN  ((R4),INPUT),MODE=31,MF=(E,PARMLIST) Open SYSIN          00830063
+                                                                        00840063
+         MVC   PARMLIST(OPENPLL),OPENPL   Copy OPEN(output) parms       00850063
+         L     R4,SYSOUT@                 Get SYSOUT @                  00860063
+         OPEN  ((R4),OUTPUT),MODE=31,MF=(E,PARMLIST) Open SYSOUT        00870063
+                                                                        00871075
+         MVC   PARMLIST(OPENLL),OPENL     Copy OPEN(input) parms        00872075
+         ICM   R4,B'1111',ASMOFFS@        Get ASMOFFS @                 00873077
+         BZ    Initialize_OK             If none -> Ok                  00873175
+         OPEN  ((R4),INPUT),MODE=31,MF=(E,PARMLIST) Open ASMOFFS        00874075
+         CALLPROC OFFS_Build                                            00875075
+         LTR   R15,R15                   Ok?                            00876099
+         BZ    Initialize_OK              . Yes                         00880099
+                                                                        00890063
+Initialize_Offs_ERROR DS 0H               Error in offsets              00890199
+         WTO   'Parms ERROR'              Message about it              00890299
+         XR    R15,R15                                                  00890399
+         LA    R15,8                                                    00890499
+         B     Initialize_EXIT            Exit with RC = 8              00890599
+                                                                        00891099
+Initialize_SYSIN_ERROR DS 0H              No SYSIN                      00900063
+         WTO   'SYSIN ERROR'              Message about it              00910063
+         XR    R15,R15                                                  00920063
+         LA    R15,8                                                    00930063
+         B     Initialize_EXIT            Exit with RC = 8              00940063
+                                                                        00950063
+Initialize_SYSOUT_ERROR DS 0H             No SYSOUT                     00960063
+         WTO   'SYSOUT ERROR'             Message about it              00970063
+         XR    R15,R15                                                  00980063
+         LA    R15,8                                                    00990063
+         B     Initialize_EXIT            Exit with RC = 8              01000063
+                                                                        01010063
+Initialize_OK DS 0H                       Everything Ok                 01020063
+         XR    R15,R15                    Exit with RC = 0              01030063
+                                                                        01040063
+Initialize_EXIT DS 0H                                                   01050063
+         PROCEND RC=(R15)                                               01060063
+*---------------------------------------------------------------------+ 01070063
+* Release                                                             + 01080063
+*                                                                     + 01090063
+*                                                                     + 01100063
+*---------------------------------------------------------------------+ 01110063
+Release  PROCBGN                                                        01120063
+         L     R4,SYSOUT@                 Load SYSOUT@                  01130063
+         LTR   R4,R4                     Anything there?                01140063
+         BZ    Release_Storage            . No                          01150063
+                                                                        01160063
+* 1. Close SYSOUT DCB                                                   01170063
+         MVC   PARMLIST(CLOSELL),CLOSEL   Copy CLOSE parms              01180063
+         L     R4,SYSOUT@                 Load SYSOUT @                 01190063
+         CLOSE ((R4)),MODE=31,MF=(E,PARMLIST) Close SYSOUT              01200063
+         XC    SYSOUT@,SYSOUT@            Clear SYSOUT @                01210063
+                                                                        01220063
+Release_Storage DS 0H                                                   01230063
+* 2. Free the storage for DCBs and the stuff                            01240063
+         L     R4,DCB@                    Load DCB@                     01250076
+         LTR   R4,R4                     Anything there?                01260063
+         BZ    Release_OFFS               . No                          01270076
+                                                                        01280063
+         STORAGE RELEASE,COND=NO,         Release the storage          +01290063
+               LENGTH=DCBSECTL,ADDR=DCB@                                01300063
+         XC    DCB@,DCB@                  Clear DCB@                    01310063
+                                                                        01320063
+Release_OFFS DS 0H                        Exit                          01330076
+         L     R4,OffsLst@                Load OffsLst @                01330176
+         LTR   R4,R4                     Anything there?                01330276
+         BZ    Release_EXIT               . No                          01330376
+Release_OFFS_Loop DS 0H                                                 01330476
+         L     R5,Next_Offs-OFFSLIST(R4)  Get Next                      01330599
+         STORAGE RELEASE,COND=NO,         Free                         +01330699
+               LENGTH=OFFSLIST_Len,ADDR=(R4)    storage                 01330799
+         LTR   R4,R5                     Anything left?                 01330899
+         BNZ   Release_OFFS_Loop          . Yes                         01330999
+                                                                        01331076
+Release_EXIT DS 0H                        Exit                          01332076
+         PROCEND RC=[0]                     RC=0                        01340063
+*---------------------------------------------------------------------+ 01341076
+* OFFS_Build - build OFFS list                                        + 01342076
+*                                                                     + 01343076
+*                                                                     + 01344076
+*---------------------------------------------------------------------+ 01345076
+OFFS_Build PROCBGN                                                      01346076
+         L     R4,ASMOFFS@                Get DCB                       01347099
+         LTR   R4,R4                     Have DCB?                      01348099
+         BZ    OFFS_Build_Exit            . No                          01349099
+                                                                        01349176
+* 1. ASMOFFS is already opened, so we'll be only reading                01349276
+OFFS_Build_ReadLoop DS 0H                                               01349376
+         GET   (R4)                       Get ptr to the next line      01349576
+         LR    R2,R1                      Copy ptr                      01349679
+         CLI   0(R1),C'*'                Is it a comment?               01349776
+         BE    OFFS_Build_ReadLoop        . Yes                         01349876
+         CLI   0(R1),C'@'                Is it a parm?                  01349999
+         BNE   OFFS_Build_Get_Next        . No                          01350099
+         OC    Parms_Done,Parms_Done     Parms done?                    01350299
+         BNZ   OFFS_Build_ReadLoop        . Yes                         01350399
+                                                                        01350499
+OFFS_Build_Parms DS 0H                    Build parms                   01350599
+         OI    Parms_Done,X'FF'           Set parms processed           01350799
+OFFS_Build_Parms_Load@ DS 0H                                            01350899
+         LA    R7,Load@                   P                             01350999
+         ST    R7,Hex@                     r                            01351099
+         LA    R7,2(R2)                     o                           01351199
+         ST    R7,EBC@                       c                          01351299
+         LA    R7,4                           e                         01351399
+         ST    R7,EBCLen                       s                        01351499
+         CALLPROC EBCtoHex                      s                       01351599
+         LTR   R15,R15                           Load@                  01351699
+         BZ    OFFS_Build_Parms_ModName                                 01351799
+         WTO   'No Load @!!!!!'                                         01351899
+         B     OFFS_Build_Exit_4                                        01351999
+                                                                        01352099
+OFFS_Build_Parms_ModName DS 0H                                          01352199
+         MVC   NeedMod(8),12(R2)          Copy modname                  01352299
+         CLC   NeedMod(8),=CL8'        ' Empty?                         01352399
+         BNE   OFFS_Build_Parms_Size                                    01352499
+         WTO   'No ModName!!!!'                                         01352599
+         B     OFFS_Build_Exit_4                                        01352699
+                                                                        01352799
+OFFS_Build_Parms_Size DS 0H               P                             01352899
+         LA    R6,Size                     r                            01352999
+         ST    R6,Hex@                      o                           01353099
+         LA    R6,22(R2)                     c                          01353199
+         ST    R6,EBC@                        e                         01353299
+         LA    R6,4                            s                        01353399
+         ST    R6,EBCLen                        s Size                  01353499
+         CALLPROC EBCtoHex                                              01353599
+         LTR   R15,R15                   Ok?                            01353699
+         BNZ   OFFS_Build_Exit_4          . No                          01353799
+                                                                        01353899
+OFFS_Build_Parms_AsmName DS 0H                                          01353999
+         MVC   NeedAsm(8),32(R2)         Copy asmmod                    01354099
+         CLC   NeedAsm(8),=CL8'        ' Empty?                         01354199
+         BNE   OFFS_Build_Parms_OffS                                    01354299
+         WTO   'No AsmName!!!!'                                         01354399
+         B     OFFS_Build_Exit_4                                        01354499
+                                                                        01354599
+OFFS_Build_Parms_OffS DS 0H               P                             01354699
+         LA    R6,NeedOffS                 r                            01354799
+         ST    R6,Hex@                      o                           01354899
+         LA    R6,42(R2)                     c                          01354999
+         ST    R6,EBC@                        e                         01355099
+         LA    R6,4                            s                        01355199
+         ST    R6,EBCLen                        s OffS                  01355299
+         CALLPROC EBCtoHex                                              01355399
+         LTR   R15,R15                   Ok?                            01355499
+         BZ    OFFS_Build_Parms_OffE      . Yes                         01355599
+         XC    NeedOffS,NeedOffS          Clear                         01355699
+OFFS_Build_Parms_OffE DS 0H               P                             01355799
+         LA    R6,NeedOffE                 r                            01355899
+         ST    R6,Hex@                      o                           01355999
+         LA    R6,52(R2)                     c                          01356099
+         ST    R6,EBC@                        e                         01356199
+         LA    R6,4                            s                        01356299
+         ST    R6,EBCLen                        s OffS                  01356399
+         CALLPROC EBCtoHex                                              01356499
+         LTR   R15,R15                   Ok?                            01356599
+         BZ    OFFS_Build_ReadLoop        . Yes                         01356699
+         MVC   NeedOffE(4),=XL4'FFFFFFFF' Clear                         01356799
+         B     OFFS_Build_ReadLoop        Continue                      01356899
+                                                                        01356983
+OFFS_Build_Get_Next DS 0H                 Get new storage               01357099
+         STORAGE OBTAIN,LOC=31,                                        +01357176
+               LENGTH=OFFSLIST_Len,ADDR=(R7)                            01357276
+                                                                        01357376
+         USING OFFSLIST,R7                                              01357477
+         LA    R3,2(R2)                   P                             01357599
+         ST    R3,EBC@                     r                            01357699
+         LA    R3,CsOffs                    o                           01357799
+         ST    R3,Hex@                       c                          01357899
+         LA    R3,4                           e                         01357999
+         ST    R3,EBClen                       s                        01358099
+         CALLPROC EBCToHex                      s CsectOffs             01358199
+         XC    Next_Offs,Next_Offs        Clear NextOffs                01358299
+         MVC   CsectNam(8),12(R2)         Copy CSECT                    01358399
+         MVC   AsmModN(8),22(R2)          Copy AsmName                  01358499
+                                                                        01358576
+         L     R6,OffsCur@                Get cur ptr                   01358699
+         LTR   R6,R6                     First time?                    01358799
+         BNZ   OFFS_Build_NotFirst        . No                          01358899
+                                                                        01358976
+OFFS_Build_First DS 0H                                                  01359076
+         ST    R7,OffsLst@                Save Start                    01359199
+         MVC   AsmOffs(4),CsOffs          Copy Offs                     01359299
+         B     OFFS_Build_Common          Continue                      01359399
+                                                                        01359476
+OFFS_Build_NotFirst DS 0H                                               01359576
+         ST    R7,Next_Offs-OFFSLIST(R6)  Store NextPtr                 01359699
+                                                                        01359776
+         CLC   AsmModN-OFFSLIST(8,R6),22(R2) Diff Asm?                  01359899
+         BNE   OFFS_Build_NotFirst_NewAsm  . No                         01359999
+                                                                        01360076
+OFFS_Build_NotFirst_OldAsm DS 0H                                        01360176
+         MVC   AsmOffs(4),AsmOffs-OFFSLIST(R6) Copy AsmOffs             01360299
+         B     OFFS_Build_Common          Continue                      01360399
+                                                                        01360476
+OFFS_Build_NotFirst_NewAsm DS 0H                                        01360576
+         MVC   AsmOffs(4),CsOffs          Get new AsmOffs               01360699
+                                                                        01360776
+OFFS_Build_Common DS 0H                                                 01360876
+         ST    R7,OffsCur@                Save cur ptr                  01360999
+         B     OFFS_Build_ReadLoop        Continue looping              01361099
+                                                                        01361176
+*                                                                       01361290
+ASMOFFSEOF DS 0H                                                        01361376
+         MVC   PARMLIST(CLOSELL),CLOSEL   Copy CLOSE parms              01361476
+         L     R4,ASMOFFS@                Get ASMOFFS @                 01361576
+         CLOSE ((R4)),MODE=31,MF=(E,PARMLIST)   Close ASMOFFS           01361676
+         XC    ASMOFFS@,ASMOFFS@          Clear its @                   01361776
+         B     OFFS_Build_Exit_0                                        01361899
+                                                                        01361999
+                                                                        01362076
+OFFS_Build_Exit_4 DS 0H                                                 01362199
+         LA    R15,4                                                    01362299
+         B     OFFS_Build_Exit                                          01362399
+OFFS_Build_Exit_0 DS 0H                                                 01362499
+         XR    R15,R15                                                  01362599
+         B     OFFS_Build_Exit                                          01362699
+OFFS_Build_Exit DS 0H                                                   01362799
+         PROCEND RC=(R15)                   RC=0                        01362899
+*---------------------------------------------------------------------+ 01362999
+* Process_Line                                                        + 01363063
+* On input, R3 points to the storage with the line to parse           + 01370063
+* We convert needed stuff into EBCDIC and put into SYSOUT             + 01380063
+*---------------------------------------------------------------------+ 01390063
+Process_Line PROCBGN                                                    01400063
+         XC    Put_Line,Put_Line                                        01400199
+         MVI   Line,C' '                  Clear                         01401099
+         MVC   Line+1(159),Line                Line                     01402099
+         MVC   Line+1(9),=CL9'????????'       Process Asm Name          01406099
+         MVC   Line+10(9),=CL9'????????'         and offs in it         01407099
+         MVC   Line+19(2),=CL2'| '             |                        01408099
+         MVC   Line+21(9),=CL9'????????'       Process CSECT            01409099
+         MVC   Line+30(9),=CL9'????????'         and offs in it         01409199
+         MVC   Line+39(3),=CL3'|| '            ||                       01409299
+         MVC   Line+42(9),=CL9'????????'       Process Asm Name         01409399
+         MVC   Line+51(9),=CL9'????????'         and offs in it         01409499
+         MVC   Line+60(2),=CL2'| '             |                        01409599
+         MVC   Line+62(9),=CL9'????????'       Process CSECT            01409699
+         MVC   Line+71(9),=CL9'????????'         and offs in it         01409799
+                                                                        01430063
+         USING SLIP_DS_GTFSLIP,R3                                       01440063
+         CLC   NeedMod(8),SLIP_DS_GTFSLIP_MODN Good Modname?            01443099
+         BNE   Process_Line_Exit4              . No                     01444099
+                                                                        01445067
+Process_Line_Offs_To DS 0H                                              01446099
+*Process Offset: To                                                     01447099
+         NI    SLIP_DS_GTFSLIP_OPSW+4,X'7F'    Correct byte             01481099
+         ICM   R2,B'1111',SLIP_DS_GTFSLIP_OPSW+4                        01490999
+         S     R2,Load@                                                 01491099
+                                                                        01492799
+         L     R7,OffsLst@                     Get list of offsets      01492899
+         LTR   R7,R7                          Got?                      01492999
+         BZ    Process_Line_Exit4              . No                     01493099
+         XR    R1,R1                           Clear R1                 01493199
+                                                                        01493299
+Process_Line_Offs_To_Loop DS 0H                                         01493399
+         L     R6,Next_Offs-OFFSLIST(R7)       Get next                 01493499
+         LTR   R6,R6                          Got?                      01493599
+         BZ    Process_Line_Offs_To_R7         . No                     01493699
+         ICM   R1,B'1111',CsOffs-OFFSLIST(R6)  Get next Cs Offs         01493799
+         CR    R2,R1                          Cur CS < Next CS?         01493899
+         BL    Process_Line_Offs_To_R7         . Yes                    01493999
+         LR    R7,R6                           Copy ptr                 01494099
+         B     Process_Line_Offs_To_Loop       Try next                 01494199
+                                                                        01494299
+Process_Line_Offs_To_R7 DS 0H                                           01494399
+         USING OFFSLIST,R7                                              01494499
+         CLC   NeedAsm(8),AsmModN             Good Asm name?            01494599
+         BNE   Process_Line_Offs_To_R7_Asm     . No                     01494699
+         OI    Put_Line,X'01'                                           01494799
+                                                                        01494899
+Process_Line_Offs_To_R7_Asm DS 0H                                       01494999
+         MVC   Line+42(8),AsmModN              Copy Asm name            01495099
+         MVC   Line+62(8),CsectNam             Copy Csect name          01495199
+                                                                        01495299
+         ICM   R4,B'1111',AsmOffs              Copy Asm Offs            01495399
+         LR    R5,R2                           Copy cur offs            01495499
+         SR    R5,R4                           Get offs in asm          01495599
+         CL    R5,NeedOffS                    OffInA < OffS?            01495699
+         BL    Process_Line_Off_To_Ok          . Yes                    01495799
+         CL    R5,NeedOffE                    OffInA > OffE?            01495899
+         BH    Process_Line_Off_To_Ok          . Yes                    01495999
+         OI    Put_Line,X'02'                                           01496099
+                                                                        01496199
+Process_Line_Off_To_Ok DS 0H                   Everything is OK         01496299
+         ST    R5,TEMP                         Save OffInAsm            01496399
+         LA    R6,TEMP                         C                        01496499
+         ST    R6,Hex@                          o                       01496599
+         LA    R6,Line+51                        n                      01496699
+         ST    R6,EBC@                            v                     01496799
+         LA    R6,4                                e                    01496899
+         ST    R6,HexLen                            r                   01496999
+         CALLPROC HexToEBC                           t                  01497099
+                                                                        01497199
+         ICM   R4,B'1111',CsOffs               G                        01497299
+         LR    R5,R2                            e                       01497399
+         SR    R5,R4                             t  OffInCsect          01497499
+         ST    R5,TEMP                         C                        01497599
+         LA    R6,TEMP                          o                       01497699
+         ST    R6,Hex@                           n                      01497799
+         LA    R6,Line+71                         v                     01497899
+         ST    R6,EBC@                             e                    01497999
+         LA    R6,4                                 r                   01498099
+         ST    R6,HexLen                             t                  01498199
+         CALLPROC HexToEBC                                              01498299
+         CLC   Put_Line(1),=X'03'                                       01498399
+         BE    Process_Line_Offs_To_Good                                01498499
+         XC    Put_Line,Put_Line                                        01498599
+         B     Process_Line_Offs_From                                   01498699
+Process_Line_Offs_To_Good DS 0H                                         01498799
+         OI    Put_Line,X'FF'                  Set Line Good            01498899
+                                                                        01498999
+Process_Line_Offs_From DS 0H                                            01499099
+*Process Offset: From                                                   01499199
+         CLC   =CL4'N/A',SLIP_DS_GTFSLIP_OFFS 'N/A '?                   01500063
+         BE    Process_Line_CopyOffs           . Just Copy              01510063
+         CLC   =CL4'U/A',SLIP_DS_GTFSLIP_OFFS 'U/A '?                   01520063
+         BE    Process_Line_CopyOffs           . Just Copy              01530063
+*Define needed stuff                                                    01660085
+         L     R7,OffsLst@                     Get list of offsets      01661599
+         LTR   R7,R7                          Got?                      01661699
+         BZ    Process_Line_Exit4              . No                     01661799
+         XR    R2,R2                           Clear R2                 01661899
+         XR    R1,R1                           Clear R1                 01661999
+         ICM   R2,B'1111',SLIP_DS_GTFSLIP_OFFS Get Offs from trace      01662099
+                                                                        01662193
+Process_Line_Offs_From_Loop DS 0H                                       01662299
+         L     R6,Next_Offs-OFFSLIST(R7)       Get next                 01662399
+         LTR   R6,R6                          Got?                      01662499
+         BZ    Process_Line_Offs_From_R7       . No                     01662599
+         ICM   R1,B'1111',CsOffs-OFFSLIST(R6)  Get next Cs Offs         01662799
+         CR    R2,R1                          Cur CS < Next CS?         01662899
+         BL    Process_Line_Offs_From_R7       . Yes                    01662999
+         LR    R7,R6                           Copy ptr                 01663099
+         B     Process_Line_Offs_From_Loop     Try next                 01663199
+                                                                        01663393
+Process_Line_Offs_From_R7 DS 0H                                         01663499
+         USING OFFSLIST,R7                                              01663593
+         CLC   NeedAsm(8),AsmModN             Good Asm name?            01663899
+         BNE   Process_Line_Exit4              . no                     01663999
+                                                                        01664199
+         MVC   Line+1(8),AsmModN              Copy Asm name             01664399
+         MVC   Line+21(8),CsectNam             Copy Csect name          01664499
+                                                                        01664799
+         ICM   R4,B'1111',AsmOffs              Copy Asm Offs            01664899
+         LR    R5,R2                           Copy cur offs            01665099
+         SR    R5,R4                           Get offs in asm          01665199
+         CL    R5,NeedOffS                    OffInA < OffS?            01665299
+         BL    Process_Line_Offs_From_R7_LChk  . Yes                    01665399
+         CL    R5,NeedOffE                    OffInA > OffE?            01665499
+         BH    Process_Line_Offs_From_R7_LChk  . Yes                    01665599
+         B      Process_Line_Off_From_Ok                                01665699
+Process_Line_Offs_From_R7_LChk DS 0H                                    01665799
+         OC    Put_Line,Put_Line              Line is good?             01665899
+         BZ    Process_Line_Exit4              . No                     01665999
+                                                                        01666099
+Process_Line_Off_From_Ok DS 0H                 Everything is OK         01666199
+         ST    R5,TEMP                         Save OffInAsm            01666299
+         LA    R6,TEMP                         C                        01666399
+         ST    R6,Hex@                          o                       01666499
+         LA    R6,Line+10                        n                      01666599
+         ST    R6,EBC@                            v                     01666699
+         LA    R6,4                                e                    01666799
+         ST    R6,HexLen                            r                   01666899
+         CALLPROC HexToEBC                           t                  01666999
+                                                                        01667099
+         ICM   R4,B'1111',CsOffs               G                        01667199
+         LR    R5,R2                            e                       01667299
+         SR    R5,R4                             t  OffInCsect          01667399
+         ST    R5,TEMP                         C                        01667499
+         LA    R6,TEMP                          o                       01667599
+         ST    R6,Hex@                           n                      01667699
+         LA    R6,Line+30                         v                     01667799
+         ST    R6,EBC@                             e                    01667899
+         LA    R6,4                                 r                   01667999
+         ST    R6,HexLen                             t                  01668099
+         CALLPROC HexToEBC                                              01668199
+                                                                        01668299
+         B     Process_Line_Exit0              Exit                     01668699
+Process_Line_CopyOffs DS 0H                                             01668799
+         OC    Put_Line,Put_Line              Line is good?             01668899
+         BZ    Process_Line_Exit4              . No                     01668999
+         MVC   Line+33(4),SLIP_DS_GTFSLIP_OFFS Copy 'N/A '|'U/A '       01669099
+         B     Process_Line_Exit0              Exit                     01669199
+                                                                        01669285
+Process_Line_Exit4 DS 0H                       Exit                     01670067
+         LA    R15,4                             RC=4                   01670167
+         B     Process_Line_Exit                                        01670267
+                                                                        01670367
+Process_Line_Exit0 DS 0H                       Exit                     01670467
+         XR    R15,R15                           RC=0                   01670567
+         B     Process_Line_Exit                                        01670667
+                                                                        01670767
+Process_Line_Exit DS 0H                        Exit                     01671067
+         PROCEND RC=(R15)                                               01680067
+*---------------------------------------------------------------------+ 01690063
+* HexToEBC                                                            + 01700063
+* On input: Hex@ - contains the address of area from which we convert + 01710063
+*           HexLen - the length to be converted                       + 01720063
+*           EBC@ - the address where to put (the starting adress)     + 01730063
+*---------------------------------------------------------------------+ 01740063
+HexToEBC PROCBGN                                                        01750063
+         L     R8,Hex@                    Get @ - From                  01760063
+         LTR   R8,R8                     Anything there?                01770063
+         BZ    HexToEBC_EXIT              . No                          01780063
+         L     R6,EBC@                    Get @ - to                    01790063
+         LTR   R6,R6                     Anything there?                01800063
+         BZ    HexToEBC_EXIT              . No                          01810063
+         L     R7,HexLen                   Get length                   01820063
+         LTR   R7,R7                      Anything there?               01830063
+         BZ    HexToEBC_EXIT               . No                         01840063
+* Everything is good                                                    01850063
+         LA    R1,HexToEBC_Tran           Load @ of translation table   01860063
+HexToEBC_Continue DS 0H                   Continue - if too long        01870063
+         TROT  R6,R8,X'1'                 Trans without test for break  01880063
+         BO    HexToEBC_Continue           Interrupted, continue        01890063
+                                                                        01900063
+HexToEBC_EXIT DS 0H                       Exit                          01910063
+         PROCEND RC=[0]                     RC=0                        01920063
+*---------------------------------------------------------------------+ 01920176
+* EBCToHex                                                            + 01920276
+* On input: Hex@ - contains the address of area from which we convert + 01920376
+*           HexLen - the length to be converted                       + 01920476
+*           EBC@ - the address where to put (the starting adress)     + 01920576
+*---------------------------------------------------------------------+ 01920676
+EBCToHex PROCBGN                                                        01920776
+                                                                        01921184
+         L     R8,EBC@                    Get @ - From                  01921276
+         LTR   R8,R8                     Anything there?                01921376
+         BZ    EBCToHex_EXIT              . No                          01921476
+         L     R6,Hex@                    Get @ - to                    01922076
+         LTR   R6,R6                     Anything there?                01922176
+         BZ    EBCToHex_EXIT              . No                          01922276
+         L     R7,EBCLen                   Get length (amount of pairs) 01922378
+         LTR   R7,R7                      Anything there?               01922476
+         BZ    EBCToHex_EXIT               . No                         01922576
+* Everything is good                                                    01922676
+EBCToHex_Loop DS 0H                                                     01922778
+         XR    R2,R2                      Clear R2                      01922899
+         TRT   0(1,R8),EBCToHex_Tran      Translate EBCDIC chars        01922999
+         LTR   R2,R2                     Ok?                            01923099
+         BZ    EBCToHex_Error             . No                          01923199
+         BCTR  R2,0                       Sub 1                         01923399
+         SLL   R2,4                       R2 << 4                       01923499
+         LR    R3,R2                      Copy R2                       01923599
+         XR    R2,R2                      Clear R2                      01923699
+         TRT   1(1,R8),EBCToHex_Tran      Translate EBCDIC chars        01923799
+         LTR   R2,R2                     Ok?                            01923899
+         BZ    EBCToHex_Error             . No                          01923999
+         BCTR  R2,0                       Sub 1                         01924199
+         OR    R2,R3                      Add Lower bits                01924299
+         STC   R2,0(R6)                   Save byte                     01924399
+         LA    R6,1(R6)                   Ptr to the next byte          01924499
+         LA    R8,2(R8)                   Ptr to the next chars         01924599
+         BCT   R7,EBCToHex_Loop           Continue looping              01924699
+                                                                        01924799
+         XR    R15,R15                    Set RC=0                      01924899
+         B     EBCToHex_EXIT              Exit                          01924999
+                                                                        01925078
+EBCToHex_Error DS 0H                                                    01925178
+         LR    R15,4                                                    01925278
+                                                                        01925376
+EBCToHex_EXIT DS 0H                       Exit                          01925476
+         PROCEND RC=(R15)                                               01926078
+*********************************************************************** 01956099
+*                                                                     * 01956199
+*    Read-only memory                                                 * 01957099
+*                                                                     * 01960063
+*********************************************************************** 01970063
+*                                                                       01980063
+         LTORG ,                                                        01990063
+*                                                                       02000063
+OPENL    OPEN  0,MODE=31,MF=L                                           02010063
+OPENLL   EQU   *-OPENL                                                  02020063
+*                                                                       02030063
+OPENPL   OPEN  (0,(OUTPUT)),MODE=31,MF=L                                02040063
+OPENPLL  EQU   *-OPENPL                                                 02050063
+*                                                                       02060063
+CLOSEL   CLOSE 0,MODE=31,MF=L                                           02070063
+CLOSELL  EQU   *-CLOSEL                                                 02080063
+*                                                                       02090063
+*                                                                       02100063
+*                                                                       02110063
+* Section of DCB definitions                                            02120063
+DCBSECT     DS    0D                                                    02130063
+* SYSINDCB - DCB to copy under the line (+DCDE)                         02140063
+DCBSYSIN    DS    0D                                                    02150063
+SYSINDCB    DCB   DDNAME=SYSIN,DSORG=PS,MACRF=GL,DCBE=0                 02160063
+SYSINDCBL   EQU   *-DCBSYSIN                                            02170063
+* SYSOUTDCB - DCB to copy under the line (+DCDE, just in case)          02180063
+DCBSYSOUT   DS    0D                                                    02190063
+SYSOUTDCB   DCB   DDNAME=SYSOUT,DSORG=PS,MACRF=PM,DCBE=0,LRECL=80       02200099
+SYSOUTDCBL  EQU   *-DCBSYSOUT                                           02210063
+* ASMOFFSDCB - DCB to copy under the line (+DCDE)                       02211064
+DCBASMOFFS  DS    0D                                                    02212064
+ASMOFFSDCB  DCB   DDNAME=ASMOFFS,DSORG=PS,MACRF=GL,DCBE=0               02213064
+ASMOFFSDCBL EQU   *-DCBASMOFFS                                          02214064
+DCBSECTL    EQU   *-DCBSECT                                             02220063
+* Section of DCDE definitions                                           02230063
+DCDESECT    DS    0D                                                    02240063
+SYSINDCE    DCBE  EODAD=SYSINEOF                                        02250063
+SYSINDCEL   EQU   *-SYSINDCE                                            02260065
+SYSOUTDCE   DCBE  ,                                                     02270063
+SYSOUTDCEL  EQU   *-SYSOUTDCE                                           02280065
+ASMOFFSDCE  DCBE  EODAD=ASMOFFSEOF                                      02281082
+ASMOFFSDCEL  EQU  *-ASMOFFSDCE                                          02282065
+DCDESECTL   EQU   *-DCBSECT                                             02290063
+* HexToECB_Tran - table for translation Hext into EBCDIC characters     02300063
+HexToEBC_Tran_Align DS 0D                                               02310063
+HexToEBC_Tran DS 0CL512                                                 02320063
+              DC C'000102030405060708090A0B0C0D0E0F' X'00' - X'0F'      02330063
+              DC C'101112131415161718191A1B1C1D1E1F' X'10' ' X'1F'      02340063
+              DC C'202122232425262728292A2B2C2D2E2F' X'20' - X'2F'      02350063
+              DC C'303132333435363738393A3B3C3D3E3F' X'30' - X'3F'      02360063
+              DC C'404142434445464748494A4B4C4D4E4F' X'40' - X'4F'      02370063
+              DC C'505152535455565758595A5B5C5D5E5F' X'50' - X'5F'      02380063
+              DC C'606162636465666768696A6B6C6D6E6F' X'60' - X'6F'      02390063
+              DC C'707172737475767778797A7B7C7D7E7F' X'70' - X'7F'      02400063
+              DC C'808182838485868788898A8B8C8D8E8F' X'80' - X'8F'      02410063
+              DC C'909192939495969798999A9B9C9D9E9F' X'90' - X'9F'      02420063
+              DC C'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF' X'A0' - X'AF'      02430063
+              DC C'B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF' X'B0' - X'BF'      02440063
+              DC C'C0C1C2C3C4C5C6C7C8C9CACBCCCDCECF' X'C0' - X'CF'      02450063
+              DC C'D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF' X'D0' - X'DF'      02460063
+              DC C'E0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF' X'E0' - X'EF'      02470063
+              DC C'F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF' X'F0' - X'FF'      02480063
+EBCToHex_Tran_Align DS 0D                                               02481078
+EBCToHex_Tran DC 256X'0'                                                02482083
+              ORG EBCToHex_Tran+C'0'                                    02483078
+              DC X'0102030405060708090A'                                02484078
+              ORG EBCToHex_Tran+C'A'                                    02485083
+              DC X'0B0C0D0E0F10'                                        02486078
+              ORG                                                       02487078
+*********************************************************************** 02490063
+*                                                                     * 02500063
+*    DSECT section                                                    * 02510063
+*                                                                     * 02520063
+*********************************************************************** 02530063
+        #GLOBVAR START                                                  02540063
+DCB@     DS    A                                                        02560063
+SYSIN@   DS    A                                                        02570063
+SYSOUT@  DS    A                                                        02580063
+ASMOFFS@ DS    A                                                        02581064
+OffsLst@ DS    A                                                        02582066
+OffsCur@ DS    A                                                        02583066
+SizeCur@ DS    A                                                        02585099
+Start@   DS    A                                                        02586099
+End@     DS    A                                                        02587099
+Hex@     DS    A                                                        02590063
+EBC@     DS    A                                                        02600063
+*                                                                       02600199
+Load@    DS    F                                                        02601099
+Size     DS    F                                                        02602099
+HexLen   DS    F                                                        02610063
+EBCLen   DS    F                                                        02610176
+NeedOffS DS    F                                                        02613099
+NeedOffE DS    F                                                        02614099
+NeedMod  DS    CL8                                                      02615099
+NeedAsm  DS    CL8                                                      02616099
+PARMLIST DS    100F                                                     02620063
+Line     DS    CL160                                                    02621066
+TEMP     DS    CL160                                                    02630099
+*                                                                       02630199
+Parms_Done DS  X                                                        02631099
+*                                                                       02631199
+Put_Line   DS  X                                                        02632099
+*                                                                       02634099
+        #GLOBVAR END                                                    02640063
+*                                                                       02641066
+SLIP_DS #GTFSLIP TYPE=STD                                               02650063
+*                                                                       02651066
+TEMPDCB  DCBD  DSORG=PS,DEVD=DA                                         02660063
+*                                                                       02661066
+OFFSLIST DSECT                                                          02662066
+Next_Offs DS   A                                                        02662178
+CsOffs   DS    XL4                                                      02663076
+AsmOffs  DS    XL4                                                      02663176
+CsectNam DS    CL8                                                      02664066
+AsmModN  DS    CL8                                                      02665066
+OFFSLIST_Len EQU *-OFFSLIST                                             02668066
+*                                                                       02669099
+SizeList DSECT                                                          02669199
+NextSize DS    A                                                        02669299
+PrevSize DS    A                                                        02669399
+CurLeft  DS    F                                                        02669499
+CurRight DS    F                                                        02669599
+SizeList_Len EQU *-SizeList                                             02669699
+*                                                                       02669799
+         END                                                            02670063

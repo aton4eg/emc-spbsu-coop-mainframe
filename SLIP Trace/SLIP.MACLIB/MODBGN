@@ -1,0 +1,103 @@
+*---------------------------------------------------------------------* 00010000
+* Module information:                                                 * 00020000
+*                                                                     * 00030000
+* NAME:               MODBGN                                          * 00040000
+* Type:               MACRO                                           * 00050000
+* DESCRIPTION:        Intro to ASM module                             * 00060000
+* Usage:                                              Default value   * 00070000
+* label  MODBGN       [AMODE={31,24,ANY}]             31              * 00080000
+*                     [RMODE={31,24,ANY}]             ANY             * 00090000
+*                     [GBLVAR={Y|N}]                  N               * 00091015
+*                     [GBLREG={R2-R11}]                               * 00092022
+*---------------------------------------------------------------------* 00100000
+         MACRO                                                          00110000
+&LABEL   MODBGN &AMODE=31,                                             +00120000
+               &RMODE=ANY,                                             +00130014
+               &GBLVAR=N,                                              +00131015
+               &GBLREG=                                                 00132022
+         GBLC &CSECT                             Name of current CSECT  00140000
+         GBLB &GlobVars                          GlobVars?              00141016
+         GBLC &GlobR                             GlobReg                00142016
+                                                                        00150000
+.* Check compulsory variables & environment                             00160000
+         AIF  ('&CSECT' NE '').ERR_CSECT         CSECTname? -> error    00170000
+         AIF  ('&LABEL' EQ '').ERR_NOLABEL        No LABEL? -> error    00180003
+.* AMODE                                                                00190000
+         AIF  ('&AMODE' EQ '31').AMODE_OK                               00200000
+         AIF  ('&AMODE' EQ '24').AMODE_OK                               00210000
+         AIF  ('&AMODE' EQ 'ANY').AMODE_OK                              00220000
+         AGO  .ERR_AMODE                                                00230000
+                                                                        00231015
+.AMODE_OK ANOP                                                          00240002
+.* RMODE                                                                00250000
+         AIF  ('&RMODE' EQ '31').RMODE_OK                               00260007
+         AIF  ('&RMODE' EQ '24').RMODE_OK                               00270007
+         AIF  ('&RMODE' EQ 'ANY').RMODE_OK                              00280007
+         AGO  .ERR_RMODE                                                00290000
+                                                                        00291015
+.RMODE_OK ANOP                                                          00300002
+.* GLOBVAR                                                              00301015
+         AIF  ('&GBLVAR' EQ 'N').NO_GBLVAR                              00305017
+         AIF  ('&GBLVAR' EQ 'Y').CHECK_GBLREG                           00306017
+         AGO  .ERR_GBLVAR                                               00307015
+                                                                        00307115
+.CHECK_GBLREG ANOP                                                      00308015
+         AIF  ('&GBLREG' EQ '').ERR_GBLREG                              00309015
+&GlobVars SETB (1)                                                      00309116
+&GlobR   SETC '&GBLREG'                                                 00309215
+         AGO  .GBL_PARMS_OK                                             00309315
+.NO_GBLVAR ANOP                                                         00309415
+         AIF  ('&GBLREG' NE '').ERR_GBLVAR                              00309515
+         AGO  .GBL_PARMS_OK                                             00309615
+                                                                        00309715
+.GBL_PARMS_OK ANOP                                                      00309815
+                                                                        00309915
+.PARMS_OK ANOP                                                          00310015
+.* All parms OK                                                         00310100
+&CSECT   SETC  '&LABEL'                                                 00311012
+.* Begin processing                                                     00320000
+&CSECT   CSECT ,                                                        00330012
+&CSECT   AMODE &AMODE                                                   00340012
+&CSECT   RMODE &RMODE                                                   00350012
+&CSECT._LOC LOCTR ,                                                     00360020
+         REGS                                                           00380003
+                                                                        00390003
+&CSECT._MAIN PROCBGN                                                    00400000
+         AIF   (NOT &GlobVars).DONE                                     00401017
+* Get storage for Global variables                                      00401117
+         AIF  ('&AMODE' EQ '').OBTAIN_24                                00401217
+         STORAGE OBTAIN,                         Get storage according +00401317
+               LENGTH=&CSECT._GLOBVAR_LEN,        to AMODE             +00401418
+               COND=NO,LOC=&AMODE,ADDR=(&GlobR)                         00401518
+         AGO   .DONE                                                    00401617
+.OBTAIN_24 ANOP                                                         00401717
+         STORAGE OBTAIN,                         Get storage below     +00401817
+               LENGTH=&CSECT._GLOBVAR_LEN,        the line             +00401918
+               COND=NO,LOC=RES,ADDR=(&GlobR)                            00402018
+                                                                        00402117
+.DONE ANOP                                                              00403017
+* Restore R0 and R1                                                     00404021
+         L     R1,4(R13)                                                00405021
+         LM    R0,R1,20(R1)                                             00406021
+.* Done                                                                 00410000
+         AGO   .EXIT                                                    00420000
+.ERR_CSECT ANOP                                                         00430000
+         MNOTE 12,'Already started CSECT named &CSECT exists'           00440000
+         MEXIT                                                          00450000
+.ERR_NOLABEL ANOP                                                       00460000
+         MNOTE 12,'No LABEL'                                            00470000
+         MEXIT                                                          00480000
+.ERR_AMODE ANOP                                                         00490000
+         MNOTE 12,'Errorneous AMODE=&AMODE'                             00500000
+         MEXIT                                                          00510000
+.ERR_RMODE ANOP                                                         00520000
+         MNOTE 12,'Errorneous RMODE=&RMODE'                             00530000
+         MEXIT                                                          00540000
+.ERR_GBLREG ANOP                                                        00541015
+         MNOTE 12,'No GBLREG provided for GBLVAR'                       00542015
+         MEXIT                                                          00543015
+.ERR_GBLVAR ANOP                                                        00544015
+         MNOTE 12,'No GBLVAR provided for GBLREG'                       00545015
+         MEXIT                                                          00546015
+.EXIT    ANOP                                                           00550000
+         MEND                                                           00560000
