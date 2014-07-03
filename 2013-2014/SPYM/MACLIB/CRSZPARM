@@ -1,8 +1,8 @@
          MACRO                                                          00021000
       CRSZPARM &SYSLIB,&SYSIN,&RESULT                                   00021100
-*CREATE SUPERZAP PARAMS. CHANGES R0,R1,R2,R3,R4,R15                     00021212
-*IN &SYSIN GETS DD NAME OF PARAMS DDNAME                                00021309
-*IN &SYSLIB GETS DD NAME OF DATASET WHAT WE NEED TO CHANGE              00021409
+*CREATE SUPERZAP PARAMS. CHANGES R0,R1,R2,R3,R4,R15                     00021200
+*IN &SYSIN GETS DD NAME OF PARAMS DDNAME                                00021300
+*IN &SYSLIB GETS DD NAME OF DATASET WHAT WE NEED TO CHANGE              00021400
          LCLC  &TEMP                                                    00021500
          LCLC  &SYSIN_                                                  00021600
          LCLC  &SYSLIB_                                                 00021700
@@ -14,8 +14,8 @@
          AIF   ('&SYSIN'(1,1) EQ '''').CONSTIN                          00022300
          AIF   ('&SYSIN'(1,1) EQ '(').REGIN                             00022400
 *ELSE FLD                                                               00022500
-&SYSIN_  SETC  '0(R3)'                                                  00022612
-         LA    R3,&SYSIN                                                00022712
+&SYSIN_  SETC  '0(R3)'                                                  00022600
+         LA    R3,&SYSIN                                                00022700
          AGO   .ENDIN                                                   00022800
                                                                         00022900
 .CONSTIN ANOP                                                           00023000
@@ -26,7 +26,7 @@ SKDD&E6  EQU   *                                                        00023300
 &SYSIN_  SETC  '0(R3)'                                                  00023500
          AGO   .ENDIN                                                   00023600
                                                                         00023700
-.REGIN   ANOP                                                           00023809
+.REGIN   ANOP                                                           00023800
 &SYSIN_  SETC  '0'.'&SYSIN'                                             00023900
                                                                         00024000
 .ENDIN   ANOP                                                           00024100
@@ -34,16 +34,16 @@ SKDD&E6  EQU   *                                                        00023300
          AIF   ('&SYSLIB'(1,1) EQ '''').CONSTLB                         00024300
          AIF   ('&SYSLIB'(1,1) EQ '(').REGLB                            00024400
 *ELSE FLD                                                               00024500
-&SYSLIB_ SETC  '0(R4)'                                                  00024612
-         LA    R4,&SYSLIB                                               00024712
+&SYSLIB_ SETC  '0(R4)'                                                  00024600
+         LA    R4,&SYSLIB                                               00024700
          AGO   .ENDLIB                                                  00024800
                                                                         00024900
 .CONSTLB ANOP                                                           00025000
          B     SKDD&E6                                                  00025100
 DDN#&E6  DC    CL8&SYSLIB                                               00025200
 SKDD&E6  EQU   *                                                        00025300
-         LA    R4,DDN#&E6                                               00025412
-&SYSLIB_ SETC  '0(R4)'                                                  00025512
+         LA    R4,DDN#&E6                                               00025400
+&SYSLIB_ SETC  '0(R4)'                                                  00025500
          AGO   .ENDLIB                                                  00025600
                                                                         00025700
 .REGLB   ANOP                                                           00025800
@@ -51,7 +51,7 @@ SKDD&E6  EQU   *                                                        00025300
                                                                         00026000
 .ENDLIB  ANOP                                                           00026100
                                                                         00026200
-       GETMAIN RU,LV=SPZPRM#,LOC=ANY                                    00026314
+       GETMAIN RU,LV=SPZPRM#,LOC=BELOW                                  00026302
          LR    R2,R1                                                    00026400
          USING SPZPPRM,R2                                               00026500
                                                                         00026600
@@ -61,10 +61,10 @@ SKDD&E6  EQU   *                                                        00025300
                                                                         00027000
          XR    R1,R1                                                    00027100
          STC   R1,NA1                                                   00027200
-         MVC   NA1+1(47),NA1                                            00027300
+         MVC   NA1+1(47),NA1                                            00027301
                                                                         00027400
-         MVC   SYSLIB(8),&SYSLIB_                                       00027500
-         MVC   SYSIN(8),&SYSIN_                                         00027600
+         MVC   SYSLIB(8),&SYSLIB_                                       00027501
+         MVC   SYSIN(8),&SYSIN_                                         00027601
                                                                         00027700
          DROP  R2                                                       00027800
          AIF   ('&RESULT'(1,1) EQ '(').REGRES                           00027900

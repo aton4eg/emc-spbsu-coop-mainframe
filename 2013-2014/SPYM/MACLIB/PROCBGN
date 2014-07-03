@@ -1,24 +1,24 @@
          MACRO                                                          00010000
 &LABEL   PROCBGN                                                        00020000
          GBLC  &CSECT                                                   00050000
-                                                                        00060010
-         AIF   ('&CSECT' EQ '').GENPR1                                  00070010
-         MNOTE 'SOME ROUTINE IS CURRENTLY DESCRIBING'                   00080003
+                                                                        00060000
+         AIF   ('&CSECT' EQ '').GENPR1                                  00070000
+         MNOTE 'SOME ROUTINE IS CURRENTLY DESCRIBING'                   00080000
          MEXIT                                                          00090000
                                                                         00100000
 .GENPR1  ANOP                                                           00110000
-&CSECT   SETC  '&LABEL'                                                 00150010
+&CSECT   SETC  '&LABEL'                                                 00150000
          USING &LABEL._SAVE,R13            SET SA ADDRESSATION          00180000
-&CSECT   CSECT                                                          00190009
-&CSECT   AMODE 31                                                       00191015
-&CSECT   RMODE ANY                                                      00192015
-                                                                        00200008
-         STM   R14,R12,12(R13)             STORE REGISTERS              00200108
-                                                                        00201008
-         BASR  R12,0                                                    00202006
-         USING *,R12                       SET ADDRESSATION             00203006
-                                                                        00204006
-       GETMAIN RU,LV=&LABEL._SAVELEN,LOC=ANY CCREATE SAVEAREA           00210021
+&CSECT   CSECT                                                          00190000
+&CSECT   AMODE 31                                                       00191000
+&CSECT   RMODE 24                                                       00192001
+                                                                        00200000
+         STM   R14,R12,12(R13)             STORE REGISTERS              00200100
+                                                                        00201000
+         BASR  R12,0                                                    00202000
+         USING *,R12                       SET ADDRESSATION             00203000
+                                                                        00204000
+       GETMAIN RU,LV=&LABEL._SAVELEN,LOC=ANY CCREATE SAVEAREA           00210000
          LR    R3,R1                       R3:=R1                       00220000
                                                                         00230000
          L     R0,&LABEL._SAVE_R0                                       00240000
@@ -45,8 +45,8 @@
 &I       SETA  &I+1                                                     00450000
          AGO   .LOOP1                                                   00460000
 .ENDLP1  ANOP                                                           00470000
-&LABEL._SAVELEN EQU *-&LABEL._SAVE_AREA                                 00480016
-                                                                        00490006
-&CSECT   CSECT                                                          00500009
-                                                                        00520009
+&LABEL._SAVELEN EQU *-&LABEL._SAVE_AREA                                 00480000
+                                                                        00490000
+&CSECT   CSECT                                                          00500000
+                                                                        00520000
          MEND                                                           00530000

@@ -3,8 +3,8 @@
 &CSECT   SETC  ''                                                       00005000
                                                                         00029000
 MAINLINE CSECT                                                          00029100
-MAINLINE AMODE 24                                                       00029200
-MAINLINE RMODE 24                                                       00029300
+MAINLINE AMODE 31                                                       00029211
+MAINLINE RMODE 24                                                       00029311
                                                                         00051000
          BASR  R12,0                                                    00060000
          USING *,R12             SET ADDRESSATION                       00070000
@@ -28,25 +28,27 @@ SPZPGEN  PROCBGN                                                        00081100
       PROCCALL NAME=DALLOC,(R11)                                        00082000
          STM   R14,R9,12(R13)                                           00082700
        PREPDCB PARM=PUT,TDDSPZP,(R10)                                   00082800
-         LM    R14,R9,12(R13)    DCB ALLOCATION                         00082900
-         OPEN  ((R10),OUTPUT)                                           00083100
+                                                                        00082911
+         LM    R14,R9,12(R13)    DCB ALLOCATION                         00083000
+         OPEN  ((R10),OUTPUT),MODE=31                                   00083111
          PUT   (R10),SZ1         SET SUPERZAP OPSIONS                   00083200
          PUT   (R10),SZ2                                                00083300
          PUT   (R10),SZ3                                                00083400
-         CLOSE ((R10))                                                  00083500
-         XR    R2,R2                                                    00083600
-         LHI   R2,DCBLNGBS                                              00083700
-         B     SKIP#90                                                  00083800
-         DS    0F                                                       00083900
-TSPZP    DC    X'0015'                                                  00084000
-         DC    CL21'EMCPROJ.OUTPUT(SZTBL)'                              00084100
-TDDSPZP  DC    CL8'SPZPD   '                                            00084200
-SZ1      DC    CL80'NAME     SAMPLE   SAMPLE'                           00084300
-SZ2      DC    CL80'BASE     000000'                                    00084400
-SZ3      DC    CL80'REP      000006   00'                               00084500
-         DS    0F                                                       00084600
-SKIP#90  EQU   *                                                        00084700
-      FREEMAIN RU,LV=(R2),A=(R10)  DESTROY DCB                          00084800
+         CLOSE ((R10)),MODE=31                                          00083511
+                                                                        00083611
+         XR    R2,R2                                                    00083700
+         LHI   R2,DCBLNGBS                                              00083800
+         B     SKIP#90                                                  00083900
+         DS    0F                                                       00084000
+TSPZP    DC    X'0015'                                                  00084100
+         DC    CL21'EMCPROJ.OUTPUT(SZTBL)'                              00084200
+TDDSPZP  DC    CL8'SPZPD   '                                            00084300
+SZ1      DC    CL80'NAME     SAMPLE   SAMPLE'                           00084400
+SZ2      DC    CL80'BASE     000000'                                    00084500
+SZ3      DC    CL80'REP      000006   00'                               00084600
+         DS    0F                                                       00084700
+SKIP#90  EQU   *                                                        00084800
+      FREEMAIN RU,LV=(R2),A=(R10)  DESTROY DCB                          00084900
        GETMAIN RU,LV=8,LOC=ANY                                          00085000
          MVC   0(8,R1),TDDSPZP                                          00085100
          LR    R0,R1                                                    00085200
@@ -58,13 +60,7 @@ PREPMDL  PROCBGN                                                        00111800
          USING USA,R11             SET ADDRESSABILITY TO USA            00112100
                                                                         00112200
          LR    R5,R1                                                    00112700
-         WTO   'TEST2'                                                  00112800
-                                                                        00112903
-         OPEN  (DEBUG,OUTPUT)                                           00113003
                                                                         00113103
-         L     R6,TOPM@                                                 00113203
-         PUT   DEBUG,(R6)                                               00113403
-                                                                        00113503
          STM   R14,R12,12(R13)                                          00113600
          L     R6,TOPM@                                                 00113700
                                                                         00113803
@@ -72,264 +68,278 @@ PREPMDL  PROCBGN                                                        00111800
          LM    R14,R12,12(R13)     INSERT RTOPM IN LIST                 00114000
       FREEMAIN RU,LV=TOPM#,A=(R5)                                       00114100
        CRTRECB (R6),RECB@          NOW WE HAVE ADDR OF LAST RECB IN R6  00114200
-*        WTO   'TEST3'                                                  00114303
-                                                                        00114403
-         L     R6,TOPM@                                                 00114503
-         PUT   DEBUG,(R6)                                               00114603
-         CLOSE (DEBUG)                                                  00114703
-                                                                        00114803
          L     R10,TOPM@                                                00114900
-         USING CBHEAD,R10                                               00115000
-         L     R9,POS                                                   00115100
-                                                                        00115203
-         AHI   R9,-TOPM#                                                00115300
-                                                                        00115403
-         DROP  R10                 R9:=ADDR OF LAST MODULE IN TOPM      00115500
-                                                                        00115600
-         USING CBHEAD,R6                                                00115700
-         ST    R9,ID@                                                   00115800
-         DROP  R6                  ID@ OF LAST RECB:= R9                00115900
-*STAT ANALYSIS                                                          00116000
-         L     R10,RRECB@                                               00116100
-         USING RECB,R10                                                 00116200
-         L     R1,=X'00000006'                                          00116300
-         ST    R1,OFFSET                                                00116400
-         L     R1,=X'47F0C00C'                                          00116500
-         ST    R1,INSTR                                                 00116600
-         DROP  R10                 WE SETTED TEST INSTR TO CHANGE       00116700
-         L     R6,RECB@                                                 00116800
-         STM   R14,R12,12(R13)                                          00116900
-      PSHSTRCT RECB,(R10),(R6)                                          00117000
-         LM    R14,R12,12(R13)     INSERT RTOPM IN LIST                 00117100
-*SUPERZAP TABLE GENERATION. AFTER WE HAVE DCB TO TABLE   TEMP: SPZPD    00117200
-      PROCCALL NAME=SPZPGEN,(R10)                                       00117300
-*SUPERZAP CALLING. IN R9 WE HAVE ID OF MODULE IN RTOPM                  00117400
-         LR    R5,R0               IN R0 WE HAD DDNAME                  00117500
-*        OPEN  (DEBUG,OUTPUT)                                           00117600
-*        PUT   DEBUG,(R5)                                               00117700
-*        CLOSE (DEBUG)                                                  00117800
-      CRSZPARM TDD,(R5),(R4)                                            00117900
-                                                                        00118000
-      FREEMAIN RU,LV=8,A=(R5)                                           00118100
-         LA    R8,_PDSN                                                 00118200
-         WTO   'TEST'                                                   00118300
-                                                                        00118403
-         LR    R0,R8                                                    00118500
-         LR    R1,R9                                                    00118600
-      PROCCALL NAME=BLDPRM,(R10)                                        00118700
-                                                                        00118800
-         L     R2,R0                                                    00118900
-         B     SKIP#70                                                  00119000
-TDD      DC    CL8'APROG   '                                            00119100
-DEBUG    DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)                         00119203
-SKIP#70  EQU   *                                                        00119300
-         LR    R9,R2                                                    00119400
-         LR    R0,R2                                                    00119500
-         LA    R1,TDD                                                   00119600
-         WTO   'DSF'                                                    00119700
-      PROCCALL NAME=DALLOC,(R10)                                        00119800
-         LR    R10,R0                                                   00119900
-         WTO   'DALLOCED'                                               00120000
-                                                                        00120100
-         WTO   'OK'                                                     00120600
-         LINK  EP=AMASPZAP,PARAM=(0,(R4)),VL=0                          00120700
-                                                                        00120800
-         XR    R2,R2                      DELETE FORMED PARAM           00120900
-         LH    R2,0(,R9)                                                00121000
-         AHI   R2,X'0002'                                               00121100
-      FREEMAIN RU,LV=(R2),A=(R9)                                        00121200
-                                                                        00121300
-         WTO   'AP WAS ZAPPED'                                          00121400
-         DROP  R11                                                      00121500
-PREPMDL  PROCEND                                                        00121600
-                                                                        00121700
-*====================================================================== 00121800
-GETINIT  PROCBGN                                                        00121900
-*INIT GETS ADDRESS OF PARM AREA INTO R1                                 00122000
-         L     R6,0(,R1)                                                00122100
-         NILH  R6,B'0111111111111111'                                   00122200
-*        GETM  RU,LV=4,LOC=ANY                                          00122300
-*        WTO   'HEY'                                                    00122400
-*        OPEN  (OUT,DEBUG)                                              00122500
-*        B     SKIP#45                                                  00122600
-*EMAR#45 DS    18F                                                      00122700
-*KIP#45  EQU   *                                                        00122800
-*       PUTINT DEBUG,(R3*                                               00122900
-*      GETMAIN RU,LV=400000,LOC=ANY                                     00123000
-*      GETMAIN RU,LV=400000,LOC=ANY                                     00123100
-*        DC    X'00000000'                                              00123200
-       GETMAIN RU,LV=USA#,LOC=ANY         CREATE USA                    00123300
-         LR    R11,R1                                                   00123400
-         USING USA,R11           ESTABLISH ADDRESSABILITY               00123500
-                                                                        00123600
-         XR    R2,R2                                                    00123900
-         LHI   R2,TRTBLSZ        CREATE TRTBL                           00124000
-         LR    R3,R2                                                    00124100
-         AHI   R3,CBHEAD#                                               00124200
-       GETMAIN RU,LV=(R3),LOC=ANY                                       00124300
-         ST    R1,TRTBL@                                                00124400
-         ST    R2,0(,R1)         STORE LENGTH                           00124500
-         XR    R2,R2                                                    00124600
-         ST    R2,4(R1)          STORE POS                              00124700
-                                                                        00124800
-         XR    R2,R2             RECB IS CREATED IN CREATERECB          00124900
-         ST    R2,RECB@                                                 00125000
-                                                                        00125100
-         XR    R2,R2                                                    00125200
-         LHI   R2,ICBSZ          CREATE ICB                             00125300
-         LR    R3,R2                                                    00125400
-         AHI   R3,CBHEAD#                                               00125500
-       GETMAIN RU,LV=(R3),LOC=ANY                                       00125600
-         ST    R1,ICB@                                                  00125700
-         ST    R2,0(R1)          STORE LENGTH                           00125800
-         XR    R2,R2                                                    00125900
-         ST    R2,4(R1)          STORE POS                              00126000
-                                                                        00126100
-         XR    R2,R2                                                    00126200
-         LHI   R2,RSA#           CREATE RSA                             00126300
-       GETMAIN RU,LV=(R2),LOC=ANY                                       00126400
-         ST    R1,RSA@                                                  00126500
-                                                                        00126600
-         XR    R2,R2                                                    00126700
-         LHI   R2,TRTBLSZ        CREATE TOPM                            00126800
-         LR    R3,R2                                                    00126900
-         AHI   R3,CBHEAD#                                               00127000
-       GETMAIN RU,LV=(R3),LOC=ANY                                       00127100
-         ST    R1,TOPM@                                                 00127200
-         ST    R2,0(R1)          STORE LENGTH                           00127300
+         USING CBHEAD,R10                                               00115300
+         L     R9,POS                                                   00115400
+                                                                        00115511
+         AHI   R9,-TOPM#                                                00115605
+         AR    R9,R10                                                   00115707
+         AHI   R9,CBHEAD#                                               00115807
+                                                                        00115903
+         DROP  R10                 R9:=ADDR OF LAST MODULE IN TOPM      00116300
+         USING CBHEAD,R6                                                00116500
+         ST    R9,ID@                                                   00116600
+         DROP  R6                  ID@ OF LAST RECB:= R9                00116700
+*STAT ANALYSIS                                                          00116800
+         L     R10,RRECB@                                               00116900
+         USING RECB,R10                                                 00117000
+         L     R1,=X'00000006'                                          00117100
+         ST    R1,OFFSET                                                00117200
+         L     R1,=X'47F0C00C'                                          00117300
+         ST    R1,INSTR                                                 00117400
+         DROP  R10                 WE SETTED TEST INSTR TO CHANGE       00117500
+                                                                        00117604
+         STM   R14,R12,12(R13)                                          00117700
+      PSHSTRCT RECB,(R10),(R6)                                          00117800
+         LM    R14,R12,12(R13)     INSERT RTOPM IN LIST                 00117900
+*SUPERZAP TABLE GENERATION. AFTER WE HAVE DCB TO TABLE   TEMP: SPZPD    00118000
+      PROCCALL NAME=SPZPGEN,(R10)                                       00118100
+*SUPERZAP CALLING. IN R9 WE HAVE ID OF MODULE IN RTOPM                  00118200
+         LR    R5,R0               IN R0 WE HAD DDNAME                  00118300
+      CRSZPARM TDD,(R5),(R4)                                            00118400
+                                                                        00118508
+*        OPEN  (DEBUG,OUTPUT)                                           00118608
+*        PUT   DEBUG,(R4)                                               00118708
+*        CLOSE (DEBUG)                                                  00118808
+                                                                        00118908
+                                                                        00119000
+      FREEMAIN RU,LV=8,A=(R5)                                           00119100
+         LA    R8,_PDSN                                                 00119200
+         WTO   'TEST'                                                   00119300
+                                                                        00119403
+*        LR    R0,R8                                                    00119511
+*        LR    R1,R9                                                    00119611
+*     PROCCALL NAME=BLDPRM,(R10)                                        00119711
+*        LR    R2,R0                                                    00119811
+                                                                        00119907
+         B     SKIP#70                                                  00120300
+TDD      DC    CL8'APROG   '                                            00120400
+DEBUG    DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)                         00120503
+*PZPD    DCB   DDNAME=SPZPD,DSORG=PS,MACRF=(GM)                         00120610
+MSG      DS    CL80                                                     00120710
+ALIGN    DC    0F                                                       00120810
+DDNAMLST DC    XL2'30'                                                  00120910
+         DC    XL8'00000000'                                            00121010
+         DC    XL8'00000000'                                            00121110
+         DC    XL8'00000000'                                            00121210
+         DC    CL8'APROG   '                                            00121310
+         DC    CL8'SPZPD   '                                            00121410
+         DC    XL8'00000000'                                            00121510
+SKIP#70  EQU   *                                                        00121600
+         LR    R9,R2                                                    00121700
+*        OPEN  (DEBUG,OUTPUT),MODE=31                                   00121811
+*        PUT   DEBUG,(R2)                                               00121911
+*        CLOSE (DEBUG),MODE=31                                          00122011
+         LR    R0,R8                                                    00122111
+         LA    R1,TDD                                                   00122200
+      PROCCALL NAME=DALLOC,(R10)                                        00122300
+         LR    R10,R0                                                   00122407
+         WTO   'DALLOCED'                                               00122500
+                                                                        00122600
+*        LA    R4,DDNAMLST                                              00122711
+         OPEN  (DEBUG,OUTPUT)                                           00122811
+         GET   DEBUG,(R4)                                               00122911
+         CLOSE (DEBUG)                                                  00123011
+         LINK  EP=AMASPZAP,PARAM=(0,(R4)),VL=1                          00123210
+         XR    R2,R2                      DELETE FORMED PARAM           00123300
+         LH    R2,0(,R9)                                                00123400
+         AHI   R2,X'0002'                                               00123500
+      FREEMAIN RU,LV=(R2),A=(R9)                                        00123600
+                                                                        00123700
+         WTO   'AP WAS ZAPPED'                                          00123800
+         DROP  R11                                                      00123900
+PREPMDL  PROCEND                                                        00124000
+                                                                        00124100
+*====================================================================== 00124200
+GETINIT  PROCBGN                                                        00124300
+*INIT GETS ADDRESS OF PARM AREA INTO R1                                 00124400
+         L     R6,0(,R1)                                                00124500
+         NILH  R6,B'0111111111111111'                                   00124600
+*        GETM  RU,LV=4,LOC=ANY                                          00124700
+*        WTO   'HEY'                                                    00124800
+*        OPEN  (OUT,DEBUG)                                              00124900
+*        B     SKIP#45                                                  00125000
+*EMAR#45 DS    18F                                                      00125100
+*KIP#45  EQU   *                                                        00125200
+*       PUTINT DEBUG,(R3*                                               00125300
+*      GETMAIN RU,LV=400000,LOC=ANY                                     00125400
+*      GETMAIN RU,LV=400000,LOC=ANY                                     00125500
+*        DC    X'00000000'                                              00125600
+       GETMAIN RU,LV=USA#,LOC=ANY         CREATE USA                    00125700
+         LR    R11,R1                                                   00125800
+         USING USA,R11           ESTABLISH ADDRESSABILITY               00125900
+                                                                        00126000
+         XR    R2,R2                                                    00126100
+         LHI   R2,TRTBLSZ        CREATE TRTBL                           00126200
+         LR    R3,R2                                                    00126300
+         AHI   R3,CBHEAD#                                               00126400
+       GETMAIN RU,LV=(R3),LOC=ANY                                       00126500
+         ST    R1,TRTBL@                                                00126600
+         ST    R2,0(,R1)         STORE LENGTH                           00126700
+         XR    R2,R2                                                    00126800
+         ST    R2,4(R1)          STORE POS                              00126900
+                                                                        00127000
+         XR    R2,R2             RECB IS CREATED IN CREATERECB          00127100
+         ST    R2,RECB@                                                 00127200
+                                                                        00127300
          XR    R2,R2                                                    00127400
-         ST    R2,4(R1)          STORE POS                              00127500
-                                                                        00127600
-         XR    R2,R2                                                    00127700
-         LHI   R2,PARAMSSZ       CREATE PARAMS                          00127800
-         LR    R3,R2                                                    00127900
-         AHI   R3,CBHEAD#                                               00128000
-       GETMAIN RU,LV=(R3),LOC=ANY                                       00128100
-         ST    R1,PARAMS@                                               00128200
-         ST    R2,0(R1)          STORE LENGTH                           00128300
+         LHI   R2,ICBSZ          CREATE ICB                             00127500
+         LR    R3,R2                                                    00127600
+         AHI   R3,CBHEAD#                                               00127700
+       GETMAIN RU,LV=(R3),LOC=ANY                                       00127800
+         ST    R1,ICB@                                                  00127900
+         ST    R2,0(R1)          STORE LENGTH                           00128000
+         XR    R2,R2                                                    00128100
+         ST    R2,4(R1)          STORE POS                              00128200
+                                                                        00128300
          XR    R2,R2                                                    00128400
-         ST    R2,4(R1)          STORE POS                              00128500
-                                                                        00128600
-         XR    R2,R2                                                    00128700
-         LHI   R2,TOPM#          CREATE TOPM RECORD                     00128800
-       GETMAIN RU,LV=(R2),LOC=ANY                                       00128900
-         ST    R1,RTOPM@                                                00129000
-                                                                        00129100
-         XR    R2,R2                                                    00129200
-         LHI   R2,RECB#          CREATE RECB RECORD                     00129300
-       GETMAIN RU,LV=(R2),LOC=ANY                                       00129400
-         ST    R1,RRECB@                                                00129500
-                                                                        00129600
-         XR    R2,R2                                                    00129700
-         LHI   R2,ICB#           CREATE ICB  RECORD                     00129800
-       GETMAIN RU,LV=(R2),LOC=ANY                                       00129900
-         ST    R1,RICB@                                                 00130000
-                                                                        00130100
-         XR    R2,R2                                                    00130200
-         LHI   R2,PARAMS#        CREATE PARAMS RECORD                   00130300
-       GETMAIN RU,LV=(R2),LOC=ANY                                       00130400
-         ST    R1,RPARAMS@                                              00130500
-                                                                        00130600
-*HERE WILL BE READER OF INSTRUCTIONS FROM DCB INTO ICB INSTEAD OF THIS: 00130700
+         LHI   R2,RSA#           CREATE RSA                             00128500
+       GETMAIN RU,LV=(R2),LOC=ANY                                       00128600
+         ST    R1,RSA@                                                  00128700
+                                                                        00128800
+         XR    R2,R2                                                    00128900
+         LHI   R2,TRTBLSZ        CREATE TOPM                            00129000
+         LR    R3,R2                                                    00129100
+         AHI   R3,CBHEAD#                                               00129200
+       GETMAIN RU,LV=(R3),LOC=ANY                                       00129300
+         ST    R1,TOPM@                                                 00129400
+         ST    R2,0(R1)          STORE LENGTH                           00129500
+         XR    R2,R2                                                    00129600
+         ST    R2,4(R1)          STORE POS                              00129700
+                                                                        00129800
+         XR    R2,R2                                                    00129900
+         LHI   R2,DNCBSZ         CREATE DNCB                            00130004
+         LR    R3,R2                                                    00130100
+         AHI   R3,CBHEAD#                                               00130200
+       GETMAIN RU,LV=(R3),LOC=ANY                                       00130300
+         ST    R1,DNCB@                                                 00130404
+         ST    R2,0(R1)          STORE LENGTH                           00130500
+         XR    R2,R2                                                    00130600
+         ST    R2,4(R1)          STORE POS                              00130700
                                                                         00130800
-         B     DATA#1                                                   00130900
-         DS    0F                                                       00131000
-T1       DC    CL8'HOLA1   '                                            00131100
-T2       DC    CL8'LOLKA   '                                            00131200
-         DC    X'0005'                                                  00131300
-T3       DC    CL8'DTESTTTT'                                            00131400
-T4       DC    X'0015'                                                  00131500
-         DC    CL21'EMCPROJ.OUTPUT(DEBUG)'                              00131600
-         DS    0F                                                       00131700
-*EBUG    DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)                         00131800
-         DS    0F                                                       00131900
-DATA#1   EQU   *                                                        00132000
-                                                                        00132100
-*HERE WE WILL PREPARE MODULE TO PROCESSING                              00132300
-*SPZPGENTEST======================                                      00132400
-*     PROCCALL NAME=SPZPGEN,(R10)                                       00132500
-*        LR    R5,R0                                                    00132600
-*        OPEN  (DEBUG,OUTPUT)                                           00132700
-*        PUT   DEBUG,(R5)                                               00132800
-*        CLOSE (DEBUG)                                                  00132900
-*DYNAMICALLOCATIONTEST============                                      00133000
-*        LA    R0,T4                                                    00133100
-*        LA    R1,T3                                                    00133200
-*     PROCCALL NAME=DALLOC,(R10)                                        00133300
-*        LR    R5,R0                                                    00133400
-*        OPEN  (DEBUG,OUTPUT)                                           00133500
-*        PUT   DEBUG,T1                                                 00133600
-*        CLOSE (DEBUG)                                                  00133700
-*        LR    R0,R5                                                    00133800
-*     PROCCALL NAME=DUNALLOC,(R10)                                      00133900
-*CRSZTESTTEST=====================                                      00134000
-*     CRSZPARM 'TYTYTYTY',T2,(R9)                                       00134100
-*        OPEN  (DEBUG,OUTPUT)                                           00134200
-*        PUT   DEBUG,(R9)                                               00134300
-*        CLOSE (DEBUG)                                                  00134400
-*CREATERECBTEST===================                                      00134500
-*        OPEN  (DEBUG,OUTPUT)                                           00134600
-*        WTO   'BEFORE RECB'                                            00134700
-*        XR    R10,R10                                                  00134800
-*   CREATERECB (R7),(R10)                                               00134900
-*   CREATERECB (R7),(R10)                                               00135000
-*   CREATERECB (R7),(R10)                                               00135100
-*        USING CBHEAD,R10                                               00135200
-*        LR    R6,R10                                                   00135300
-*        PUT   DEBUG,(R6)                                               00135400
-*        L     R6,NEXT@                                                 00135500
-*        PUT   DEBUG,(R6)                                               00135600
-*        L     R6,NEXT@                                                 00135700
-*        PUT   DEBUG,(R6)                                               00135800
-*        CLOSE (DEBUG)                                                  00135900
-*        DROP  R6                                                       00136000
-*==================================                                     00136100
-*COMMENTED PART                                                         00136200
+         XR    R2,R2                                                    00130900
+         LHI   R2,TOPM#          CREATE TOPM RECORD                     00131000
+       GETMAIN RU,LV=(R2),LOC=ANY                                       00131100
+         ST    R1,RTOPM@                                                00131200
+                                                                        00131300
+         XR    R2,R2                                                    00131400
+         LHI   R2,RECB#          CREATE RECB RECORD                     00131500
+       GETMAIN RU,LV=(R2),LOC=ANY                                       00131600
+         ST    R1,RRECB@                                                00131700
+                                                                        00131800
+         XR    R2,R2                                                    00131900
+         LHI   R2,ICB#           CREATE ICB  RECORD                     00132000
+       GETMAIN RU,LV=(R2),LOC=ANY                                       00132100
+         ST    R1,RICB@                                                 00132200
+                                                                        00132300
+         XR    R2,R2                                                    00132400
+         LHI   R2,DNCB#          CREATE DNCB   RECORD                   00132504
+       GETMAIN RU,LV=(R2),LOC=ANY                                       00132600
+         ST    R1,RDNCB@                                                00132704
+                                                                        00132800
+*HERE WILL BE READER OF INSTRUCTIONS FROM DCB INTO ICB INSTEAD OF THIS: 00132900
+                                                                        00133000
+         B     DATA#1                                                   00133100
+         DS    0F                                                       00133200
+T1       DC    CL8'HOLA1   '                                            00133300
+T2       DC    CL8'LOLKA   '                                            00133400
+         DC    X'0005'                                                  00133500
+T3       DC    CL8'DTESTTTT'                                            00133600
+T4       DC    X'0015'                                                  00133700
+         DC    CL21'EMCPROJ.OUTPUT(DEBUG)'                              00133800
+         DS    0F                                                       00133900
+*EBUG    DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)                         00134000
+         DS    0F                                                       00134100
+DATA#1   EQU   *                                                        00134200
+                                                                        00134300
+*HERE WE WILL PREPARE MODULE TO PROCESSING                              00134400
+*SPZPGENTEST======================                                      00134500
+*     PROCCALL NAME=SPZPGEN,(R10)                                       00134600
+*        LR    R5,R0                                                    00134700
+*        OPEN  (DEBUG,OUTPUT)                                           00134800
+*        PUT   DEBUG,(R5)                                               00134900
+*        CLOSE (DEBUG)                                                  00135000
+*DYNAMICALLOCATIONTEST============                                      00135100
+*        LA    R0,T4                                                    00135200
+*        LA    R1,T3                                                    00135300
+*     PROCCALL NAME=DALLOC,(R10)                                        00135400
+*        LR    R5,R0                                                    00135500
+*        OPEN  (DEBUG,OUTPUT)                                           00135600
+*        PUT   DEBUG,T1                                                 00135700
+*        CLOSE (DEBUG)                                                  00135800
+*        LR    R0,R5                                                    00135900
+*     PROCCALL NAME=DUNALLOC,(R10)                                      00136000
+*CRSZTESTTEST=====================                                      00136100
+*     CRSZPARM 'TYTYTYTY',T2,(R9)                                       00136200
 *        OPEN  (DEBUG,OUTPUT)                                           00136300
-         LR    R0,R11            PARSE SYSIN                            00136400
-      PROCCALL NAME=INPARSE,(R10)                                       00136501
-         LR    R1,R0             PREPARE MAIN MODULE                    00137700
-         LR    R0,R11                                                   00137800
-*        LR    R6,R1                                                    00137902
-*        PUT   DEBUG,(R6)                                               00138000
-      PROCCALL NAME=PREPMDL,(R10)                                       00138701
-         L     R1,RRECB@                                                00138800
-         ST    R1,CRECB@                                                00138900
-         DROP  R11                                                      00139000
-*        CLOSE (DEBUG)                                                  00139100
-GETINIT  PROCEND RC=(R15)                                               00139200
-*====================================================================== 00139300
-RETRY    EQU   *                                                        00139400
-                                                                        00139500
-*TEMP AREA. HERE IS CONSTANTS FOR BETA VERSION OF PROGRAM               00139600
-*LIST OF INTERRUPTED INSTRUCTIONS:SVC6,SVC7,SVC8,BALR,BCR               00139700
-                                                                        00139800
-*TEMR AREA END                                                          00139900
-                                                                        00140000
-                                                                        00140100
-CBHEAD   DSECT                                                          00140200
-LENGTH   DS    F             LENGTH OF RECORDS                          00140300
-POS      DS    F             POSITION FOR INSERTING OF RECORDS          00140400
-CBHEAD#  EQU   *-LENGTH      EXTENDED HEADER                            00140500
-NEXT@    DS    F             NEXT CB                                    00140600
-ID@      DS    F             ID OF CURRENT MODULE(ADDR IN TOPM)         00140700
-CBHEADE# EQU   *-LENGTH                                                 00140800
-                                                                        00140900
-TRTBL    DSECT                                                          00141000
-*HEADER                                                                 00141100
-CRMN     DS    F             ADDR OF CURRENT MODULE IN TOPM             00141200
-ADEP@    DS    FD            ADDR OF DEP POINT                          00141300
-CDMN     DS    F             ADDR OF DESTINATION MODULE IN TOPM         00141400
-ADNP     DS    FD            ADDR OF DEST POINT                         00141500
-TRTBL#   EQU   *-CRMN                                                   00141600
-                                                                        00141700
-RSA      DSECT                                                          00142000
+*        PUT   DEBUG,(R9)                                               00136400
+*        CLOSE (DEBUG)                                                  00136500
+*CREATERECBTEST===================                                      00136600
+*        OPEN  (DEBUG,OUTPUT)                                           00136700
+*        WTO   'BEFORE RECB'                                            00136800
+*        XR    R10,R10                                                  00136900
+*   CREATERECB (R7),(R10)                                               00137000
+*   CREATERECB (R7),(R10)                                               00137100
+*   CREATERECB (R7),(R10)                                               00137200
+*        USING CBHEAD,R10                                               00137300
+*        LR    R6,R10                                                   00137400
+*        PUT   DEBUG,(R6)                                               00137500
+*        L     R6,NEXT@                                                 00137600
+*        PUT   DEBUG,(R6)                                               00137700
+*        L     R6,NEXT@                                                 00137800
+*        PUT   DEBUG,(R6)                                               00137900
+*        CLOSE (DEBUG)                                                  00138000
+*        DROP  R6                                                       00138100
+*==================================                                     00138200
+*COMMENTED PART                                                         00138300
+*        OPEN  (DEBUG,OUTPUT)                                           00138400
+         LR    R0,R11            PARSE SYSIN                            00138500
+      PROCCALL NAME=INPARSE,(R10)                                       00138601
+         LR    R1,R0             PREPARE MAIN MODULE                    00138700
+         LR    R0,R11                                                   00138800
+*        LR    R6,R1                                                    00138902
+*        PUT   DEBUG,(R6)                                               00139000
+      PROCCALL NAME=PREPMDL,(R10)                                       00139101
+         L     R1,RRECB@                                                00139200
+         ST    R1,CRECB@                                                00139300
+         DROP  R11                                                      00139400
+*        CLOSE (DEBUG)                                                  00139500
+GETINIT  PROCEND RC=(R15)                                               00139600
+*====================================================================== 00139700
+RETRY    EQU   *                                                        00139800
+                                                                        00139900
+*TEMP AREA. HERE IS CONSTANTS FOR BETA VERSION OF PROGRAM               00140000
+*LIST OF INTERRUPTED INSTRUCTIONS:SVC6,SVC7,SVC8,BALR,BCR               00140100
+                                                                        00140200
+*TEMR AREA END                                                          00140300
+                                                                        00140400
+                                                                        00140500
+CBHEAD   DSECT                                                          00140600
+LENGTH   DS    F             LENGTH OF RECORDS                          00140700
+POS      DS    F             POSITION FOR INSERTING OF RECORDS          00140800
+CBHEAD#  EQU   *-LENGTH      EXTENDED HEADER                            00140900
+NEXT@    DS    F             NEXT CB                                    00141000
+ID@      DS    F             ID OF CURRENT MODULE(ADDR IN TOPM)         00141100
+CBHEADE# EQU   *-LENGTH                                                 00141200
+                                                                        00141300
+TRTBL    DSECT                                                          00141404
+*HEADER                                                                 00141504
+*TRACE TABLE                                                            00141604
+CRMN     DS    F             ADDR OF CURRENT MODULE IN TOPM             00141700
+ADEP@    DS    FD            ADDR OF DEP POINT                          00141800
+CDMN     DS    F             ADDR OF DESTINATION MODULE IN TOPM         00141900
+ADNP     DS    FD            ADDR OF DEST POINT                         00142000
+TRTBL#   EQU   *-CRMN                                                   00142100
+                                                                        00142200
+RSA      DSECT                                                          00142300
+*RETRY SUPPLY AREA                                                      00143004
 PSW      DS    CL16          PSW                                        00150000
 SAVEAREA DS    CL144         SAVEAREA                                   00160000
 OLDREG   DS    CL144         REGISTERS FOR RESTORE                      00170000
 RSA#     EQU   *-PSW                                                    00180000
                                                                         00190000
 USA      DSECT                                                          00200000
+*USER SUPPLIED AREA                                                     00201004
 TOPM@    DS    F                                                        00210000
 RTOPM@   DS    F                                                        00211000
 TRTBL@   DS    F                                                        00220000
@@ -339,8 +349,8 @@ RRECB@   DS    F                                                        00232000
 ICB@     DS    F                                                        00240000
 RICB@    DS    F                                                        00250000
 RSA@     DS    F                                                        00260000
-PARAMS@  DS    F                                                        00261000
-RPARAMS@ DS    F                                                        00270000
+DNCB@    DS    F                                                        00261004
+RDNCB@   DS    F                                                        00270004
 RETRY@   DS    F                                                        00271000
 _PDSN    DS    H                  LENGTH OF PDSN                        00271100
 PDSN     DS    CL54               PDSN IS LIBRARY FOR BINARIES OF AP    00272000
@@ -350,25 +360,29 @@ USA#     EQU   *-TOPM@                                                  00276000
                                                                         00277000
 TOPM     DSECT                                                          00280000
 *HEADER                                                                 00281000
+*TABLE OF PREPARED MODULES                                              00282004
 _PMN     DS    H                  LENGTH OF MODULE NAME                 00283000
 PMN      DS    CL8                MODULE NAME                           00290000
 TOPM#    EQU   *-_PMN                                                   00301000
                                                                         00301100
-PARAMS   DSECT                                                          00301200
-_LIBRARY DS    H                                                        00301300
-LIBRARY  DS    CL44               REPRESENTATION OF DATA SET NAME       00301400
-_MEMBER  DS    H                                                        00301500
-MEMBER   DS    CL8                                                      00301600
-PARAMS#  EQU   *-_LIBRARY                                               00301800
+DNCB     DSECT                                                          00301204
+*HEADER                           DATA SET NAME CONTROL BLOCK           00301304
+_LIBRARY DS    H                                                        00301400
+LIBRARY  DS    CL44               REPRESENTATION OF DATA SET NAME       00301500
+_MEMBER  DS    H                                                        00301600
+MEMBER   DS    CL8                                                      00301700
+DNCB#    EQU   *-_LIBRARY                                               00301804
                                                                         00301900
 RECB     DSECT                                                          00320000
 *EXTENDED HEADER                                                        00321000
+*RESTORE CONTROL BLOCK                                                  00322004
 OFFSET   DS    FD                                                       00340000
 INSTR    DS    FD                                                       00350000
 RECB#    EQU   *-OFFSET                                                 00350100
                                                                         00350200
 ICB      DSECT                                                          00360000
 *HEADER                                                                 00370000
+*INSTRUCTION CONTROL BLOCK                                              00371004
 IC       DS    CL6                                                      00380000
 ICB#     EQU   *-IC                                                     00381000
                                                                         00382000
@@ -385,21 +399,22 @@ TOPMSZ   EQU   &SIZE                                                    00388000
 &SIZE    SETA  64*TRTBL#                                                00388200
 TRTBLSZ  EQU   &SIZE                                                    00389000
                                                                         00390000
-&SIZE    SETA  64*PARAMS#                                               00400000
-PARAMSSZ EQU   &SIZE                                                    00410000
+&SIZE    SETA  64*DNCB#                                                 00400004
+DNCBSZ   EQU   &SIZE                                                    00410004
                                                                         00430000
                                                                         00440000
 SPZPPRM  DSECT                                                          00441000
-DDLIST   DS    H                                                        00442000
-NA1      DS    8XL1                                                     00443000
-NA2      DS    8XL1                                                     00450000
-NA3      DS    8XL1                                                     00460000
-SYSLIB   DS    8XL1                                                     00471000
-SYSIN    DS    8XL1                                                     00472000
-SYSPRINT DS    8XL1                                                     00473000
-SPZPRM#  EQU   *-DDLIST                                                 00474000
-RE1      DCB   DDNAME=KKK,DSORG=PS,MACRF=(PM),DCBE=RE2                  00474100
-RE2      DCBE  EODAD=MAINLINE,RMODE31=BUFF                              00475000
+DDLIST   DS    0H                                                       00441109
+         DS    H                                                        00442009
+NA1      DS    XL8                                                      00443010
+NA2      DS    XL8                                                      00450010
+NA3      DS    XL8                                                      00460010
+SYSLIB   DS    XL8                                                      00471010
+SYSIN    DS    XL8                                                      00472010
+SYSPRINT DS    XL8                                                      00473010
+SPZPRM#  EQU   *-DDLIST                                                 00474009
+*E1      DCB   DDNAME=KKK,DSORG=PS,MACRF=(PM),DCBE=RE2                  00474110
+*E2      DCBE  EODAD=MAINLINE,RMODE31=BUFF                              00475010
          DS    0F                                                       00476000
       IEFZB4D0 ,                                                        00476100
          DS    0F                                                       00476200

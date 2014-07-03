@@ -1,0 +1,78 @@
+         GENREG
+MYPROGRM CSECT
+MYPROGRM AMODE 31
+MYPROGRM RMODE 24
+         STM   R14,R12,12(R13)
+         BASR  R12,0
+         USING *,R12
+
+         ST    R13,SAVEAREA+4
+         LR    R2,R13
+         LA    R13,SAVEAREA
+         ST    R13,8(,R2)
+
+         LA    R0,DSNAME1
+         LA    R1,DDNAME1
+      PROCCALL NAME=DALLOC,(R10)
+*        LR    R2,R0
+
+*        L     R2,0(,R2)
+*        L     R3,0(,R2)
+*        ST    R3,MSG
+*        L     R3,4(,R2)
+*        ST    R3,MSG+4
+*        L     R4,8(,R2)
+*        OPEN  (DEBUG,OUTPUT)
+*        PUT   DEBUG,MSG
+*        L     R5,0(,R4)
+*        PUT   DEBUG,(R5)
+*        L     R5,4(,R4)
+*        PUT   DEBUG,(R5)
+*        L     R5,8(,R4)
+*        PUT   DEBUG,(R5)
+*        CLOSE (DEBUG)
+
+         LA    R0,DSNAME2
+         LA    R1,DDNAME2
+      PROCCALL NAME=DALLOC,(R10)
+
+*        OPEN  (MSYSLIB,INPUT)
+*        CLOSE (MSYSLIB)
+         LA    R4,DDNAMLST
+         LINK  EP=AMASPZAP,PARAM=(0,(R4)),VL=0
+
+         L     R13,SAVEAREA+4
+         LM    R14,R12,12(R13)
+         XR    R15,R15
+         BR    R14
+
+         LTORG
+MSG      DC    XL80'0000000000000000000'
+DEBUG    DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)
+MSYSLIB  DCB   DDNAME=MSYSLIB,DSORG=PS,MACRF=(GM)
+SAVEAREA DS    18F
+
+DDNAME1  DC    CL8'MSYSLIB '
+DDNAME2  DC    CL8'MSYSIN  '
+DSNAME1  DC    XL2'0F'
+         DC    CL15'EMCPROJ.LOADLIB'
+DSNAME2  DC    XL2'15'
+         DC    CL21'EMCPROJ.OUTPUT(SZTBL)'
+
+ALIGN1   DS    0F
+DDNAMLST DC    XL2'30'
+         DC    XL8'00000000'
+         DC    XL8'00000000'
+         DC    XL8'00000000'
+         DC    CL8'MSYSLIB '
+         DC    CL8'MSYSIN  '
+         DC    XL8'00000000'
+         DS    0F
+      IEFZB4D0 ,
+         DS    0F
+      IEFZB4D2 ,
+         DS    0F
+         DCBD  DSORG=(PS),DEVD=(DA)
+       IHADCBE
+         COPY  DALLOC
+         END

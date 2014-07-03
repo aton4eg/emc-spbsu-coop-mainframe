@@ -163,8 +163,8 @@ INLP#30  EQU   *
 NXT#5    CLC   OUTPUT(6),LINE1
          BNE   NXT#6
 
-         L     R6,RPARAMS@
-         USING PARAMS,R6
+         L     R6,RDNCB@
+         USING DNCB,R6
          BCTR  R5,0                    R5:=R5-1; CAUSE OF EX MVC
 *        PUT   DEBUG,(R3)
          LA    R8,LIBRARY
@@ -186,7 +186,7 @@ NXT#5    CLC   OUTPUT(6),LINE1
          LR    R5,R1
          SR    R5,R3
 
-         USING PARAMS,R6
+         USING DNCB,R6
          BCTR  R5,0                    R5:=R5-1; CAUSE OF EX MVC
 *        PUT   DEBUG,(R3)
          LA    R8,MEMBER
@@ -196,8 +196,8 @@ NXT#5    CLC   OUTPUT(6),LINE1
          DROP  R6                       PREPARED RECORD TO INSERT
 
          STM   R14,R12,12(R13)
-         L     R5,PARAMS@
-      PSHSTRCT PARAMS,(R6),(R5)           INSERTING
+         L     R5,DNCB@
+      PSHSTRCT DNCB,(R6),(R5)           INSERTING
          LM    R14,R12,12(R13)
 
          B     NXT#6

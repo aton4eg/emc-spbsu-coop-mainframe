@@ -89,8 +89,8 @@ SDNM&E5  EQU   *                                                        00240000
 &N       SETA  K'&EODAD-2
 &TEMP    SETC  '&EODAD'(2,&N)
          ST    &TEMP,DCBEEODA
-.ENDEOD  ANOP
          DROP  R5
+.ENDEOD  ANOP
 .SKIPEOD ANOP
 
          DROP  R4                                                       00530001
