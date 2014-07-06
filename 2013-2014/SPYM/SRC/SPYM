@@ -137,9 +137,9 @@ SKIP#70  EQU   *                                                        00121600
          WTO   'DALLOCED'                                               00122500
                                                                         00122600
 *        LA    R4,DDNAMLST                                              00122711
-         OPEN  (DEBUG,OUTPUT)                                           00122811
-         GET   DEBUG,(R4)                                               00122911
-         CLOSE (DEBUG)                                                  00123011
+*        OPEN  (DEBUG,OUTPUT)                                           00122813
+*        GET   DEBUG,(R4)                                               00122913
+*        CLOSE (DEBUG)                                                  00123013
          LINK  EP=AMASPZAP,PARAM=(0,(R4)),VL=1                          00123210
          XR    R2,R2                      DELETE FORMED PARAM           00123300
          LH    R2,0(,R9)                                                00123400
@@ -236,7 +236,6 @@ GETINIT  PROCBGN                                                        00124300
          LHI   R2,DNCB#          CREATE DNCB   RECORD                   00132504
        GETMAIN RU,LV=(R2),LOC=ANY                                       00132600
          ST    R1,RDNCB@                                                00132704
-                                                                        00132800
 *HERE WILL BE READER OF INSTRUCTIONS FROM DCB INTO ICB INSTEAD OF THIS: 00132900
                                                                         00133000
          B     DATA#1                                                   00133100
