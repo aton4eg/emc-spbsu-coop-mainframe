@@ -1,0 +1,45 @@
+         GENREG
+MYPROGRM CSECT
+MYPROGRM AMODE 31
+MYPROGRM RMODE 24
+         STM   R14,R12,12(R13)
+         BASR  R12,0
+         USING *,R12
+
+         ST    R13,SAVEAREA+4
+         LR    R2,R13
+         LA    R13,SAVEAREA
+         ST    R13,8(,R2)
+*LPSWE USING
+       MODESET KEY=NZERO,MODE=SUP
+         EPSW  R3,R4
+         LA    R4,M1
+         ST    R3,PSW
+         ST    R4,PSW+12
+         L     R1,=X'00000000'
+         LPSWE PSW
+*LPSW USING JUST IN ESA/390
+*      MODESET KEY=NZERO,MODE=SUP
+*        EPSW  R3,R4
+*        LA    R4,M1
+*        ST    R3,PSW
+*        ST    R4,PSW+8
+*        LPSW  PSW
+         ESTAE M1,CT
+         WTO   'OLOLO'
+
+M1       EQU   *
+         WTO   'KEKEKE'
+
+         L     R13,SAVEAREA+4
+         LM    R14,R12,12(R13)
+         XR    R15,R15
+         BR    R14
+         LTORG
+         DS    0FD
+PSW      DC    XL4'00000000'
+         DC    XL4'80000000'
+         DC    XL4'00000000'
+         DC    XL4'00000000'
+SAVEAREA DS    18F
+         END

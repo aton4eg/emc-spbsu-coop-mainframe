@@ -1,0 +1,172 @@
+¯
+                                         High Level Assembler Option Summary                   (PTF UK37157)   Page    1
+                                                                                            HLASM R6.0  2014/07/10 21.10
+²  No Overriding ASMAOPT Parameters
+²  No Overriding Parameters
+²  No Process Statements
+
+
+  Options for this Assembly
+²  NOADATA
+²    ALIGN
+²  NOASA
+²    BATCH
+²    CODEPAGE(047C)
+²  NOCOMPAT
+²  NODBCS
+²  NODECK
+²    DXREF
+²    ESD
+²  NOEXIT
+²    FLAG(0,ALIGN,CONT,EXLITW,NOIMPLEN,NOPAGE0,PUSH,RECORD,NOSUBSTR,USING0)
+²  NOFOLD
+²  NOGOFF
+²  NOINFO
+²    LANGUAGE(EN)
+²  NOLIBMAC
+²    LINECOUNT(60)
+²    LIST(121)
+²    MACHINE(,NOLIST)
+²    MXREF(SOURCE)
+²    OBJECT
+²    OPTABLE(UNI,NOLIST)
+²  NOPCONTROL
+²  NOPESTOP
+²  NOPROFILE
+²  NORA2
+²  NORENT
+²    RLD
+²    RXREF
+²    SECTALGN(8)
+²    SIZE(MAX)
+²  NOSUPRWARN
+²    SYSPARM()
+²  NOTERM
+²  NOTEST
+²    THREAD
+²  NOTRANSLATE
+²    TYPECHECK(MAGNITUDE,REGISTER)
+²    USING(NOLIMIT,MAP,WARN(15))
+²  NOWORKFILE
+²    XREF(SHORT,UNREFS)
+
+²  No Overriding DD Names
+¯
+                                              External Symbol Dictionary                                       Page    2
+Symbol   Type   Id     Address  Length   Owner Id Flags Alias-of                            HLASM R6.0  2014/07/10 21.10
+²          PC 00000001 00000000 00000000             00
+²SAMPLE    SD 00000002 00000000 00000034             00
+¯
+²                                                                                                               Page    3
+  Active Usings: None
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/10 21.10
+²                                      1          GENREG                                                         00001000
+²                      00000           2+R0       EQU   0                                                        01-GENRE
+²                      00001           3+R1       EQU   1                                                        01-GENRE
+²                      00002           4+R2       EQU   2                                                        01-GENRE
+²                      00003           5+R3       EQU   3                                                        01-GENRE
+²                      00004           6+R4       EQU   4                                                        01-GENRE
+²                      00005           7+R5       EQU   5                                                        01-GENRE
+²                      00006           8+R6       EQU   6                                                        01-GENRE
+²                      00007           9+R7       EQU   7                                                        01-GENRE
+²                      00008          10+R8       EQU   8                                                        01-GENRE
+²                      00009          11+R9       EQU   9                                                        01-GENRE
+²                      0000A          12+R10      EQU   10                                                       01-GENRE
+²                      0000B          13+R11      EQU   11                                                       01-GENRE
+²                      0000C          14+R12      EQU   12                                                       01-GENRE
+²                      0000D          15+R13      EQU   13                                                       01-GENRE
+²                      0000E          16+R14      EQU   14                                                       01-GENRE
+²                      0000F          17+R15      EQU   15                                                       01-GENRE
+²000000                00000 00034    18 SAMPLE   CSECT                                                          00010000
+²000000 90EC D00C            0000C    19          STM   R14,R12,12(R13)                                          00010100
+²000004 0DC0                          20          BASR  R12,0                                                    00010300
+²                 R:C  00006          21          USING *,R12                                                    00010400
+²000006 47F0 C028            0002E    22          B     TEST                                                     00010600
+²00000A E312 3000 0046       00000    23          BCTG  R1,0(R2,R3)                                              00010700
+²000010 1711                          24          XR    R1,R1                                                    00010800
+²000012 E312 3000 0046       00000    25          BCTG  R1,0(R2,R3)                                              00010900
+²000018 1711                          26          XR    R1,R1                                                    00011000
+²00001A E312 3000 0046       00000    27          BCTG  R1,0(R2,R3)                                              00011100
+²000020 1711                          28          XR    R1,R1                                                    00011200
+²000022 E312 3000 0046       00000    29          BCTG  R1,0(R2,R3)                                              00011300
+²000028 1711                          30          XR    R1,R1                                                    00011400
+²00002A 07F3                          31          BR    R3                                                       00011500
+²00002C 05C0                          32          BALR  R12,0                                                    00011600
+²                      0002E          33 TEST     EQU   *                                                        00011700
+²00002E 98EC D00C            0000C    34          LM    R14,R12,12(R13)                                          00012000
+²000032 07FE                          35          BR    R14                                                      00020000
+²                                     36          END                                                            00030000
+¯
+                               Ordinary Symbol and Literal Cross Reference                                     Page    4
+Symbol   Length   Value     Id    R Type Asm  Program   Defn References                     HLASM R6.0  2014/07/10 21.10
+²R1            1 00000001 00000001 A   U                    3   23M   24M   24    25M   26M   26    27M   28M   28    29M
+²                                                               30M   30
+²R12           1 0000000C 00000001 A   U                   14   19    20M   21U   32M   34M
+²R13           1 0000000D 00000001 A   U                   15   19    34
+²R14           1 0000000E 00000001 A   U                   16   19    34M   35B
+²R2            1 00000002 00000001 A   U                    4   23B   25B   27B   29B
+²R3            1 00000003 00000001 A   U                    5   23B   25B   27B   29B   31B
+²TEST          1 0000002E 00000002     U                   33   22B
+¯
+                                  Unreferenced Symbols Defined in CSECTs                                       Page    5
+  Defn  Symbol                                                                              HLASM R6.0  2014/07/10 21.10
+²     2  R0
+²    12  R10
+²    13  R11
+²    17  R15
+²     6  R4
+²     7  R5
+²     8  R6
+²     9  R7
+²    10  R8
+²    11  R9
+²    18  SAMPLE
+¯
+                                          Macro and Copy Code Source Summary                                   Page    6
+ Con Source                                        Volume    Members                        HLASM R6.0  2014/07/10 21.10
+²  L2 EMCPROJ.MACLIB                                ZAIMS1    GENREG
+¯
+                                                      Using Map                                                Page    7
+²                                                                                            HLASM R6.0  2014/07/10 21.10
+²  Stmt  -----Location----- Action ----------------Using----------------- Reg Max     Last Label and Using Text
+          Count      Id           Type          Value    Range     Id        Disp    Stmt
+²    21  00000006  00000002 USING  ORDINARY    00000006 00001000 00000002  12 00028     22 *,R12
+¯
+                                   General Purpose Register Cross Reference                                    Page    8
+ Register  References (M=modified, B=branch, U=USING, D=DROP, N=index)                      HLASM R6.0  2014/07/10 21.10
+²    0(0)      19    34M
+²    1(1)      19    23M   24M   24    25M   26M   26    27M   28M   28    29M   30M   30    34M
+²    2(2)      19    23N   25N   27N   29N   34M
+²    3(3)      19    23    25    27    29    31B   34M
+²    4(4)      19    34M
+²    5(5)      19    34M
+²    6(6)      19    34M
+²    7(7)      19    34M
+²    8(8)      19    34M
+²    9(9)      19    34M
+²   10(A)      19    34M
+²   11(B)      19    34M
+²   12(C)      19    20M   21U   32M   34M
+²   13(D)      19    34
+²   14(E)      19    34M   35B
+²   15(F)      19    34M
+¯
+                                  Diagnostic Cross Reference and Assembler Summary                             Page    9
+                                                                                            HLASM R6.0  2014/07/10 21.10
+²     No Statements Flagged in this Assembly
+HIGH LEVEL ASSEMBLER, 5696-234, RELEASE 6.0, PTF UK37157
+SYSTEM: z/OS 01.10.00              JOBNAME: SAMPLE      STEPNAME: COMPILE    PROCSTEP: (NOPROC)
+²Data Sets Allocated for this Assembly
+² Con DDname   Data Set Name                                Volume  Member
+²  P1 SYSIN    EMCPROJ.SRC                                  ZAIMS1  SAMPLE
+²  L1 SYSLIB   SYS1.MACLIB                                  ZARES1
+²  L2          EMCPROJ.MACLIB                               ZAIMS1
+²     SYSLIN   EMCPROJ.OBJ                                  ZAIMS1  SAMPLE
+²     SYSPRINT EMCPROJ.LISTING                              ZAIMS1  SAMPLE
+²
+²  32128K allocated to Buffer Pool       Storage required     200K
+²     20 Primary Input Records Read           12 Library Records Read                  0 Work File Reads
+²      0 ASMAOPT Records Read                172 Primary Print Records Written         0 Work File Writes
+      3 Object Records Written                0 ADATA Records Written
+²Assembly Start Time: 21.10.21 Stop Time: 21.10.21 Processor Time: 00.00.00.0570
+²Return Code 000

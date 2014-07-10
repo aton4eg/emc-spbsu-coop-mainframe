@@ -130,12 +130,16 @@ INLP#30  EQU   *
 
          L     R6,RICB@
          USING ICB,R6
+         L     R7,=C'    '
+         ST    R7,0(,R6)
+         ST    R7,4(,R6)
          BCTR  R5,0                      R5:=R5-1 CAUSE OF EX MVC
          LA    R8,IC
+*        AHI   R8,X'0002'
 *        PUT   DEBUG,(R3)
          EX    R5,PMVC                    COPY LIBNAME TO OUR RECORD
-         LH    R7,DIEZ
-         STC   R7,IC+1(R5)            SAVE DIEZ AT END
+         BCTR  R8,0
+         BCTR  R8,0
          DROP  R6                       PREPARED RECORD TO INSERT
 
          STM   R14,R12,12(R13)
