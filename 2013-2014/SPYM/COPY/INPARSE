@@ -112,7 +112,8 @@ NXT#3    CLC   MAIN(4),LINE1
          USING TOPM,R6
          BCTR  R5,0                     R5:=R5-1; BECAUSE OF EX MVC
          LA    R8,PMN
-         EX    R5,PMVC                  COPY MODULE NAME TO OUR RECORD
+         MVC   0(8,R8),0(R3)
+*        EX    R5,PMVC                  COPY MODULE NAME TO OUR RECORD
          LA    R5,1(,R5)                R5:=R5+1;  RESTORE REAL LENGTH
          STH   R5,_PMN                  STORE LENGTH
          DROP  R6                       PREPARED RECORD TO INSERT
