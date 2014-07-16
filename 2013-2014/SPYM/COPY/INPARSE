@@ -1,0 +1,226 @@
+*INSERT YOUR ROUTINE HERE
+INPARSE  PROCBGN
+*GETS IN RO USA, LOADS PARAMS FROM DD SYSIN
+*RETURNS IN R0 ADDR OF RTOPM
+         LR    R10,R0
+         USING USA,R10
+
+       GETMAIN RU,LV=DDATA1#,LOC=ANY
+         LR    R11,R1
+         USING DDATA1,R11
+
+       PREPDCB PARM=GET,EODAD=GEND,'SYSIN   ',(R9)
+         OPEN  ((R9),INPUT),MODE=31
+         B     SKIP#50
+DIEZ     DC    XL1'00'
+         DC    CL1'#'
+COMMA#1  DC    XL1'00'
+         DC    CL1','
+SPACE#   DC    XL1'00'
+         DC    CL1' '
+EQUAL#1  DC    XL1'00'
+         DC    CL1'='
+SCTB2    DC    256X'00'            SCANTAB SET
+         ORG   SCTB2+C'='
+         DC    C'='
+         ORG   SCTB2+C' '
+         DC    C' '
+         ORG   SCTB2+C'('
+         DC    C'('
+         ORG   SCTB2+C')'
+         DC    C')'
+         ORG   SCTB2+C','
+         DC    C','
+         ORG
+BIN      DC    CL6'BINARY'
+LST      DC    CL7'LISTING'
+MAIN     DC    CL4'MAIN'
+CMD      DC    CL8'COMMANDS'
+OUTPUT   DC    CL6'OUTPUT'
+PTRT     TRT   0(0,R3),SCTB2
+PMVC     MVC   0(0,R8),0(R3)
+*IBMVC   MVC   LIBRARY(0),0(R3)
+*EMMVC   MVC   MEMBER(0),0(R3)
+*MNMVC   MVC   PMN(0),0(R3)
+*DSNMVC  MVC   PDSN(0),0(R3)
+*PDSNMVC MVC   LPDSN(0),0(R3)
+         DS    0F
+*EBUG    DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)
+         DS    0F
+SKIP#50  EQU   *
+
+LOOP#31  EQU   *
+
+         LR    R3,R11                   R3:=ADDR OF DATA AREA
+         GET   (R9),(R3)                READ STRING INTO (R3)
+*        CLOSE (DEBUG)
+         XR    R2,R2                    R2:=0
+         XR    R4,R4                    R4:=0
+
+         LHI   R4,X'004F'               R4:=79
+         EX    R4,PTRT                  SEEK   =
+         CH    R2,EQUAL#1               IF FOUNDED CP1
+         BE    CP1
+
+         WTO   'WRONG PARAMETER'        ERROR GENERATION
+         XR    R15,R15
+         LHI   R15,X'0002'
+         B     GEND                     EXIT BY ERROR
+*IN TRT WE GOT L+1? YES
+*E.T. WE TRT ER(3),ER2 -> TRT ER(2),ER2
+CP1      EQU   *
+*BY TRT WE WILL FOUND NEXT TO SEEKING SYMBOL
+         LR    R2,R1                    R2:=ADDR OF SYMBOL
+         SR    R2,R3                 R2:=DISTANCE BETWEEN SYM AND START
+         LR    R3,R1                 R3:=ADDR OF SYMBOL
+         LA    R3,1(,R3)             R3:=R3+1
+         SR    R4,R2                    GOT LENGTH FROM NEXT TO = TO
+
+         EX    R4,PTRT                SEEK SPACE
+         LR    R5,R1
+         SR    R5,R3                  R5:=DISTANCE BETWEEN = AND SPACE
+NXT#1    CLC   BIN(6),LINE1              IF (R3)=BIN THEN
+         BNE   NXT#2
+         BCTR  R5,0                     R5:=R5-1; BECAUSE OF EX MVC
+         LA    R8,PDSN
+         EX    R5,PMVC                  COPY LIBNAME TO OUR RECORD
+         LA    R5,1(,R5)                R5:=R5+1;  RESTORE REAL LENGTH
+         STH   R5,_PDSN                 STORE INTO LENTH FIELD
+         B     NXT#6
+
+NXT#2    CLC   LST(7),LINE1
+         BNE   NXT#3
+         BCTR  R5,0                     R5:=R5-1; BECAUSE OF EX MVC
+         LA    R8,LPDSN
+         EX    R5,PMVC                  COPY LIBNAME TO OUR RECORD
+         LA    R5,1(,R5)                R5:=R5+1;  RESTORE REAL LENGTH
+         STH   R5,_LPDSN                STORE INTO LENTH FIELD
+         B     NXT#6
+
+NXT#3    CLC   MAIN(4),LINE1
+         BNE   NXT#4
+         STM   R0,R12,12(R13)
+       GETMAIN RU,LV=TOPM#,LOC=ANY
+         LR    R15,R1
+
+         XR    R1,R1
+         STC   R1,0(,R15)
+         MVC   1(TOPM#-1,R15),0(R15)
+
+         LM    R0,R12,12(R13)
+         LR    R6,R15                   GOT NEW RTOPM IN R6
+         USING TOPM,R6
+         BCTR  R5,0                     R5:=R5-1; BECAUSE OF EX MVC
+         LA    R8,PMN
+         MVC   0(8,R8),0(R3)
+*        EX    R5,PMVC                  COPY MODULE NAME TO OUR RECORD
+         LA    R5,1(,R5)                R5:=R5+1;  RESTORE REAL LENGTH
+         STH   R5,_PMN                  STORE LENGTH
+         DROP  R6                       PREPARED RECORD TO INSERT
+
+         ST    R6,RTOPM@1               REPLACE INSERTING BY
+*        STM   R14,R12,12(R13)
+*        L     R5,TOPM@
+*   PUSHSTRUCT TOPM,(R6),(R5)          INSERTING
+*        LM    R14,R12,12(R13)
+         B     NXT#6
+
+NXT#4    CLC   CMD(8),LINE1
+         BNE   NXT#5
+INLP#30  EQU   *
+
+         L     R6,RICB@
+         USING ICB,R6
+         L     R7,=C'    '
+         ST    R7,0(,R6)
+         ST    R7,4(,R6)
+         BCTR  R5,0                      R5:=R5-1 CAUSE OF EX MVC
+         LA    R8,IC
+*        AHI   R8,X'0002'
+*        PUT   DEBUG,(R3)
+         EX    R5,PMVC                    COPY LIBNAME TO OUR RECORD
+         BCTR  R8,0
+         BCTR  R8,0
+         DROP  R6                       PREPARED RECORD TO INSERT
+
+         STM   R14,R12,12(R13)
+
+         L     R5,ICB@
+      PSHSTRCT ICB,(R6),(R5)          INSERTING
+*        PUT   DEBUG,(R3)
+         LM    R14,R12,12(R13)
+
+         CH    R2,SPACE#               IF LAST SYMBOL WAS A SPACE GOTO
+         BE    NXT#6                    JMP NXT#6
+
+         LR    R2,R1
+         SR    R2,R3
+         LR    R3,R1
+         LA    R3,1(,R3)
+         SR    R4,R2
+
+         EX    R4,PTRT
+         LR    R5,R1
+         SR    R5,R3
+
+         B     INLP#30
+
+NXT#5    CLC   OUTPUT(6),LINE1
+         BNE   NXT#6
+
+         L     R6,RDNCB@
+         USING DNCB,R6
+         BCTR  R5,0                    R5:=R5-1; CAUSE OF EX MVC
+*        PUT   DEBUG,(R3)
+         LA    R8,LIBRARY
+         EX    R5,PMVC                 COPY  NAME OF LIBRARY TO OUR REC
+         LA    R5,1(,R5)               R5:=R5+1 RESTORE REAL LENGTH
+         STH   R5,_LIBRARY             STORE LENGTH
+         DROP  R6                       PREPARED RECORD TO INSERT
+
+         AR    R3,R1
+         SR    R4,R1
+
+         LR    R2,R1
+         SR    R2,R3
+         LR    R3,R1
+         LA    R3,1(,R3)
+         SR    R4,R2
+
+         EX    R4,PTRT
+         LR    R5,R1
+         SR    R5,R3
+
+         USING DNCB,R6
+         BCTR  R5,0                    R5:=R5-1; CAUSE OF EX MVC
+*        PUT   DEBUG,(R3)
+         LA    R8,MEMBER
+         EX    R5,PMVC                 COPY  NAME OF LIBRARY TO OUR REC
+         LA    R5,1(,R5)                R5:=R5+1 RESTORE REAL LENGTH
+         STH   R5,_MEMBER
+         DROP  R6                       PREPARED RECORD TO INSERT
+
+         STM   R14,R12,12(R13)
+         L     R5,DNCB@
+      PSHSTRCT DNCB,(R6),(R5)           INSERTING
+         LM    R14,R12,12(R13)
+
+         B     NXT#6
+
+NXT#6    EQU   *
+         B     LOOP#31
+GEND     EQU   *
+         L     R6,RTOPM@1
+      FREEMAIN RU,LV=DDATA1#,A=(R11)
+         CLOSE ((R9)),MODE=31
+      FREEMAIN RU,LV=DCBLNGBS,A=(R9)
+         DROP  R10
+         DROP  R11
+         LR    R0,R6
+DDATA1   DSECT
+LINE1    DS    CL80
+RTOPM@1  DS    F
+DDATA1#  EQU   *-LINE1
+
+&CSECT   CSECT
+INPARSE  PROCEND RC=(R15)

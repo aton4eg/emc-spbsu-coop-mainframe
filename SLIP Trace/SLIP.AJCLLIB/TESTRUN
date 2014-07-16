@@ -1,0 +1,7 @@
+//TESTRUN  JOB (EMC),'RUN TESTPGM',CLASS=A,MSGCLASS=X,
+//             NOTIFY=&SYSUID,REGION=0M,MSGLEVEL=(1,1)
+//*
+//*
+//***************************************************************
+//RUNPROG  EXEC PGM=TEST
+//STEPLIB  DD   DSN=&SYSUID..SLIP.LINKLIB,DISP=SHR

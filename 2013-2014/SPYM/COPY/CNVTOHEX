@@ -1,0 +1,50 @@
+CNVTOHEX PROCBGN
+*IN RO GETS POINTER TO STRING
+*IN R1 GETS LENGTH (FROM 1)
+*IN R0 RETURNS 64-BIT NUMBER
+         B     SKIP#61
+SCTB3    DC    256X'00'            SCANTAB SET
+         ORG   SCTB3+C'0'
+         DC    X'00010203040506070809'
+         ORG   SCTB3+C'A'
+         DC    X'0A0B0C0D0E0F'
+         ORG   SCTB3+C' '
+         DC    X'40'
+         ORG
+
+TR1      TR    0(0,R2),SCTB3
+SKIP#61  EQU   *
+         LR    R2,R0             R2:=ADDR OF STRING
+         LR    R10,R1
+
+         BCTR  R10,0                DEC(R1) BECAUSE OF EX TR
+         EX    R10,TR1              REPLACE CODES TO HEX
+
+         L     R4,=X'00000001'     R4:=1;
+         LR    R5,R2
+         AR    R5,R10               R5:=POS+LEN
+
+         XGR   R6,R6
+         LGB   R6,0(,R2)           R6:=FIRST SYMBOL
+         AHI   R2,X'0001'          R2:=R2+1
+
+         CR    R2,R5               IF R2=R5 THEN ONESYMB
+         BH    ONESYMB
+
+         XGR   R9,R9
+*=============================================
+LOOP#61  EQU   *
+         LGB   R9,0(,R2)           R6:=R6*16
+
+         CHI   R9,X'0040'
+         BE    SKPSPC
+         SLAG  R6,R6,4
+         AGR   R6,R9
+
+SKPSPC   EQU   *
+
+         BXLE  R2,R4,LOOP#61
+*=============================================
+ONESYMB  EQU   *
+         LGR   R0,R6
+CNVTOHEX PROCEND RC=(R15)

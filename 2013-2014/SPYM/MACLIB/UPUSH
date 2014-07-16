@@ -1,0 +1,17 @@
+         MACRO                                                          00020000
+         UPUSH &C                                                       00030001
+         LCLC  &TEMP                                                    00030106
+&TEMP    SETC  '&C'                                                     00030207
+         L     R1,TOP                                                   00030303
+         LA    R1,4(,R1)                                                00030403
+         AIF   ('&TEMP'(1,1) EQ '(').REGISTR                            00031006
+.MEMORY  L     R15,&TEMP                                                00051006
+&TEMP    SETC  'R15'                                                    00052007
+         AGO   .SAVE                                                    00053006
+.REGISTR ANOP                                                           00054002
+         LCLA  &N                                                       00054106
+&N       SETA  K'&TEMP-2                                                00054208
+&TEMP    SETC  '&TEMP'(2,&N)                                            00055008
+.SAVE    ST    &TEMP,STACK(R1)                                          00060006
+         ST    R1,TOP                                                   00070000
+         MEND                                                           00080000

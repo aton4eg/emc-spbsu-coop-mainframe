@@ -1,0 +1,26 @@
+MYPROGRM CSECT                                                          00010000
+         STM   14,12,12(13)                                             00011000
+         BASR  12,0                                                     00011100
+         USING *,12                                                     00011200
+         ST    13,SAVEAREA+4                                            00011300
+         LR    2,13                                                     00011400
+         LA    13,SAVEAREA                                              00011500
+         ST    13,8(,2)                                                 00011600
+                                                                        00011700
+         OPEN  (DEBUG,OUTPUT)                                           00011800
+         OPEN  (IN,INPUT)                                               00011900
+                                                                        00012000
+         GET   IN,MSG                                                   00012100
+         PUT   DEBUG,MSG                                                00012200
+                                                                        00012300
+         CLOSE (DEBUG)                                                  00012400
+         CLOSE (IN)                                                     00012500
+                                                                        00012600
+         L     13,SAVEAREA+4                                            00012700
+         LM    14,12,12(13)                                             00012800
+         BR    14                                                       00013000
+SAVEAREA DS    18F                                                      00014000
+IN       DCB   DDNAME=MYSYS,DSORG=PS,MACRF=(GM)                         00014100
+DEBUG    DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)                         00015000
+MSG      DS    CL80                                                     00016000
+         END                                                            00020000

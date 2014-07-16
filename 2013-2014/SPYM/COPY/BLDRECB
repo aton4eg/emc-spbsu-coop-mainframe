@@ -1,0 +1,175 @@
+BLDRECB  PROCBGN
+*GETS USA IN R0 AND GOAL RECB IN R1
+*FILLS RECB STRUCT FOR LAST MODULE IN TOPM ALSO SEEKS CSECTS IN LISTING
+         B     SKIP#62
+SR1      DS    18F
+LISTDD   DC    XL2'08'
+         DC    CL8'LISTDD  '
+
+         DS    0F
+SKIP#62  EQU   *
+
+         LR    R10,R0
+         USING USA,R10
+
+         LR    R3,R1           SAVE RECB ADDR IN R3
+
+       GETMAIN RU,LV=DDATA2#,LOC=ANY
+         LR    R11,R1           SET OUR DATA AREA
+         USING DDATA2,R11
+
+         ST    R3,RECB@L       STORE GOAL RECB
+
+         L     R2,ICB@
+         ST    R2,ICB@L         STORE GOAL ICB
+
+         L     R2,RRECB@
+         ST    R2,RRECB@L       STORE GOAL RRECB
+
+         ST    R10,USA@L        STORE GOAL USA
+
+         L     R2,TOPM@
+         ST    R2,TOPM@L       STORE GOAL TOPM
+
+         L     R2,DEBUG@
+         ST    R2,DEBUG@L
+
+*        L     R2,RECB@         FIND GOAL RECB IN CHAIN WITH ID=R1
+*        USING CBHEAD,R2
+*OOP#63  C     R2,=X'00000000'
+*        BE    ENDL#63F
+*        C     R3,ID@
+*        BE    ENDL#63T
+*        L     R2,NEXT@
+*        B     LOOP#63
+*NDL#63F EQU   *
+*        WTO   'MODULE FOR SCAN IS NOT EXIST'
+*NDL#63T EQU   *
+*        ST    R2,RECB@L
+*NDL#63  EQU   *
+*        DROP  R2
+
+         LA    R0,_LPDSN        R0:=LISTING LIBRARY PARM FIELD
+         DROP  R10
+         USING CBHEAD,R3        R1:=POS OF MODULE NAME
+         L     R1,ID@
+         DROP  R3
+         A     R1,TOPM@L
+         AHI   R1,CBHEAD#
+
+      PROCCALL NAME=BLDPRM,(R9)
+
+         LA    R1,LISTDD+2
+      PROCCALL NAME=DALLOC,(R9)
+         ST    R0,DNSTRCT@
+
+       PREPDCB PARM=GET,'LISTDD  ',EODAD=NO,(R10)
+         ST    R10,DCB@
+         OPEN  ((R10),INPUT),MODE=31
+
+     SKIPBLOCK (R10),LINE2,=C'¯'
+     SKIPBLOCK (R10),LINE2,=C'¯'
+     SKIPBLOCK (R10),LINE2,=C'¯'
+
+         L     R6,ICB@L
+         USING CBHEAD,R6
+         L     R5,POS
+         AR    R5,R6
+*        AHI   R5,-ICB#         R5:=ADDR OF LAST ICB
+         DROP  R6
+         AHI   R6,CBHEAD#       R6:=ADDR OF FIRST ICB
+LOOP#62  EQU   *
+         GET   (R10),LINE2
+         CLC   LINE2(1),=C'¯'
+         BE    ENDLP
+
+         LR    R3,R6            SET COUNTER FOR ICB TO START
+
+         XR    R4,R4
+         LHI   R4,ICB#          SET INCREMENTOR FOR ICB
+
+         CLC   LINE2+50(6),=C'CSECT '   CHECK FOR CSECT
+         BNE   LOOP#64                  IF NO THEN CONTINUE CHECKING
+
+         L     R7,RRECB@L               FOUND CSECT
+         USING RECB,R7
+
+         LHI   R8,X'4040'
+         STH   R8,ROFFSET+6             ADD SOME SPACES
+         MVC   ROFFSET(6),LINE2+1
+
+         MVC   OFFSET(8),LINE2+41
+
+         MVC   INSTR(8),=C'CSECT   '
+
+         STM   R14,R12,12(R13)
+         LR    R5,R7
+         L     R6,RECB@L
+      PSHSTRCT RECB,(R5),(R6)
+         LM    R14,R12,12(R13)
+         DROP  R7
+         B     LOOP#62
+
+LOOP#64  EQU   *                        IT IS NOT CSECT
+*        L     R2,DEBUG@L
+         CLC   LINE2+50(6),0(R3)
+         BNE   NO1
+*CONSTRUCT RECB RECORD FROM STRING
+         L     R7,RRECB@L
+         USING RECB,R7
+
+         MVC   ROFFSET(6),LINE2+1
+
+         LA    R0,LINE2+1
+         XR    R1,R1
+         LHI   R1,X'0006'
+      PROCCALL NAME=CNVTOHEX,(R9)
+         STG   R0,OFFSET
+
+         LA    R0,LINE2+8
+         XR    R1,R1
+         LHI   R1,X'000E'
+      PROCCALL NAME=CNVTOHEX,(R9)
+         STG   R0,INSTR
+
+         STM   R14,R12,12(R13)
+         LR    R5,R7
+         L     R6,RECB@L
+      PSHSTRCT RECB,(R5),(R6)
+         LM    R14,R12,12(R13)
+
+         DROP  R7
+NO1      EQU   *
+         BXLE  R3,R4,LOOP#64
+
+         B     LOOP#62
+
+ENDLP    EQU   *
+
+         CLOSE ((R10))
+
+*        L     R2,DEBUG@L
+*        L     R3,RECB@L
+*        PUT   (R2),(R3)
+*        CLOSE ((R2))
+
+      FREEMAIN RU,LV=DCBLNGBS,A=(R10)
+         L     R0,DNSTRCT@
+      PROCCALL NAME=DUNALLOC,(R10)
+      FREEMAIN RU,LV=DDATA2#,A=(R11)
+         DROP  R11
+
+DDATA2   DSECT
+LINE2    DS    CL133
+DEBUG@L  DS    F
+DCB@     DS    F
+DNSTRCT@ DS    F
+USA@L    DS    F
+ICB@L    DS    F
+TOPM@L   DS    F
+RECB@L   DS    F
+RRECB@L  DS    F
+DDATA2#  EQU   *-LINE2
+
+&CSECT   CSECT
+BLDRECB  PROCEND RC=(R15)

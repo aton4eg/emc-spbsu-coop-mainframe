@@ -1,0 +1,94 @@
+*---------------------------------------------------------------------* 00010000
+* Module information:                                                 * 00020000
+*                                                                     * 00030000
+* NAME:               PROCBGN                                         * 00040000
+* Type:               MACRO                                           * 00050000
+* DESCRIPTION:        Intro to procedures                             * 00060000
+* Usage:                                              Default value   * 00070000
+* label  PROCBBGN                                                     * 00080034
+*---------------------------------------------------------------------* 00090000
+         MACRO                                                          00100018
+&LABEL   PROCBGN                                                        00100134
+         PUSH USING                                                     00100240
+                                                                        00100340
+         GBLC &CURPROC                           Name of current proc   00100430
+         GBLC &CSECT                             Name of current CSECT  00100530
+         GBLC &AMODE                             Current AMODE          00100637
+         GBLB &GlobVars                          GlobVars?              00100738
+         GBLC &GlobR                             GlobReg                00100838
+                                                                        00100930
+.* Check compulsory variables & environment                             00101030
+         AIF  ('&CURPROC' NE '').ERR_HAVEPROC    Already proc? -> error 00101134
+         AIF  ('&CSECT' EQ '').ERR_NOCSECT       No CSECTname? -> error 00101230
+&CURPROC SETC '&LABEL'                           Copy proc name         00101334
+         AIF  ('&CURPROC' EQ '').ERR_NOPROC      No procname?  -> error 00101434
+                                                                        00101530
+.* Begin processing prolog                                              00101630
+.* DSECT for SaveArea                                                   00101730
+&CURPROC._SAVE DSECT                             SaveArea               00102030
+&CURPROC._SAVE_AREA DS XL72                                             00102136
+                    ORG &CURPROC._SAVE_AREA                             00102230
+&CURPROC._SAVE_RESERVED DS F                     Reserved               00103030
+&CURPROC._SAVE_OLD_SAVE DS A                     Old SaveArea addr      00104030
+&CURPROC._SAVE_NEW_SAVE DS A                     Next SaveArea addr     00105030
+&CURPROC._SAVE_R14      DS F                                            00106030
+&CURPROC._SAVE_R15      DS F                                            00107030
+         LCLA  &RegN                                                    00107130
+&RegN    SETA  0                                                        00107230
+.NextReg_inSA ANOP                                                      00107330
+&CURPROC._SAVE_R&RegN   DS F                                            00107431
+&RegN    SETA  &RegN+1                                                  00107530
+         AIF   (&RegN LT 13).NextReg_inSA                               00107630
+.* Done making storage for registers                                    00107730
+&CURPROC._SAVELEN EQU *-&CURPROC._SAVE           Length                 00107832
+*                                                                       00107930
+.* Continue CSECT                                                       00108030
+&CSECT   CSECT                                                          00120430
+&CSECT._LOC LOCTR ,                                                     00120541
+&CURPROC._PROC_LOC LOCTR ,                                              00120641
+&CURPROC DS 0D                                                          00120743
+         POP   USING                                                    00120841
+*                                                                       00120941
+         STM   R14,R12,12(R13)                   Save registers         00170000
+         BASR  R12,0                             Establish              00180028
+         USING *,R12                               addresability        00190037
+                                                                        00240028
+.* Get storage for SaveArea                                             00241028
+         AIF  ('&AMODE' EQ '').OBTAIN_24                                00250137
+         STORAGE OBTAIN,                         Get storage according +00250237
+               LENGTH=&CURPROC._SAVELEN,           to AMODE            +00250337
+               COND=NO,LOC=&AMODE                                       00250437
+         AGO   .GOTSAVE                                                 00250537
+.OBTAIN_24 ANOP                                                         00250637
+         STORAGE OBTAIN,                         Get storage below     +00250737
+               LENGTH=&CURPROC._SAVELEN,           the line            +00250837
+               COND=NO,LOC=RES                                          00252037
+.* Link new SaveArea                                                    00260028
+.GOTSAVE ANOP                                                           00330016
+         LR    R14,R1                            Preserve R1            00331028
+         ST    R13,4(R14)                        Save ptr to old SA     00332028
+         ST    R14,8(R13)                        Save ptr to new SA     00333028
+         LR    R13,R14                           Set R13 to new SA @    00334028
+         USING &CURPROC._SAVE,R13                                       00334130
+         AIF   (Not &GlobVars).RESTORE                                  00334238
+         USING &CSECT._GLOBVAR,&GlobR                                   00334339
+                                                                        00335028
+.* Restore R0 and R1 as on input                                        00336028
+.RESTORE ANOP                                    Restore R0,R1          00380000
+         L     R1,4(R13)                         Get addr of old SA     00390028
+         LM    R0,R1,20(R1)                      Restore R0 and R1      00400028
+                                                                        00410038
+*                                                                       00411628
+.* Done                                                                 00412228
+         AGO   .EXIT                                                    00412322
+.ERR_HAVEPROC ANOP                                                      00412434
+         MNOTE 12,'Routine &CURPROC has never finished. use PROCEND'    00413022
+         MEXIT                                                          00414022
+.ERR_NOCSECT ANOP                                                       00415028
+         MNOTE 12,'No CSECT'                                            00416026
+         MEXIT                                                          00417025
+.ERR_NOPROC ANOP                                                        00418034
+         MNOTE 12,'No name of procedure specified'                      00419034
+         MEXIT                                                          00419134
+.EXIT    ANOP                                                           00420000
+         MEND                                                           00430000

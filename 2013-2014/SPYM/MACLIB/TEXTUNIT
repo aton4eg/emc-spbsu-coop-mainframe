@@ -1,0 +1,151 @@
+         MACRO
+      TEXTUNIT &UTYPE=DISP,&PARM=SHR,&PARMLENGTH=X'0001',&LAST=FALSE
+*CHANGES R1,R2,R3    RETURNS S99TXTP IN R8
+*DYNAMICALLY YOU CAN PASS ONLY DATASET NAME OR MEMBER NAME
+         GBLA  &E3
+&E3      SETA  &E3+1
+         LCLA  &N
+         LCLC  &PARMLENGTH_
+         LCLC  &PARM_
+
+         AIF   ('&PARMLENGTH'(1,1) EQ '=').LITLEN
+         AIF   ('&PARMLENGTH'(1,1) EQ 'X').SYMLEN
+         AIF   ('&PARMLENGTH'(1,1) EQ '(').REGLEN
+*ALSO IF FLD DO THE SAME AS LITERAL
+.LITLEN  ANOP
+&PARMLENGTH_ SETC 'R2'
+         L     R2,&PARMLENGTH
+         AGO   .ENDLEN
+
+.SYMLEN  ANOP
+&PARMLENGTH_ SETC 'R2'
+         XR    R2,R2
+         LHI   R2,&PARMLENGTH
+         AGO   .ENDLEN
+
+.REGLEN  ANOP
+&N       SETA  K'&PARMLENGTH-2
+&PARMLENGTH_ SETC '&PARMLENGTH'(2,&N)
+
+.ENDLEN  ANOP
+
+         LR    R3,&PARMLENGTH_
+         AHI   R3,X'0006'
+       GETMAIN RU,LV=(R3),LOC=ANY
+
+         LR    R8,R1
+         USING S99TUNIT,R8
+
+         XR    R1,R1
+         AIF   ('&UTYPE' NE 'DISP').NXT2
+         LHI   R1,DALSTATS
+         STH   R1,S99TUKEY             DISP   KEY SETTED
+         B     SKIP&E3
+         AIF   ('&PARM' NE 'OLD').NXT11
+TEMP&E3  DC    X'01'
+         AGO   .ENDPM
+
+.NXT11   AIF   ('&PARM' NE 'MOD').NXT12
+TEMP&E3  DC    X'02'
+         AGO   .ENDPM
+
+.NXT12   AIF   ('&PARM' NE 'NEW').NXT13
+TEMP&E3  DC    X'04'
+         AGO   .ENDPM
+
+.NXT13   AIF   ('&PARM' NE 'SHR').ENDPM
+TEMP&E3  DC    X'08'
+         AGO   .ENDPM
+
+.ENDPM   DC    0F
+SKIP&E3  EQU   *
+
+         LA    R3,TEMP&E3
+&PARM_   SETC  'R3'
+
+         AGO   .ENDPARM
+
+.NXT2    XR    R1,R1
+         AIF   ('&UTYPE' NE 'DISPN').NXT3
+         LHI   R1,DALNDISP
+         STH   R1,S99TUKEY             DISP   KEY SETTED
+         B     SKIP&E3
+         AIF   ('&PARM' NE 'UNCATLG').NXT21
+TEMP&E3  DC    X'01'
+         AGO   .ENDPM2
+
+.NXT21   AIF   ('&PARM' NE 'CATLG').NXT22
+TEMP&E3  DC    X'02'
+         AGO   .ENDPM2
+
+.NXT22   AIF   ('&PARM' NE 'DELETE').NXT23
+TEMP&E3  DC    X'04'
+         AGO   .ENDPM2
+
+.NXT23   AIF   ('&PARM' NE 'KEEP').ENDPM2
+TEMP&E3  DC    X'08'
+         AGO   .ENDPM2
+
+.ENDPM2  DC    0F
+SKIP&E3  EQU   *
+
+         LA    R3,TEMP&E3
+&PARM_   SETC  'R3'
+
+         AGO   .ENDPARM
+
+
+.NXT3    AIF   ('&UTYPE' NE 'DSNAME').NXT4
+         LHI   R1,DALDSNAM
+         STH   R1,S99TUKEY             DSNAME KEY SETTED
+         AGO   .NXT6
+
+.NXT4    AIF   ('&UTYPE' NE 'DDNAME').NXT5
+         LHI   R1,DALDDNAM
+         STH   R1,S99TUKEY             DDNAME KEY SETTED
+         AGO   .NXT6
+
+.NXT5    AIF   ('&UTYPE' NE 'MEMBER').NXT6
+         LHI   R1,DALMEMBR
+         STH   R1,S99TUKEY             MEMBR  KEY SETTED
+
+.NXT6    ANOP
+
+         AIF   ('&PARM'(1,1) EQ '(').REGPARM
+         AIF   ('&PARM'(1,1) EQ '''').CONSTPARM
+*ELSE FLD PARM
+         LA    R3,&PARM
+&PARM_   SETC  'R3'
+         AGO   .ENDPARM
+
+.REGPARM ANOP
+&N       SETA  K'&PARM-2
+&PARM_   SETC  '&PARM'(2,&N)
+         AGO   .ENDPARM
+
+         LCLC   &TEMP
+.CONSTPARM ANOP
+&N       SETA  K'&PARMLENGTH-3
+&TEMP    SETC '&PARMLENGTH'(3,&N)
+         B     SKIP&E3
+TEMP&E3  DC    CL&TEMP&PARM
+         DC    0F
+SKIP&E3  EQU   *
+         LA    R3,TEMP&E3
+&PARM_   SETC  'R3'
+
+.ENDPARM ANOP
+
+         XR    R1,R1
+         LHI   R1,X'0001'
+         STH   R1,S99TUNUM
+         STH   &PARMLENGTH_,S99TULNG
+
+         B     S&E3
+SND&E3   MVC   S99TUPAR(0),0(&PARM_)
+S&E3     BCTR  &PARMLENGTH_,0
+         EX    &PARMLENGTH_,SND&E3
+         AIF   ('&LAST' EQ 'FALSE').ENDING
+         OILH  R8,X'8000'
+.ENDING  ANOP
+         MEND

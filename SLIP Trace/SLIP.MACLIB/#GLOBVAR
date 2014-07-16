@@ -1,0 +1,42 @@
+*---------------------------------------------------------------------* 00010000
+* Module information:                                                 * 00020000
+*                                                                     * 00030000
+* NAME:               #GLOBVAR                                        * 00040000
+* Type:               MACRO                                           * 00050000
+* DESCRIPTION:        Lists the DSECT for the GTF SLIP trace records  * 00060000
+* Usage:                                              Default value   * 00070000
+* label  #GLOBVAR     [START|END]                     N/A             * 00080000
+*                                                                     * 00090000
+*---------------------------------------------------------------------* 00100000
+         MACRO                                                          00110000
+&LABEL   #GLOBVAR &TYPE                                                 00120001
+         GBLC &CSECT                             Name of current CSECT  00130000
+                                                                        00150000
+.* Check compulsory variables & environment                             00160000
+         AIF  ('&TYPE' EQ 'START').TYPE_OK       TYPE=START    -> Ok    00170002
+         AIF  ('&TYPE' EQ 'END').TYPE_OK         TYPE=END      -> Ok    00180001
+         AGO  .ERR_TYPE                                                 00200000
+.TYPE_OK ANOP                                                           00210000
+         AIF  ('&CSECT' EQ '').ERR_NOCSECT       No CSECTname? -> error 00220001
+                                                                        00230001
+.CSECT_OK ANOP                                                          00240001
+         AIF  ('&TYPE' EQ 'END').DO_END                                 00241001
+                                                                        00241101
+.DO_START ANOP                                                          00242001
+&CSECT._GLOBVAR           DSECT                                         00243001
+         AGO  .DONE                                                     00244001
+                                                                        00244101
+.DO_END ANOP                                                            00245001
+&CSECT._GLOBVAR_LEN EQU *-&CSECT._GLOBVAR                               00246001
+                                                                        00246101
+.DONE ANOP                                                              00247001
+         AGO   .EXIT                                                    01760000
+                                                                        01761001
+.ERR_TYPE ANOP                                                          01770000
+         MNOTE 12,'Incorrect TYPE. Have ''&TYPE'', can be START|END'    01780001
+         MEXIT                                                          01790000
+.ERR_NOCSECT ANOP                                                       01800000
+         MNOTE 12,'No CSECT'                                            01810000
+         MEXIT                                                          01820000
+.EXIT    ANOP                                                           01830000
+         MEND                                                           01840000
