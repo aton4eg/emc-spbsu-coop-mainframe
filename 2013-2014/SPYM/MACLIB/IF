@@ -1,0 +1,55 @@
+*MACRO---------------------IF------------------------------------------ 00010000
+         MACRO                                                          00020000
+         IF &F1,&F2,&C                                                  00030000
+         GBLA  &I2                                                      00040000
+         GBLC  &STR                                                     00050000
+         LCLA  &L                                                       00060000
+         LCLC  &NSTR                                                    00070000
+         LCLA  &L0                                                      00080000
+&I2      SETA  &I2+1                   I2 = I2 + 1                      00090000
+&L       SETA  K'&STR                  L = LENGTH (STR)                 00100000
+&NSTR    SETC  '&I2'                   NSTR = INT TO STR (I2)           00110000
+&L0      SETA  K'&NSTR                 L0 = LENGTH (NSTR)               00120000
+&NSTR    SETC  (6-&L0)'0'.(1)'&NSTR'   NSTR = '0..0' + NSTR = 6 SYMBOLS 00130000
+&STR     SETC  '&STR'.'&NSTR'          STR = STR + NSTR                 00140000
+         AIF   ('&F1'(1,1) NE '(').MEM_MEM   IF (NOT REG) THEN MEM_MEM  00150000
+         LCLC  &NF1                                                     00160000
+&NF1     SETC  '&F1'(2,K'&F1-2)        F1 = (REG) -> NF1 = REG          00170000
+         AIF   ('&F2'(1,1) NE '(').REG_MEM   IF (NOT REG) THEN REG_MEM  00180000
+         LCLC  &NF2                                                     00190000
+&NF2     SETC  '&F2'(2,K'&F2-2)        F2 = (REG) -> NF2 = REG          00200000
+         CR    &NF1,&NF2               COMPARE REG1,REG2                00210000
+         AGO   .AIF                                                     00220000
+.MEM_MEM ANOP                                                           00230000
+         CLC   &F1,&F2                 COMPARE MEM1,MEM2                00240000
+         AGO   .AIF                                                     00250000
+.REG_MEM ANOP                                                           00260000
+         C     &NF1,&F2                COMPARE REG1,MEM2                00270000
+         AGO   .AIF                                                     00280000
+.AIF     ANOP                                                           00290000
+         AIF   ('&C' EQ 'EQ').EQUAL,                                   X00300000
+               ('&C' EQ 'NE').NOT_EQUAL,                               X00310000
+               ('&C' EQ 'LE').LESS_THAN_OR_EQUAL,                      X00320000
+               ('&C' EQ 'LT').LESS_THAN,                               X00330000
+               ('&C' EQ 'GE').GREATER_THAN_OR_EQUAL,                   X00340000
+               ('&C' EQ 'GT').GREATER_THAN                              00350000
+.EQUAL   ANOP                                                           00360000
+         BNE   ELSE&NSTR               BRANCH ON NOT EQUAL              00370000
+         AGO   .END                                                     00380000
+.NOT_EQUAL ANOP                                                         00390000
+         BE    ELSE&NSTR               BRANCH ON EQUAL                  00400000
+         AGO   .END                                                     00410000
+.LESS_THAN_OR_EQUAL ANOP                                                00420000
+         BH    ELSE&NSTR               BRANCH ON HIGH                   00430000
+         AGO   .END                                                     00440000
+.LESS_THAN ANOP                                                         00450000
+         BNL   ELSE&NSTR               BRANCH ON NOT LOW                00460000
+         AGO   .END                                                     00470000
+.GREATER_THAN_OR_EQUAL ANOP                                             00480000
+         BL    ELSE&NSTR               BRANCH ON LOW                    00490000
+         AGO   .END                                                     00500000
+.GREATER_THAN ANOP                                                      00510000
+         BNH   ELSE&NSTR               BRANCH ON NOT HIGH               00520000
+         AGO   .END                                                     00530000
+.END     ANOP                                                           00540000
+         MEND                                                           00550000

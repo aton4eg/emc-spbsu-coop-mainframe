@@ -1,0 +1,16 @@
+         MACRO                                                          00010001
+         STSIZE &NAME=DSTACK,&C                                         00020001
+         LCLC  &TMPR                                                    00030001
+         AIF   ('&C'(1,1) EQ '(').REG                                   00040001
+         ST    1,SA&NAME+24           SAVE R1                           00050001
+&TMPR    SETC  '1'                                                      00060001
+         AGO   .M1                                                      00070001
+.REG     ANOP                                                           00080001
+&TMPR    SETC  '&C'(2,K'&C-2)                                           00090001
+.M1      ANOP                                                           00100001
+         L     &TMPR,H&NAME                                             00110001
+         AIF   ('&C'(1,1) EQ '(').END                                   00120001
+         ST    &TMPR,&C                                                 00130001
+         L     &TMPR,SA&NAME+24       RESTORE R1                        00140001
+.END     ANOP                                                           00150001
+         MEND                                                           00160001

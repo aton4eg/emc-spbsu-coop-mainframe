@@ -1,0 +1,24 @@
+*MACRO---------------------END IF-------------------------------------- 00010000
+         MACRO                                                          00020000
+         ENDIF                                                          00030000
+         GBLC  &STR                                                     00040000
+         LCLA  &L                                                       00050000
+&L       SETA  K'&STR                   L = LENGTH (STR)                00060000
+         AIF   (&L LT 12).ERROR         IF (L<12) THEN ERROR            00070000
+         AIF   ('&STR'(&L-5,6) NE '&STR'(&L-11,6)).ERROR                00080000
+         LCLC  &NSTR                                                    00090000
+&NSTR    SETC  '&STR'(&L-5,6)           NSTR = COPY (STR, L-5, 6)       00100000
+         AIF   (&L EQ 12).NELSE         IF (L=12) THEN NELSE            00110000
+         AIF   ('&STR'(&L-17,6) NE '&STR'(&L-11,6)).NELSE               00120000
+&STR     SETC  '&STR'(1,&L-18)          STR = COPY (STR, 1, L-18)       00130000
+         AGO   .END                                                     00140000
+.NELSE   ANOP                                                           00150000
+ELSE&NSTR EQU   *                                                       00160000
+&STR     SETC  '&STR'(1,&L-12)          STR = COPY (STR, 1, L-12)       00170000
+         AGO   .END                                                     00180000
+.ERROR   ANOP                                                           00190000
+         MNOTE 12,'ERROR IN MACRO ENDIF' WRITE ERROR AND EXIT           00200000
+         MEXIT                                                          00210000
+.END     ANOP                                                           00220000
+ENDIF&NSTR EQU   *                                                      00230000
+         MEND                                                           00240000

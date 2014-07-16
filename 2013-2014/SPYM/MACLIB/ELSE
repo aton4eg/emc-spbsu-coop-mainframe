@@ -1,0 +1,22 @@
+*MACRO---------------------ELSE---------------------------------------- 00010000
+         MACRO                                                          00020000
+         ELSE                                                           00030000
+         GBLC  &STR                                                     00040000
+         LCLA  &L                                                       00050000
+&L       SETA  K'&STR                   L = LENGTH (STR)                00060000
+         AIF   (&L LT 12).ERROR         IF (L<12) THEN ERROR            00070000
+         AIF   ('&STR'(&L-5,6) NE '&STR'(&L-11,6)).ERROR                00080000
+         AIF   (&L EQ 12).L1            IF (L=12) THEN L1               00090000
+         AIF   ('&STR'(&L-17,6) EQ '&STR'(&L-11,6)).ERROR               00100000
+.L1      ANOP                                                           00110000
+&STR     SETC  '&STR'.'&STR'(&L-5,6)    STR = STR + COPY (STR, L-5, 6)  00120000
+         LCLC  &NSTR                                                    00130000
+&NSTR    SETC  '&STR'(&L-5,6)           NSTR = COPY (STR, L-5, 6)       00140000
+         B     ENDIF&NSTR                                               00150000
+ELSE&NSTR EQU   *                                                       00160000
+         AGO   .END                                                     00170000
+.ERROR   ANOP                                                           00180000
+         MNOTE 12,'ERROR IN MACRO ELSE' WRITE ERROR AND EXIT            00190000
+         MEXIT                                                          00200000
+.END     ANOP                                                           00210000
+         MEND                                                           00220000
