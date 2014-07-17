@@ -1,9 +1,9 @@
          MACRO                                                          00010002
          UPOP  &NAME=DSTACK,&C                                          00020002
-         GBLA  &I                                                       00030002
+         GBLA  &IUSERST                                                 00030004
          LCLC  &TMPR                                                    00040002
          LCLC  &R                                                       00050002
-&I       SETA  &I+1                                                     00060002
+&IUSERST SETA  &IUSERST+1                                               00060004
          AIF   ('&C'(1,1) EQ '(').REG                                   00070002
          ST    2,SA&NAME+28           SAVE R2                           00080002
 &TMPR    SETC  '2'                                                      00090002
@@ -19,7 +19,7 @@
          ST    &R,SA&NAME+24          SAVE &R                           00190002
          L     &R,H&NAME              &R=H&NAME                         00200002
          LTR   &R,&R                                                    00210002
-         BE    UPER&I                                                   00220002
+         BE    UPER&IUSERST                                             00220004
          SLA   &R,2                   &R=&R*4                           00230002
          L     &TMPR,ST&NAME.(&R)                                       00240002
          SRA   &R,2                   &R=&R/4                           00250002
@@ -29,6 +29,10 @@
          ST    &TMPR,&C                                                 00290002
          L     2,SA&NAME+28           RESTORE R2                        00300002
 .END     ANOP                                                           00310002
-UPER&I   EQU   *                                                        00320002
+         B     ENDUP&IUSERST                                            00311005
+UPER&IUSERST EQU   *                                                    00320004
+         WTO   'ERROR IN MACRO UPOP'                                    00320103
+         ABEND 777                                                      00321003
+ENDUP&IUSERST EQU   *                                                   00322005
          L     &R,SA&NAME+24          RESTORE &R                        00330002
          MEND                                                           00340002

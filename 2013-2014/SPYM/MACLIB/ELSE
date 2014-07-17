@@ -1,17 +1,17 @@
 *MACRO---------------------ELSE---------------------------------------- 00010000
          MACRO                                                          00020000
          ELSE                                                           00030000
-         GBLC  &STR                                                     00040000
+         GBLC  &STRIF                                                   00040001
          LCLA  &L                                                       00050000
-&L       SETA  K'&STR                   L = LENGTH (STR)                00060000
+&L       SETA  K'&STRIF                 L = LENGTH (STRIF)              00060001
          AIF   (&L LT 12).ERROR         IF (L<12) THEN ERROR            00070000
-         AIF   ('&STR'(&L-5,6) NE '&STR'(&L-11,6)).ERROR                00080000
+         AIF   ('&STRIF'(&L-5,6) NE '&STRIF'(&L-11,6)).ERROR            00080001
          AIF   (&L EQ 12).L1            IF (L=12) THEN L1               00090000
-         AIF   ('&STR'(&L-17,6) EQ '&STR'(&L-11,6)).ERROR               00100000
+         AIF   ('&STRIF'(&L-17,6) EQ '&STRIF'(&L-11,6)).ERROR           00100001
 .L1      ANOP                                                           00110000
-&STR     SETC  '&STR'.'&STR'(&L-5,6)    STR = STR + COPY (STR, L-5, 6)  00120000
+&STRIF   SETC  '&STRIF'.'&STRIF'(&L-5,6)  STRIF=STRIF+COPY(STRIF,L-5,6) 00120001
          LCLC  &NSTR                                                    00130000
-&NSTR    SETC  '&STR'(&L-5,6)           NSTR = COPY (STR, L-5, 6)       00140000
+&NSTR    SETC  '&STRIF'(&L-5,6)           NSTR = COPY (STRIF, L-5, 6)   00140001
          B     ENDIF&NSTR                                               00150000
 ELSE&NSTR EQU   *                                                       00160000
          AGO   .END                                                     00170000

@@ -1,7 +1,9 @@
          MACRO                                                          00010001
          UPUSH &NAME=DSTACK,&C                                          00020001
+         GBLA  &IUSERST                                                 00021002
          LCLC  &R                                                       00030001
          LCLC  &TMPR                                                    00040001
+&IUSERST SETA  &IUSERST+1                                               00041002
          AIF   ('&C'(1,1) EQ '(').REG IF (C = (REG)) THEN REG           00050001
          ST    2,SA&NAME+28           SAVE R2                           00060001
 &TMPR    SETC  '2'                    TMPR = 2                          00070001
@@ -20,9 +22,16 @@
          LA    &R,1(,&R)              &R=&R+1                           00200001
          ST    &R,H&NAME              H&NAME=&R                         00210001
          SLA   &R,2                   &R=&R*4                           00220001
+         C     &R,L'ST&NAME                                             00221002
+         BE    UPER&IUSERST                                             00222003
          ST    &TMPR,ST&NAME.(&R)                                       00230001
          AIF   ('&C'(1,1) EQ '(').END                                   00240001
          L     &TMPR,SA&NAME          RESTORE R2                        00250001
 .END     ANOP                                                           00260001
+         B     ENDUP&IUSERST                                            00261004
+UPER&IUSERST EQU   *                                                    00262002
+         WTO   'ERROR IN MACRO UPUSH'                                   00263002
+         ABEND 777                                                      00264002
+ENDUP&IUSERST  EQU   *                                                  00265004
          L     &R,SA&NAME+24          RESTORE &R                        00270001
          MEND                                                           00280001

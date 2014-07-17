@@ -1,20 +1,20 @@
 *MACRO---------------------END IF-------------------------------------- 00010000
          MACRO                                                          00020000
          ENDIF                                                          00030000
-         GBLC  &STR                                                     00040000
+         GBLC  &STRIF                                                   00040001
          LCLA  &L                                                       00050000
-&L       SETA  K'&STR                   L = LENGTH (STR)                00060000
+&L       SETA  K'&STRIF                 L = LENGTH (STRIF)              00060001
          AIF   (&L LT 12).ERROR         IF (L<12) THEN ERROR            00070000
-         AIF   ('&STR'(&L-5,6) NE '&STR'(&L-11,6)).ERROR                00080000
+         AIF   ('&STRIF'(&L-5,6) NE '&STRIF'(&L-11,6)).ERROR            00080001
          LCLC  &NSTR                                                    00090000
-&NSTR    SETC  '&STR'(&L-5,6)           NSTR = COPY (STR, L-5, 6)       00100000
+&NSTR    SETC  '&STRIF'(&L-5,6)         NSTR = COPY (STRIF, L-5, 6)     00100001
          AIF   (&L EQ 12).NELSE         IF (L=12) THEN NELSE            00110000
-         AIF   ('&STR'(&L-17,6) NE '&STR'(&L-11,6)).NELSE               00120000
-&STR     SETC  '&STR'(1,&L-18)          STR = COPY (STR, 1, L-18)       00130000
+         AIF   ('&STRIF'(&L-17,6) NE '&STRIF'(&L-11,6)).NELSE           00120001
+&STRIF   SETC  '&STRIF'(1,&L-18)        STRIF = COPY (STRIF, 1, L-18)   00130001
          AGO   .END                                                     00140000
 .NELSE   ANOP                                                           00150000
 ELSE&NSTR EQU   *                                                       00160000
-&STR     SETC  '&STR'(1,&L-12)          STR = COPY (STR, 1, L-12)       00170000
+&STR     SETC  '&STRIF'(1,&L-12)        STRIF = COPY (STRIF, 1, L-12)   00170001
          AGO   .END                                                     00180000
 .ERROR   ANOP                                                           00190000
          MNOTE 12,'ERROR IN MACRO ENDIF' WRITE ERROR AND EXIT           00200000

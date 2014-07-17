@@ -1,14 +1,14 @@
 *MACRO---------------------THEN---------------------------------------- 00010000
          MACRO                                                          00020000
          THEN                                                           00030000
-         GBLC  &STR                                                     00040000
+         GBLC  &STRIF                                                   00040001
          LCLA  &L                                                       00050000
-&L       SETA  K'&STR                   L = LENGTH (STR)                00060000
+&L       SETA  K'&STRIF                 L = LENGTH (STRIF)              00060001
          AIF   (&L EQ 0).ERROR          IF (L=0) THEN ERROR             00070000
          AIF   (&L EQ 6).L1             IF (L=6) THEN L1                00080000
-         AIF   ('&STR'(&L-5,6) EQ '&STR'(&L-11,6)).ERROR                00090000
+         AIF   ('&STRIF'(&L-5,6) EQ '&STRIF'(&L-11,6)).ERROR            00090001
 .L1      ANOP                                                           00100000
-&STR     SETC  '&STR'.'&STR'(&L-5,6)    STR = STR + COPY (STR, L-5, 6)  00110000
+&STRIF   SETC  '&STRIF'.'&STRIF'(&L-5,6) STRIF=STRIF+COPY(STRIF,L-5,6)  00110001
          AGO   .END                                                     00120000
 .ERROR   ANOP                                                           00130000
          MNOTE 12,'ERROR IN MACRO THEN' WRITE ERROR AND EXIT            00140000

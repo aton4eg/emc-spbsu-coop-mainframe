@@ -1,17 +1,17 @@
 *MACRO---------------------IF------------------------------------------ 00010000
          MACRO                                                          00020000
          IF &F1,&F2,&C                                                  00030000
-         GBLA  &I2                                                      00040000
-         GBLC  &STR                                                     00050000
+         GBLA  &IIF                                                     00040001
+         GBLC  &STRIF                                                   00050001
          LCLA  &L                                                       00060000
          LCLC  &NSTR                                                    00070000
          LCLA  &L0                                                      00080000
-&I2      SETA  &I2+1                   I2 = I2 + 1                      00090000
-&L       SETA  K'&STR                  L = LENGTH (STR)                 00100000
-&NSTR    SETC  '&I2'                   NSTR = INT TO STR (I2)           00110000
+&IIF     SETA  &IIF+1                  IIF = IIF + 1                    00090001
+&L       SETA  K'&STRIF                L = LENGTH (STRIF)               00100001
+&NSTR    SETC  '&IIF'                  NSTR = INT TO STR (IIF)          00110001
 &L0      SETA  K'&NSTR                 L0 = LENGTH (NSTR)               00120000
 &NSTR    SETC  (6-&L0)'0'.(1)'&NSTR'   NSTR = '0..0' + NSTR = 6 SYMBOLS 00130000
-&STR     SETC  '&STR'.'&NSTR'          STR = STR + NSTR                 00140000
+&STRIF   SETC  '&STRIF'.'&NSTR'        STRIF = STRIF + NSTR             00140002
          AIF   ('&F1'(1,1) NE '(').MEM_MEM   IF (NOT REG) THEN MEM_MEM  00150000
          LCLC  &NF1                                                     00160000
 &NF1     SETC  '&F1'(2,K'&F1-2)        F1 = (REG) -> NF1 = REG          00170000

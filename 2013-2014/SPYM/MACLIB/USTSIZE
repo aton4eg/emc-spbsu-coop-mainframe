@@ -1,5 +1,5 @@
          MACRO                                                          00010001
-         STSIZE &NAME=DSTACK,&C                                         00020001
+         USTSIZE &NAME=DSTACK,&C                                        00020002
          LCLC  &TMPR                                                    00030001
          AIF   ('&C'(1,1) EQ '(').REG                                   00040001
          ST    1,SA&NAME+24           SAVE R1                           00050001
