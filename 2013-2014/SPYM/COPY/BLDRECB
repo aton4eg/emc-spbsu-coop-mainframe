@@ -1,3 +1,33 @@
+         MACRO
+         FILLANDPUSH
+         L     R7,RRECB@L
+         USING RECB,R7
+
+         MVC   ROFFSET(6),LINE2+1
+
+         LA    R0,LINE2+1
+         XR    R1,R1
+         LHI   R1,X'0006'
+      PROCCALL NAME=CNVTOHEX,(R9)
+         STG   R0,OFFSET
+
+         LA    R0,LINE2+8
+         XR    R1,R1
+         LHI   R1,X'000E'
+      PROCCALL NAME=CNVTOHEX,(R9)
+         STG   R0,INSTR
+
+         STM   R14,R12,12(R13)
+         LR    R5,R7
+         L     R6,RECB@L
+      PSHSTRCT RECB,(R5),(R6)
+         LM    R14,R12,12(R13)
+
+         B     LOOP#62                  IF FOUND, BREAK LOOP
+
+         DROP  R7
+         MEND
+
 BLDRECB  PROCBGN
 *GETS USA IN R0 AND GOAL RECB IN R1
 *FILLS RECB STRUCT FOR LAST MODULE IN TOPM ALSO SEEKS CSECTS IN LISTING
@@ -89,7 +119,7 @@ LOOP#62  EQU   *
          LHI   R4,ICB#          SET INCREMENTOR FOR ICB
 
          CLC   LINE2+50(6),=C'CSECT '   CHECK FOR CSECT
-         BNE   LOOP#64                  IF NO THEN CONTINUE CHECKING
+         BNE   CHKSVC60                 IF NO THEN CONTINUE CHECKING
 
          L     R7,RRECB@L               FOUND CSECT
          USING RECB,R7
@@ -106,39 +136,24 @@ LOOP#62  EQU   *
          LR    R5,R7
          L     R6,RECB@L
       PSHSTRCT RECB,(R5),(R6)
-         LM    R14,R12,12(R13)
+         LM    R14,R12,12(R13)          PUT RRECB IN TABLE
          DROP  R7
          B     LOOP#62
 
+CHKSVC60 EQU   *
+         CLC   LINE2+8(4),=C'0A08'      CHECK FOR LOAD  SVC
+         BNE   LOOP#64
+*CONSTRUCT RECB RECORD FROM STRING
+
+   FILLANDPUSH
 LOOP#64  EQU   *                        IT IS NOT CSECT
 *        L     R2,DEBUG@L
          CLC   LINE2+50(6),0(R3)
          BNE   NO1
 *CONSTRUCT RECB RECORD FROM STRING
-         L     R7,RRECB@L
-         USING RECB,R7
+   FILLANDPUSH
 
-         MVC   ROFFSET(6),LINE2+1
 
-         LA    R0,LINE2+1
-         XR    R1,R1
-         LHI   R1,X'0006'
-      PROCCALL NAME=CNVTOHEX,(R9)
-         STG   R0,OFFSET
-
-         LA    R0,LINE2+8
-         XR    R1,R1
-         LHI   R1,X'000E'
-      PROCCALL NAME=CNVTOHEX,(R9)
-         STG   R0,INSTR
-
-         STM   R14,R12,12(R13)
-         LR    R5,R7
-         L     R6,RECB@L
-      PSHSTRCT RECB,(R5),(R6)
-         LM    R14,R12,12(R13)
-
-         DROP  R7
 NO1      EQU   *
          BXLE  R3,R4,LOOP#64
 
@@ -153,7 +168,7 @@ ENDLP    EQU   *
 *        PUT   (R2),(R3)
 *        CLOSE ((R2))
 
-      FREEMAIN RU,LV=DCBLNGBS,A=(R10)
+      FREEMAIN RU,LV=DCBLNGPS,A=(R10)
          L     R0,DNSTRCT@
       PROCCALL NAME=DUNALLOC,(R10)
       FREEMAIN RU,LV=DDATA2#,A=(R11)

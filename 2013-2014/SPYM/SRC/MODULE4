@@ -1,0 +1,4 @@
+         GENREG                                                         00001000
+SAMPLE   CSECT                                                          00010000
+         BR    R2                                                       00010310
+         END                                                            00012210

@@ -213,7 +213,7 @@ GEND     EQU   *
          L     R6,RTOPM@1
       FREEMAIN RU,LV=DDATA1#,A=(R11)
          CLOSE ((R9)),MODE=31
-      FREEMAIN RU,LV=DCBLNGBS,A=(R9)
+      FREEMAIN RU,LV=DCBLNGPS,A=(R9)
          DROP  R10
          DROP  R11
          LR    R0,R6

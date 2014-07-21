@@ -11,7 +11,7 @@
          USING &LABEL._SAVE,R13            SET SA ADDRESSATION          00180000
 &CSECT   CSECT                                                          00190000
 &CSECT   AMODE 31                                                       00191002
-&CSECT   RMODE 24                                                       00192001
+&CSECT   RMODE 24                                                       00192004
                                                                         00200000
          STM   R14,R12,12(R13)             STORE REGISTERS              00200100
                                                                         00201000
