@@ -76,9 +76,6 @@
                COND=NO,LOC=RES,ADDR=(&GlobR)                            00402018
                                                                         00402117
 .DONE ANOP                                                              00403017
-* Restore R0 and R1                                                     00404021
-         L     R1,4(R13)                                                00405021
-         LM    R0,R1,20(R1)                                             00406021
 .* Done                                                                 00410000
          AGO   .EXIT                                                    00420000
 .ERR_CSECT ANOP                                                         00430000
