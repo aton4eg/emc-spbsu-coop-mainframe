@@ -3,27 +3,63 @@ SAMPLE   CSECT                                                          00010000
          STM   R14,R12,12(R13)                                          00010301
          BASR  R12,0                                                    00010401
          USING *,R12                                                    00010501
-         XR    R1,R1                                                    00010601
-         ST    R1,FLD                                                   00010701
-         B     TEST                                                     00010801
-         SVC   8                                                        00011003
-         BCTG  R1,0(R2,R3)                                              00011101
-         XR    R1,R1                                                    00011201
-         BCTG  R1,0(R2,R3)                                              00011301
-         XR    R1,R1                                                    00011401
-         BCTG  R1,0(R2,R3)                                              00011501
-         XR    R1,R1                                                    00011601
-         BCTG  R1,0(R2,R3)                                              00011701
-         XR    R1,R1                                                    00011801
-         BR    R3                                                       00011901
-         BALR  R12,0                                                    00012001
-TEST     EQU   *                                                        00012101
-         LM    R14,R12,12(R13)                                          00013000
+         LR    R2,R13                                                   00010605
+         ST    R13,SAVEAREA+4                                           00010705
+         LA    R13,SAVEAREA                                             00010805
+         ST    R13,8(,R2)                                               00010907
+                                                                        00011005
+         L     R3,0(,R1)                                                00011107
+         XR    R2,R2                                                    00011207
+         LH    R2,0(,R1)                                                00011307
+         EX    R2,DYMVC                                                 00011407
+         EX    R2,OBMVC                                                 00011507
+*        MVC   TU2+6(14),2(R3)                                          00011607
+                                                                        00011707
+         OPEN  (DEBUG,OUTPUT)                                           00011807
+         PUT   DEBUG,TU2                                                00011907
+         CLOSE (DEBUG)                                                  00012007
+                                                                        00012107
+         LA    R4,RB                                                    00012207
+         OILH  R4,X'8000'                                               00012307
+         ST    R4,RBPTR                                                 00012407
+                                                                        00012507
+         LA    R4,TPTR                                                  00012607
+         ST    R4,RB+8                                                  00012707
+                                                                        00012807
+         LA    R4,TU1                                                   00012907
+         NILH  R4,X'7FFF'                                               00013007
+         ST    R4,TPTR                                                  00013107
+                                                                        00013207
+         LA    R4,TU2                                                   00013307
+         NILH  R4,X'7FFF'                                               00013407
+         ST    R4,TPTR+4                                                00013507
+                                                                        00013607
+         LA    R4,TU3                                                   00013707
+         OILH  R4,X'8000'                                               00013807
+         ST    R4,TPTR+8                                                00013907
+                                                                        00014007
+         LA    R1,RBPTR                                                 00014107
+      DYNALLOC ,                                                        00014207
+                                                                        00014307
+         CLOSE (DEBUG)                                                  00014407
+                                                                        00014507
+         L     R13,SAVEAREA+4                                           00014607
+         LM    R14,R12,12(R13)                                          00015000
          BR    R14                                                      00020000
 FLD      DS    F                                                        00021001
-SAMPLE2  CSECT                                                          00022002
-         STM   R14,R12,12(R13)                                          00023002
-         BR    R3                                                       00024002
-         LM    R14,R12,12(R13)                                          00025002
-         BR    R14                                                      00026002
+         DS    0F                                                       00021105
+RBPTR    DS    F                                                        00021205
+RB       DC    XL20'1401000000000000000000000000000000000000'           00021305
+TPTR     DS    3F                                                       00021405
+TU1      DC    XL6'000100010006'                                        00021505
+         DC    CL6'TESTDD'                                              00021605
+TU2      DC    XL6'00020001000E'                                        00021705
+         DS    CL48                                                     00021807
+*        DC    CL14'EMCPROJ.OUTPUT'                                     00021907
+TU3      DC    XL7'00040001000108'                                      00022005
+DYMVC    MVC   TU2+6(0),2(R3)                                           00022107
+SAVEAREA DS    18F                                                      00022206
+DEBUG    DCB   DDNAME=OUTSET,DSORG=PS,MACRF=(PM)                        00022307
+         IEFZB4D0                                                       00022405
+         IEFZB4D2                                                       00023005
          END                                                            00030000

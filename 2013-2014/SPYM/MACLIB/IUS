@@ -1,13 +1,9 @@
-         MACRO                                                          00010001
-         IUS   &NAME=DSTACK,&SIZE=4000,&RBASE=(R11)                     00020001
-         LCLA  &NSIZE                                                   00030001
-         LCLC  &TMPRBASE                                                00040001
-&NSIZE   SETA  &SIZE+72+8                                               00050001
-&TMPRBASE SETC '&RBASE'(2,K'&RBASE-2) RBASE = (REG) -> TMPRBASE = REG   00060001
-       GETMAIN R,LV=&NSIZE                                              00070001
-         LR    &TMPRBASE,R1                                             00080001
-         USING &NAME,&TMPRBASE                                          00090001
-         XR    R1,R1                  R1 := 0                           00100001
-         ST    R1,H&NAME              N&NAME := 0                       00110001
-         MVC   H&NAME+1(80),H&NAME                                      00120001
-         MEND                                                           00130001
+         MACRO                                                          00001000
+         IUS   &NAME=DSTACK,&SIZE=242140,&SBASE=R11                     00002011
+         GETMAIN R,LV=&SIZE                                             00010006
+         LR    &SBASE,R1                                                00020009
+         USING &NAME,&SBASE                                             00030009
+         XR    R1,R1                                                    00070000
+         S     R1,=X'00000004'                                          00080000
+         ST    R1,TOP                                                   00090000
+         MEND                                                           00100000

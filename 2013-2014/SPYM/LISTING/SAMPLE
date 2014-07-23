@@ -1,6 +1,6 @@
 ¯
                                          High Level Assembler Option Summary                   (PTF UK37157)   Page    1
-                                                                                            HLASM R6.0  2014/07/15 17.15
+                                                                                            HLASM R6.0  2014/07/22 07.00
 ²  No Overriding ASMAOPT Parameters
 ²  No Overriding Parameters
 ²  No Process Statements
@@ -53,14 +53,13 @@
 ²  No Overriding DD Names
 ¯
                                               External Symbol Dictionary                                       Page    2
-Symbol   Type   Id     Address  Length   Owner Id Flags Alias-of                            HLASM R6.0  2014/07/15 17.15
+Symbol   Type   Id     Address  Length   Owner Id Flags Alias-of                            HLASM R6.0  2014/07/22 07.00
 ²          PC 00000001 00000000 00000000             00
-²SAMPLE    SD 00000002 00000000 00000040             00
-²SAMPLE2   SD 00000003 00000040 0000000C             00
+²SAMPLE    SD 00000002 00000000 000000AB             00
 ¯
 ²                                                                                                               Page    3
   Active Usings: None
-  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/15 17.15
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
 ²                                      1          GENREG                                                         00001000
 ²                      00000           2+R0       EQU   0                                                        01-GENRE
 ²                      00001           3+R1       EQU   1                                                        01-GENRE
@@ -78,95 +77,1054 @@
 ²                      0000D          15+R13      EQU   13                                                       01-GENRE
 ²                      0000E          16+R14      EQU   14                                                       01-GENRE
 ²                      0000F          17+R15      EQU   15                                                       01-GENRE
-²000000                00000 00040    18 SAMPLE   CSECT                                                          00010000
+²000000                00000 000AB    18 SAMPLE   CSECT                                                          00010000
 ²000000 90EC D00C            0000C    19          STM   R14,R12,12(R13)                                          00010301
 ²000004 0DC0                          20          BASR  R12,0                                                    00010401
 ²                 R:C  00006          21          USING *,R12                                                    00010501
-²000006 1711                          22          XR    R1,R1                                                    00010601
-²000008 5010 C036            0003C    23          ST    R1,FLD                                                   00010701
-²00000C 47F0 C030            00036    24          B     TEST                                                     00010801
-²000010 0A08                          25          SVC   8                                                        00010903
-²000012 E312 3000 0046       00000    26          BCTG  R1,0(R2,R3)                                              00011001
-²000018 1711                          27          XR    R1,R1                                                    00011101
-²00001A E312 3000 0046       00000    28          BCTG  R1,0(R2,R3)                                              00011201
-²000020 1711                          29          XR    R1,R1                                                    00011301
-²000022 E312 3000 0046       00000    30          BCTG  R1,0(R2,R3)                                              00011401
-²000028 1711                          31          XR    R1,R1                                                    00011501
-²00002A E312 3000 0046       00000    32          BCTG  R1,0(R2,R3)                                              00011601
-²000030 1711                          33          XR    R1,R1                                                    00011701
-²000032 07F3                          34          BR    R3                                                       00011801
-²000034 05C0                          35          BALR  R12,0                                                    00011901
-²                      00036          36 TEST     EQU   *                                                        00012001
-²000036 98EC D00C            0000C    37          LM    R14,R12,12(R13)                                          00013000
-²00003A 07FE                          38          BR    R14                                                      00020000
-²00003C                               39 FLD      DS    F                                                        00021001
-²000040                00040 0000C    40 SAMPLE2  CSECT                                                          00022002
-²000040 90EC D00C            0000C    41          STM   R14,R12,12(R13)                                          00023002
-²000044 07F3                          42          BR    R3                                                       00024002
-²000046 98EC D00C            0000C    43          LM    R14,R12,12(R13)                                          00025002
-²00004A 07FE                          44          BR    R14                                                      00026002
-²                                     45          END                                                            00030000
+²000006 182D                          22          LR    R2,R13                                                   00010605
+²000008 0000 0000            00000    23          ST    R13,SAVEAREA+4                                           00010705
+²** ASMA044E Undefined symbol - SAVEAREA
+²** ASMA435I Record 7 in EMCPROJ.SRC(SAMPLE) on volume: ZAIMS1
+²00000C 0000 0000            00000    24          LA    R13,SAVEAREA                                             00010805
+²** ASMA044E Undefined symbol - SAVEAREA
+²** ASMA435I Record 8 in EMCPROJ.SRC(SAMPLE) on volume: ZAIMS1
+000010 50D0 2008            00008    25          ST    R13,8(,R2)                                               00010905
+²000014 4140 C066            0006C    28          LA    R4,RB                                                    00011205
+²000018 A54A 8000            08000    29          OILH  R4,X'8000'                                               00011305
+00001C 5040 C062            00068    30          ST    R4,RBPTR                                                 00011405
+²000020 4140 C07A            00080    32          LA    R4,TPTR                                                  00011605
+000024 5040 C06E            00074    33          ST    R4,RB+8                                                  00011805
+²000028 4140 C086            0008C    35          LA    R4,TU1                                                   00012005
+²00002C A546 7FFF            07FFF    36          NILH  R4,X'7FFF'                                               00012105
+000030 5040 C07A            00080    37          ST    R4,TPTR                                                  00012205
+²000034 4140 C092            00098    39          LA    R4,TU2                                                   00012405
+²000038 A546 7FFF            07FFF    40          NILH  R4,X'7FFF'                                               00012505
+00003C 5040 C07E            00084    41          ST    R4,TPTR+4                                                00012605
+²000040 4140 C086            0008C    43          LA    R4,TU1                                                   00012805
+²000044 A54A 8000            08000    44          OILH  R4,X'8000'                                               00012905
+000048 5040 C082            00088    45          ST    R4,TPTR+8                                                00013005
+²00004C 4110 C062            00068    47          LA    R1,RBPTR                                                 00013205
+²                                     48       DYNALLOC ,                                                        00013305
+²                                     49+*        MACDATE Y-2 73082
+²000050 0A63                          50+         SVC   99 CALL DYNAMIC ALLOCATION                               01-DYNAL
+i000052 5820 C06A            00070    51          L     R2,RB+4                                                  00013405
+²                                                                                                               Page    4
+  Active Usings: SAMPLE+X'6',R12
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+000056 0000                          52          DC    X'0000'                                                  00013505
+²000058 0000 0000            00000    54          L     R13,SAVEAREA+4                                           00013705
+²** ASMA044E Undefined symbol - SAVEAREA
+²** ASMA435I Record 36 in EMCPROJ.SRC(SAMPLE) on volume: ZAIMS1
+²00005C 98EC D00C            0000C    55          LM    R14,R12,12(R13)                                          00014000
+²000060 07FE                          56          BR    R14                                                      00020000
+²000064                               57 FLD      DS    F                                                        00021001
+²000068                               58          DS    0F                                                       00021105
+²000068                               59 RBPTR    DS    F                                                        00021205
+²00006C 1401000000000000              60 RB       DC    XL20'1401000000000000000000000000000000000000'           00021305
+²000080                               61 TPTR     DS    3F                                                       00021405
+²00008C 000100010006                  62 TU1      DC    XL6'000100010006'                                        00021505
+²000092 E3C5E2E3C4C4                  63          DC    CL6'TESTDD'                                              00021605
+²000098 00020001000E                  64 TU2      DC    XL6'00020001000E'                                        00021705
+²00009E C5D4C3D7D9D6                  65          DC    CL6'EMCPROJ.OUTPUT'                                      00021805
+²0000A4 00040001000108                66 TU3      DC    XL7'00040001000108'                                      00021905
+²                                     67          IEFZB4D0                                                       00022005
+²                                     68+**/
+²                                     69+*%S99PLS1: ;
+²                                     70+*/**START OF SPECIFICATIONS************************************* @L3C*/
+²                                     71+*/*                                                              @L3A*/
+²                                     72+*/*01* MACRO NAME: IEFZB4D0                                      @L3C*/
+²                                     73+*/*                                                              @L3A*/
+²                                     74+*/*01* ACRONYM:  S99PARMS                                        @L3A*/
+²                                     75+*/*                                                              @L3A*/
+²                                     76+*/*01* DESCRIPTIVE NAME:  Dynamic Allocation (SVC 99) Parameter  @L3C*/
+²                                     77+*/*                       List                                   @L3C*/
+²                                     78+*/*                                                              @L3A*/
+²                                     79+*/*01* PROPRIETARY STATEMENT=                                        */
+²                                     80+*/***PROPRIETARY_STATEMENT********************************************/
+²                                     81+*/*                                                                  */
+²                                     82+*/*                                                                  */
+²                                     83+*/* LICENSED MATERIALS - PROPERTY OF IBM                             */
+²                                     84+*/* 5694-A01 COPYRIGHT IBM CORP. 1974, 2007                          */
+²                                     85+*/*                                                                  */
+²                                     86+*/* STATUS= HBB7740                                                  */
+²                                     87+*/*                                                                  */
+²                                     88+*/***END_OF_PROPRIETARY_STATEMENT*************************************/
+²                                     89+*/*                                                              @L3A*/
+²                                     90+*/*01* EXTERNAL CLASSIFICATION:                                  @L3A*/
+²                                     91+*/*02* GUPI:  BASE                                               @L3A*/
+²                                     92+*/*02* DMTI:  FIELDS S99EMSGP                                    @L3A*/
+²                                     93+*/*01* END OF EXTERNAL CLASSIFICATION:                           @L3A*/
+²                                     94+*/*                                                              @L3A*/
+²                                     95+*/*01* DSECT NAME: S99RB, S99RBP, S99TUPL, S99TUNIT, S99TUFLD,   @L3A*/
+²                                     96+*/*                S99RBX                                        @L3A*/
+²                                     97+*/*                                                              @L3A*/
+²                                     98+*/*01* COMPONENT:  Allocation (SC1B4)                            @L3A*/
+²                                     99+*/*                                                              @L3A*/
+²                                    100+*/*01* EYE-CATCHER:  None                                        @L3A*/
+²                                    101+*/*02*  OFFSET:  n/a                                             @L3A*/
+²                                    102+*/*02*  LENGTH:  n/a                                             @L3A*/
+²                                    103+*/*                                                              @L3A*/
+i                                    104+*/*01* STORAGE ATTRIBUTES:                                       @L3A*/
+²                                                                                                               Page    5
+  Active Usings: SAMPLE+X'6',R12
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    105+*/*02*  SUBPOOL:  User defined                                   @L3A*/
+²                                    106+*/*02*  KEY:  User's key                                         @L3A*/
+²                                    107+*/*02*  RESIDENCY:  Any                                          @L3A*/
+²                                    108+*/*02*  MAIN STORAGE:  No                                        @L3A*/
+²                                    109+*/*                                                              @L3A*/
+²                                    110+*/*01* SIZE:  S99RB:  20 bytes                                   @P3C*/
+²                                    111+*/*           S99RBX: 36 bytes                                   @L3A*/
+²                                    112+*/*                                                              @L3A*/
+²                                    113+*/*01* CREATED BY: Callers of dynamic allocation                 @L3A*/
+²                                    114+*/*                                                              @L3A*/
+²                                    115+*/*01* POINTED TO BY: Register 1 points to a pointer to this     @L3A*/
+²                                    116+*/*                   parameter list upon entry to SVC 99.       @L3A*/
+²                                    117+*/*                                                              @L3A*/
+²                                    118+*/*01* SERIALIZATION: None                                       @L3A*/
+²                                    119+*/*                                                              @L3A*/
+²                                    120+*/*01* FUNCTION: Input required by dynamic allocation,           @L3C*/
+²                                    121+*/*              specifically the dynamic allocation control     @L3C*/
+²                                    122+*/*              routine, IEFDB400.                              @L3C*/
+²                                    123+*/*                                                              @L3A*/
+²                                    124+*/*01* METHOD OF ACCESS =                                        @L3A*/
+²                                    125+*/*                                                              @L3A*/
+²                                    126+*/*  02* PL/AS INVOCATION =                                      @L3A*/
+²                                    127+*/*        %INCLUDE SYSLIB(IEFZB4D0)                             @L3A*/
+²                                    128+*/*                                                              @L3A*/
+²                                    129+*/*  02* BAL INVOCATION =                                        @L3A*/
+²                                    130+*/*                 IEFZB4D0                                     @L3A*/
+²                                    131+*/*                                                              @L3A*/
+²                                    132+*/*                                                              @L3A*/
+²                                    133+*/*01* DELETED BY: Callers of dynamic allocation                 @L3A*/
+²                                    134+*/*                                                              @L3A*/
+²                                    135+*/*01* DEPENDENCIES: None                                        @L3A*/
+²                                    136+*/*                                                              @L3A*/
+²                                    137+*/*01* DISTRIBUTION LIBRARY: SYS1.AMACLIB                        @L3A*/
+²                                    138+*/*                                                              @L3A*/
+²                                    139+*/*                                                                  */
+²                                    140+*/*                                                                  */
+²                                    141+*/* THE PARAMETER LIST CONSISTS OF:                                  */
+²                                    142+*/*                                                                  */
+²                                    143+*/* 1) A REQUEST BLOCK POINTER. THIS IS A FULLWORD CONTAINING THE    */
+²                                    144+*/*    ADDRESS OF THE DYNAMIC ALLOCATION REQUEST BLOCK. THE HIGH-    */
+²                                    145+*/*    ORDER BIT MUST BE ON. THIS WORD MUST BE LOCATED BY REG. ONE.  */
+²                                    146+*/*                                                                  */
+²                                    147+*/* 2) A REQUEST BLOCK. THIS BLOCK IS LOCATED BY THE REQUEST BLOCK   */
+²                                    148+*/*    POINTER AND CONTAINS:                                         */
+²                                    149+*/*    . A ONE BYTE FIELD CONTAINING THE LENGTH OF THIS REQUEST      */
+²                                    150+*/*      BLOCK. THE LENGTH IS IN BINARY AND HAS A VALUE OF 20.       */
+²                                    151+*/*    . A ONE BYTE FIELD CONTAINING A VERB CODE CORRESPONDING TO A  */
+²                                    152+*/*      DYNAMIC ALLOCATION FUNCTION. MNEMONIC NAMES FOR THE VERB    */
+²                                    153+*/*      CODES ARE CONTAINED IN THIS MACRO.                          */
+²                                    154+*/*    . TWO BYTES OF FLAGS WHICH MUST MAP DIRECTLY TO ALCFNCMAP     */
+²                                    155+*/*      (COMMON ALLOCATION FUNCTION MAP) IN IEFZB4D7.               */
+²                                    156+*/*    . TWO BYTES IN WHICH DYNAMIC ALLOCATION WILL RETURN AN ERROR  */
+²                                    157+*/*      REASON CODE.                                                */
+²                                    158+*/*    . TWO BYTES IN WHICH DYNAMIC ALLOCATION WILL RETURN AN        */
+i                                    159+*/*      INFORMATIONAL REASON CODE.                                  */
+²                                                                                                               Page    6
+  Active Usings: SAMPLE+X'6',R12
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    160+*/*    . A FULLWORD CONTAINING THE ADDRESS OF A LIST OF POINTERS TO  */
+²                                    161+*/*      TEXT UNITS.                                                 */
+²                                    162+*/*    . A FULLWORD CONTAINING THE ADDRESS OF A REQUEST BLOCK    @L1C*/
+²                                    163+*/*      EXTENSION FOR MESSAGE PROCESSING OR ZERO.               @L1C*/
+²                                    164+*/*    . FOUR BYTES OF FLAGS FOR AUTHORIZED FUNCTIONS.               */
+²                                    165+*/*                                                                  */
+²                                    166+*/* 3) A LIST OF FULLWORDS CONTAINING THE ADDRESSES OF TEXT UNITS.   */
+²                                    167+*/*    A WORD WITH A VALUE OF ZERO IS IGNORED. THE LAST WORD IN THE  */
+²                                    168+*/*    LIST MUST HAVE THE HIGH ORDER BIT ON.                         */
+²                                    169+*/*                                                                  */
+²                                    170+*/* 4) TEXT UNITS. A TEXT UNIT CONSISTS OF:                          */
+²                                    171+*/*    . A TWO BYTE FIELD CONTAINING A KEY WHICH IDENTIFIES THE      */
+²                                    172+*/*      INFORMATION IN THIS TEXT UNIT. A TEXT UNIT HAVING A KEY     */
+²                                    173+*/*      WITH A VALUE OF ZERO IS IGNORED. THE MACRO IEFZB4D2 LISTS   */
+²                                    174+*/*      MNEMONIC NAMES FOR THE VALUES OF THE KEYS.                  */
+²                                    175+*/*    . A TWO BYTE FIELD WHICH CONTAINS THE NUMBER OF LENGTH/PARA-  */
+²                                    176+*/*      METER ENTRIES WHICH FOLLOW. A VALUE OF ZERO INDICATES NO    */
+²                                    177+*/*      ENTRIES FOLLOW.                                             */
+²                                    178+*/*    . A TWO BYTE FIELD WHICH CONTAINS THE LENGTH OF THE IMMED-    */
+²                                    179+*/*      IATELY FOLLOWING PARAMETER.                                 */
+²                                    180+*/*    . A PARAMETER.                                                */
+²                                    181+*/*                                                                  */
+²                                    182+*/* 5) A REQUEST BLOCK EXTENSION. THIS BLOCK IS LOCATED BY THE   @L1A*/
+²                                    183+*/*    POINTER (S99S99X) FOUND IN THE REQUEST BLOCK. IT IS       @L1A*/
+²                                    184+*/*    OPTIONAL AND CONTAINS:                                    @L1A*/
+²                                    185+*/*    . A SIX BYTE FIELD CONTAINING THE CONTROL BLOCK           @L1A*/
+²                                    186+*/*      IDENTIFIER 'S99RBX'.                                    @L1A*/
+²                                    187+*/*    . A ONE BYTE FIELD CONTAINING THE VERSION NUMBER.         @L1A*/
+²                                    188+*/*    . ONE BYTE OF FLAGS FOR MESSAGE PROCESSING OPTIONS        @L1A*/
+²                                    189+*/*    . A ONE BYTE FIELD CONTAINING THE SUBPOOL FOR MESSAGE     @L1A*/
+²                                    190+*/*      BLOCKS.                                                 @L1A*/
+²                                    191+*/*    . A ONE BYTE FIELD CONTAINING THE STORAGE KEY FOR         @L1A*/
+²                                    192+*/*      MESSAGE BLOCKS.                                         @L1A*/
+²                                    193+*/*    . A ONE BYTE FIELD CONTAINING THE SEVERITY LEVEL FOR      @L1A*/
+²                                    194+*/*      MESSAGE PROCESSING.                                     @L1A*/
+²                                    195+*/*    . A ONE BYTE FIELD CONTAINING THE NUMBER OF MESSAGE       @D1C*/
+²                                    196+*/*      BLOCKS RETURNED                                         @D1A*/
+²                                    197+*/*    . A FULLWORD CONTAINING THE ADDRESS OF CPPL.              @L1A*/
+²                                    198+*/*    . FOUR BYTES FOR MESSAGE SERVICE RETURN CODE.             @L1A*/
+²                                    199+*/*    . FOUR BYTES FOR PUTLINE/WTO RETURN CODE.                 @L1A*/
+²                                    200+*/*    . FOUR BYTES FOR MESSAGE BLOCK POINTER.                   @L1A*/
+²                                    201+*/*    . FOUR BYTES FOR INFORMATION RETRIEVAL RETURN CODE        @L1A*/
+²                                    202+*/*      (VERB 01 ONLY)                                          @L1A*/
+²                                    203+*/*    . FOUR BYTES FOR SMS ERROR REASON CODE.                   @02C*/
+²                                    204+*/*                                                                  */
+²                                    205+*/* CHANGE ACTIVITY:  OZ32641, OZ63125, L1, L2, D1               @D1C*/
+²                                    206+*/*                   OY27926, OY29243, T1, 01, 02               @02C*/
+²                                    207+*/*                                                                  */
+²                                    208+*/*The above section of the Change Activity is no longer updated @03A*/
+²                                    209+*/*                                                                  */
+²                                    210+*/* $L1= SMSSTG2 JBB2223 860523 PDM9: STOR MGMT SUBSYS STG2 SUP  @L1A*/
+²                                    211+*/* $L2= SMSSTG2 JBB2223 860820 PDV6: STOR MGMT SUBSYS STG2 SUP  @L2A*/
+²                                    212+*/* $D1= DC20061 JBB2223 871216 PDV6: ADD S99ENMSG FIELD         @D1A*/
+²                                    213+*/* $T1= OY26839 HBB3310 890831 PDE1: DD LIMIT SPE               @T1A*/
+i                                    214+*/* $01= OY42979 HBB4410 910419 PDCC: Allow message suppression  @01A*/
+²                                                                                                               Page    7
+  Active Usings: SAMPLE+X'6',R12
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    215+*/* $02= OY32848 JBB2223 910101 PDHK: ADD SMS REASON CODE        @02A*/
+²                                    216+*/* $03= OY52645 HBB4410 911105 PDDU: Provide "do not recall         */
+²                                    217+*/*                                   migrated data set" option  @03A*/
+²                                    218+*/* $L3= UCBVP   HBB5520 940210 PDN1: Add S99ACUCB to enable         */
+²                                    219+*/*                                   requesting use of actual       */
+²                                    220+*/*                                   UCBs.                      @L3A*/
+²                                    221+*/* $L4= CLONE   HBB5520 940728 PDBN: System symbolics           @L4A*/
+²                                    222+*/* $P1= PN71391 HBB5520 940908 PDEM: Change S99ACUCB to         @P1A*/
+²                                    223+*/*                                   non-authorized             @P1A*/
+²                                    224+*/* $P2= PXD0099 HBB7703 991231 PDG5: Handle device allocated to @P2A*/
+²                                    225+*/*                                   ASID *UNKNOWN* during      @P2A*/
+²                                    226+*/*                                   VARY Offline. This change  @P2A*/
+²                                    227+*/*                                   is the result of multiple  @P2A*/
+²                                    228+*/*                                   customer system outage     @P2A*/
+²                                    229+*/*                                   PMRs.                      @P2A*/
+²                                    230+*/* $L5 = ODSLM  HBB7705 001031 PDOO: Open Data Set Limit Relief @L5A*/
+²                                    231+*/* $P3= ME05532 HBB7730 060131 PDHV: Add S99RBXLN               @P3A*/
+²                                    232+*/* $P4= ME09036 HBB7740 070126 PDTA: Add S99IGNCL               @P4A*/
+²                                    233+*/*                                   FIN of OA13643             @P4A*/
+²                                    234+*/*                                                                  */
+²                                    235+*/*                                                                  */
+²                                    236+*/**END OF SPECIFICATIONS**************************************  @L3C*/
+²                                    237+*/* IEFZB4D0 - Added S99IGNCL to S99FLG22.  When this flag is        */
+²                                    238+*/*            set, dynamic allocation should ignore the             */
+²                                    239+*/*            control limit.  This flag is intended to be used      */
+²                                    240+*/*            for system program use only.                      @P4A*/
+²                                    241+*/* IEFZB4D0 - Added S99RBXLN to S99RBX to make it easier to         */
+²                                    242+*/*            determine the declared length of the S99RBX.          */
+²                                    243+*/*            Also corrected prolog (S99RB size).               @P3A*/
+²                                    244+*/* IEFZB4D0 - Added S99DSABA to S99FLG12 (unauthorized function).   */
+²                                    245+*/*            When = 1, DSAB for this dynamic allocation will       */
+²                                    246+*/*            be placed above the 16MB line.                    @L5A*/
+²                                    247+*/* IEFZB4D0 - Added S99ASERR to S99FLG22 (Under S99FLAGS2 for       */
+²                                    248+*/*            authorized functions). When = 1, Unit Unallocation    */
+²                                    249+*/*            service IEFDB440 should ignore coupling facility      */
+²                                    250+*/*            READ and WRITE errors for the RELEASE function on an  */
+²                                    251+*/*            Autoswitchable device.                            @P2A*/
+²                                    252+*/*          - Changed S99FLG22 masks to recognize S99ASERR as a     */
+²                                    253+*/*            valid authorized flag (bit position X'08').       @P2A*/
+²                                    254+*/*          - Changed S99NOT22 to no longer flag bit position       */
+²                                    255+*/*            X'08' (now used for S99ASERR) as invalid.         @P2A*/
+²                                    256+*/* IEFZB4D0 - Changed SVC99 S99ACUCB bit from authorized to         */
+²                                    257+*/*            non-authorized.                                       */
+²                                    258+*/*          - Change S99FLG22 masks to remove the S99ACUCB          */
+²                                    259+*/*            flag.                                                 */
+²                                    260+*/*          - Change S99FLG12 masks so that the new non-authorized  */
+²                                    261+*/*            S99ACUCB flag can be recognized as a valid flag.  @P1A*/
+²                                    262+*/* IEFZB4D0 - Add a new SVC 99 input request bit S99NOSYM to        */
+²                                    263+*/*            indicate that Allocation should not resolve           */
+²                                    264+*/*            system symbolics.                                     */
+²                                    265+*/*          - Change S99FLG12 masks so that the new flag            */
+²                                    266+*/*            can be recognized as a valid flag.                @L4A*/
+²                                    267+*/* IEFZB4D0 - Add a new SVC 99 input request bit to indicate        */
+²                                    268+*/*            that actual UCBs should be utilized.                  */
+i                                    269+*/*          - Change S99FLG22 masks so that the new flag            */
+²                                                                                                               Page    8
+  Active Usings: SAMPLE+X'6',R12
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    270+*/*            can be recognized as a valid flag.                @L3A*/
+²                                    271+*/* IEFZB4D0 - Add a new SVC 99 input request bit to indicate        */
+²                                    272+*/*            that no recall will be performed on migrated          */
+²                                    273+*/*            data sets.                                        @03A*/
+²                                    274+*/*          - Change S99FLG11 masks so that the new flag            */
+²                                    275+*/*            can be recognized as a valid flag.                @03A*/
+²                                    276+*/* IEFZB4D0 - ADD S99ERSN TO REQUEST BLOCK EXTENSION WHICH          */
+²                                    277+*/*            CONTAINS THE SMS REASON CODE.                     @02A*/
+²                                    278+*/* IEFZB4D0 - A - S99MSGL0 indicates that Allocation should act as if
+²                                    279+*                  Allocation's MSGLEVEL was 0 for this Allocation
+²                                    280+*                  only.  S99ERSVM is defined to allow checking
+²                                    281+*                  of the Request Block Extension.               @01A*/
+²                                    282+*/* IEFZB4D0 - ADDED S99TIOEX IN S99FLG22                        @T1A*/
+²                                    283+*/* IEFZB4D0 - ADDED DECLARES FOR S99FLAGS BIT MASKS             @T1A*/
+²                                    284+*/* IEFZB4D0 - DELETED EQUATE FOR S99RBID                    @YD29243*/
+²                                    285+*/* IEFZB4D0 - ADDED EQUATE FOR S99RBID WHICH WAS MISSING    @YA27926*/
+²                                    286+*/* IEFZB4D0 - ADDED NUMBER OF MESSAGE BLOCKS FIELD (S99EMSG)    @D1A*/
+²                                    287+*/* IEFZB4D0 - ADDED A FLAG (S99EWTP) TO THE EXTENSION THAT
+²                                    288+*              INDICATES A WTO IS TO BE USED FOR MESSAGE OUTPUT  @L2A*/
+²                                    289+*/* IEFZB4D0 - CHANGE SEVERITY LEVEL, SUBPOOL, STORAGE KEY, AND
+²                                    290+*              MESSAGE PROCESSING RETURN CODES FROM CHAR(1) TO
+²                                    291+*              FIXED(8).                                         @L2A*/
+²                                    292+*/* IEFZB4D0 - ADDED CONSTANTS FOR THE MESSAGE SEVERITIES        @L2A*/
+²                                    293+*/* IEFZB4D0 - CHANGED FOUR RESERVED BYTES IN SVC 99 REQUEST BLOCK   */
+²                                    294+*/*            TO POINTER TO SVC 99 REQUEST BLOCK EXTENSION      @L1A*/
+²                                    295+*/* IEFZB4D0 - DEFINE SVC 99 REQUEST BLOCK EXTENSION WHICH CONTAINS  */
+²                                    296+*/*            INFORMATION FOR MESSAGE PROCESSING                @L1A*/
+²                                    297+*        %GOTO S99PLS2;                /*
+²                                    298+***********************************************************************
+²                                    299+*                SVC 99 INPUT REQUEST BLOCK
+²                                    300+***********************************************************************
+²000000                00000 00004   301+S99RBP   DSECT                                                          01-IEFZB
+²000000                              302+S99RBPTR DS     F                      REQUEST BLOCK POINTER            01-IEFZB
+²                      00080         303+S99RBPND EQU    X'80'                  LAST POINTER INDICATOR           01-IEFZB
+²000000                00000 00014   304+S99RB    DSECT                         REQUEST BLOCK                    01-IEFZB
+²000000                              305+         DS     0F                                                      01-IEFZB
+²000000                              306+S99RBLN  DS     CL1                    LENGTH OF REQUEST BLOCK          01-IEFZB
+²000001                              307+S99VERB  DS     CL1                    VERB CODE                        01-IEFZB
+²                      00001         308+S99VRBAL EQU    X'01'                  ALLOCATION                       01-IEFZB
+²                      00002         309+S99VRBUN EQU    X'02'                  UNALLOCATION                     01-IEFZB
+²                      00003         310+S99VRBCC EQU    X'03'                  CONCATENATION                    01-IEFZB
+²                      00004         311+S99VRBDC EQU    X'04'                  DECONCATENATION                  01-IEFZB
+²                      00005         312+S99VRBRI EQU    X'05'                  REMOVE IN-USE                    01-IEFZB
+²                      00006         313+S99VRBDN EQU    X'06'                  DDNAME ALLOCATION                01-IEFZB
+²                      00007         314+S99VRBIN EQU    X'07'                  INFORMATION RETRIEVAL            01-IEFZB
+²000002                              315+S99FLAG1 DS     0CL2                   FLAGS                            01-IEFZB
+²000002                              316+S99FLG11 DS     CL1                    FIRST FLAGS BYTE                 01-IEFZB
+²                      00080         317+S99ONCNV EQU    X'80'                  ALLOC FUNCTION-DO NOT USE AN     01-IEFZB
+²                                    318+*                                      EXISTING ALLOCATION THAT DOES
+²                                    319+*                                      NOT HAVE THE CONVERTIBLE
+²                                    320+*                                      ATTRIBUTE TO SATISFY A REQUEST
+²                      00040         321+S99NOCNV EQU    X'40'                  ALLOC FUNCTION-DO NOT USE AN     01-IEFZB
+²                                    322+*                                      EXISTING ALLOCATION TO SATISFY
+²                                    323+*                                      THE REQUEST
+i                      00020         324+S99NOMNT EQU    X'20'                  ALLOC FUNCTION-DO NOT MOUNT      01-IEFZB
+²                                                                                                               Page    9
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    325+*                                      VOLUMES OR CONSIDER OFFLINE
+²                                    326+*                                      UNITS (THIS FLAG OVERRIDES
+²                                    327+*                                      S99MOUNT AND S99OFFLN BELOW)
+²                      00010         328+S99JBSYS EQU    X'10'                  ALLOC FUNC-JOB RELATED SYSOUT    01-IEFZB
+²                      00008         329+S99CNENQ EQU    X'08'                  ALL FUNCTIONS-ISSUE A   @ZA32641 01-IEFZB
+²                                    330+*                                      CONDITIONAL ENQ ON TIOT @ZA32641
+²                                    331+*                                      RESOURCE. IF NOT        @ZA32641
+²                                    332+*                                      AVAILABLE, RETURN AN    @ZA32641
+²                                    333+*                                      ERROR CODE TO USER.     @ZA32641
+²                      00004         334+S99GDGNT EQU    X'04'                  ALLOC FUNCTION - IGNORE @YA10531 01-IEFZB
+²                                    335+*                                      THE GDG NAME TABLE AND  @YA10531
+²                                    336+*                                      PERFORM A LOCATE FOR    @YA10531
+²                                    337+*                                      THE GDG BASE LEVEL.     @YA10531
+²                      00002         338+S99MSGL0 EQU    X'02'                  All functions - ignore the  @01A 01-IEFZB
+²                                    339+*                                      MSGLEVEL parameter in the   @01A
+²                                    340+*                                      JCT and use MSGLEVEL=(,0)   @01A
+²                      00001         341+S99NOMIG EQU    X'01'                  ALLOC function - do not     @03A 01-IEFZB
+²                                    342+*                                      recall migrated data sets   @03A
+²000003                              343+S99FLG12 DS     CL1                    SECOND BYTE OF FLAGS             01-IEFZB
+²                      00080         344+S99NOSYM EQU    X'80'                  Allocate, unallocate, info       01-IEFZB
+²                                    345+*                                      retrieval - do not perform
+²                                    346+*                                      symbolic substitution       @L4A
+²                      00040         347+S99ACUCB EQU    X'40'                  Alloc function-use Actual        01-IEFZB
+²                                    348+*                                      UCB addresses               @P1C
+²                      00020         349+S99DSABA EQU    X'20'                  Request that the DSAB for        01-IEFZB
+²                                    350+*                                      this allocation be placed
+²                                    351+*                                      above the 16MB line.        @L5A
+²000004                              352+S99RSC   DS     0CL4                   REASON CODE FIELDS               01-IEFZB
+²000004                              353+S99ERROR DS     XL2                    ERROR REASON CODE                01-IEFZB
+²000006                              354+S99INFO  DS     XL2                    INFORMATION REASON CODE          01-IEFZB
+²000008                              355+S99TXTPP DS     F                      ADDR OF LIST OF TEXT UNIT PTRS   01-IEFZB
+²00000C                              356+S99S99X  DS     F                      ADDR OF REQ BLK EXTENSION  @L1C  01-IEFZB
+²000010                              357+S99FLAG2 DS     0CL4                   FLAGS FOR AUTHORIZED FUNCTIONS   01-IEFZB
+²000010                              358+S99FLG21 DS     CL1                    FIRST BYTE OF FLAGS              01-IEFZB
+²                      00080         359+S99WTVOL EQU    X'80'                  ALLOC FUNCTION-WAIT FOR          01-IEFZB
+²                                    360+*                                      VOLUMES
+²                      00040         361+S99WTDSN EQU    X'40'                  ALLOC FUNCTION-WAIT FOR DSNAME   01-IEFZB
+²                      00020         362+S99NORES EQU    X'20'                  ALLOC FUNCTION-DO NOT DO         01-IEFZB
+²                                    363+*                                      DATA SET RESERVATION
+²                      00010         364+S99WTUNT EQU    X'10'                  ALLOC FUNCTION-WAIT FOR UNITS    01-IEFZB
+²                      00008         365+S99OFFLN EQU    X'08'                  ALLOC FUNCTION-CONSIDER OFFLINE  01-IEFZB
+²                                    366+*                                      UNITS
+²                      00004         367+S99TIONQ EQU    X'04'                  ALL FUNCTIONS-TIOT ENQ ALREADY   01-IEFZB
+²                                    368+*                                      DONE
+²                      00002         369+S99CATLG EQU    X'02'                  ALLOC FUNCTION-SET SPECIAL       01-IEFZB
+²                                    370+*                                      CATALOG DATA SET INDICATORS
+²                      00001         371+S99MOUNT EQU    X'01'                  ALLOC FUNCTION-MAY MOUNT VOLUME  01-IEFZB
+²000011                              372+S99FLG22 DS     CL1                    SECOND BYTE OF FLAGS             01-IEFZB
+²                      00080         373+S99UDEVT EQU    X'80'                  ALLOCATION FUNCTION-UNIT NAME    01-IEFZB
+²                                    374+*                                      PARM IS A DEVICE TYPE
+²                      00040         375+S99PCINT EQU    X'40'                  ALLOC FUNCTION-ALLOC    @Y30QPPB 01-IEFZB
+²                                    376+*                                      PRIVATE CATALOG TO      @Y30QPPB
+²                                    377+*                                      INITIATOR               @Y30QPPB
+²                      00020         378+S99DYNDI EQU    X'20'                  ALLOC FUNCTION-NO JES3  @ZA63125 01-IEFZB
+i                                    379+*                                      DSN INTEGRITY PROCESS   @ZA63125
+²                                                                                                               Page   10
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                      00010         380+S99TIOEX EQU    X'10'                  ALLOC FUNCTION - XTIOT           01-IEFZB
+²                                    381+*                                      ENTRY REQUESTED (FOR
+²                                    382+*                                      SYSTEM PROGRAM USE ONLY)    @T1A
+²                      00008         383+S99ASERR EQU    X'08'                  Unit Allocation / Unallocation   01-IEFZB
+²                                    384+*                                      Service (IEFAB4C1/IEFDB440) -
+²                                    385+*                                      Ignore Coupling Facility
+²                                    386+*                                      READ/WRITE failure when
+²                                    387+*                                      processing RELEASE function
+²                                    388+*                                      for Autoswitchable device
+²                                    389+*                                      (FOR SYSTEM PROGRAM USE
+²                                    390+*                                      ONLY)                       @P2A
+²                      00004         391+S99IGNCL EQU    X'04'                  Alloc function - ignore          01-IEFZB
+²                                    392+*                                      control limit.
+²                                    393+*                                      THIS FLAG IS FOR SYSTEM
+²                                    394+*                                      PROGRAM USE ONLY.           @P4A
+²000012                              395+S99FLG23 DS     CL1                    THIRD BYTE OF FLAGS              01-IEFZB
+²000013                              396+S99FLG24 DS     CL1                    FOURTH BYTE OF FLAGS             01-IEFZB
+²                      00014         397+S99RBEND EQU    *                      END MARKER                       01-IEFZB
+²                                    398+***********************************************************************
+²                                    399+* SVC 99 FLAG BIT MASKS                                            @T1A
+²                                    400+*   - A '1' DENOTES DEFINED BITS                                   @T1A
+²                                    401+*   - USED TO TEST FOR BIT SETTINGS                                @T1A
+²                                    402+***********************************************************************
+²                      000FF         403+S99MSK11 EQU    B'11111111'            BIT MASK FOR S99FLG11       @03C 01-IEFZB
+²                      000E0         404+S99MSK12 EQU    B'11100000'            BIT MASK FOR S99FLG12       @L5C 01-IEFZB
+²                      000FF         405+S99MSK21 EQU    B'11111111'            BIT MASK FOR S99FLG21       @T1A 01-IEFZB
+²                      000FC         406+S99MSK22 EQU    B'11111100'            BIT MASK FOR S99FLG22       @P4C 01-IEFZB
+²                      00000         407+S99MSK23 EQU    B'00000000'            BIT MASK FOR S99FLG23       @T1A 01-IEFZB
+²                      00000         408+S99MSK24 EQU    B'00000000'            BIT MASK FOR S99FLG24       @T1A 01-IEFZB
+²                                    409+***********************************************************************
+²                                    410+* SVC 99 FLAG RESERVED BIT MASKS                                   @T1A
+²                                    411+*   - A '1' DENOTES RESERVED BITS                                  @T1A
+²                                    412+*   - USED TO TEST FOR INVALID USE OF RESERVED FIELDS              @T1A
+²                                    413+***********************************************************************
+²                      00000         414+S99NOT11 EQU    B'00000000'           INVERSE BITMASK FOR S99FLG11 @03C 01-IEFZB
+²                      0001F         415+S99NOT12 EQU    B'00011111'           INVERSE BITMASK FOR S99FLG12 @L5C 01-IEFZB
+²                      00000         416+S99NOT21 EQU    B'00000000'           INVERSE BITMASK FOR S99FLG21 @T1A 01-IEFZB
+²                      00003         417+S99NOT22 EQU    B'00000011'           INVERSE BITMASK FOR S99FLG22 @P4C 01-IEFZB
+²                      000FF         418+S99NOT23 EQU    B'11111111'           INVERSE BITMASK FOR S99FLG23 @T1A 01-IEFZB
+²                      000FF         419+S99NOT24 EQU    B'11111111'           INVERSE BITMASK FOR S99FLG24 @T1A 01-IEFZB
+²                                    420+***********************************************************************
+²                                    421+* SVC 99 TEXT UNIT POINTER LIST
+²                                    422+***********************************************************************
+²000000                00000 00004   423+S99TUPL  DSECT                         TEXT UNIT POINTER LIST           01-IEFZB
+²000000                              424+S99TUPTR DS     F                      TEXT UNIT POINTER                01-IEFZB
+²                      00080         425+S99TUPLN EQU    X'80'                  LAST TEXT UNIT POINTER IN LIST   01-IEFZB
+²                                    426+***********************************************************************
+²                                    427+* SVC 99 TEXT UNIT
+²                                    428+***********************************************************************
+²000000                00000 00007   429+S99TUNIT DSECT                         TEXT UNIT                        01-IEFZB
+²000000                              430+S99TUKEY DS     XL2                    KEY                              01-IEFZB
+²000002                              431+S99TUNUM DS     XL2                    N0. OF LENGTH+PARAMETER ENTRIES  01-IEFZB
+²000004                              432+S99TUENT DS     0C                     ENTRY OF LENGTH+PARAMETER        01-IEFZB
+²000004                              433+S99TULNG DS     XL2                    LENGH OF 1ST (OR ONLY) PARAMETER 01-IEFZB
+i000006                              434+S99TUPAR DS     C                      1ST (OR ONLY) PARAMETER          01-IEFZB
+²                                                                                                               Page   11
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    435+* THE FOLLOWING DSECT IS PROVIDED FOR USE WITH MULTIPLE
+²                                    436+* LENGTH/PARAMETER ENTRIES TO ALLOW ZERO DISPLACEMENT TO THE
+²                                    437+* LENGTH FIELD
+²000000                00000 00003   438+S99TUFLD DSECT                                                          01-IEFZB
+²000000                              439+S99TULEN DS     XL2                    LENGTH OF PARAMETER              01-IEFZB
+²000002                              440+S99TUPRM DS     C                      PARAMETER                        01-IEFZB
+²                                    441+****************************************************************** @L1A
+²                                    442+* SVC 99 REQUEST BLOCK EXTENSION                                   @L1A
+²                                    443+****************************************************************** @L1A
+²000000                00000 00024   444+S99RBX   DSECT                         REQUEST BLOCK EXTENSION     @L1A 01-IEFZB
+²000000                              445+S99EID   DS     CL6                    CONTROL BLOCK ID ='S99RBX'  @L1A 01-IEFZB
+²000006                              446+S99EVER  DS     CL1                    VERSION NUMBER              @L1A 01-IEFZB
+²                      00001         447+S99RBXVR EQU    X'01'                  CURRENT VERSION NUMBER      @L2A 01-IEFZB
+²000007                              448+S99EOPTS DS     CL1                    PROCESSING OPTIONS          @L1A 01-IEFZB
+²                      00080         449+S99EIMSG EQU    X'80'                  ISSUE MSG BEFORE RETURNING  @L1A 01-IEFZB
+²                                    450+*                                      TO CALLER                   @L1A
+²                      00040         451+S99ERMSG EQU    X'40'                  RETURN MSG TO CALLER        @L1A 01-IEFZB
+²                      00020         452+S99ELSTO EQU    X'20'                  USER STORAGE SHOULD BE      @L1A 01-IEFZB
+²                                    453+*                                      BELOW 16M BOUNDRY           @L1A
+²                      00010         454+S99EMKEY EQU    X'10'                  USER SPECIFIED STORAGE KEY  @L1A 01-IEFZB
+²                                    455+*                                      FOR MESSAGE BLOCKS          @L1A
+²                      00008         456+S99EMSUB EQU    X'08'                  USER SPECIFIED SUBPOOL FOR  @L1A 01-IEFZB
+²                                    457+*                                      MESSAGE BLOCKS              @L1A
+²                      00004         458+S99EWTP  EQU    X'04'                  USE WTO FOR MESSAGE OUTPUT  @L2A 01-IEFZB
+²000008                              459+S99ESUBP DS     CL1                    SUBPOOL FOR MESSAGE BLOCKS  @L1A 01-IEFZB
+²000009                              460+S99EKEY  DS     CL1                    STORAGE KEY FOR MESSAGE     @L1A 01-IEFZB
+²                                    461+*                                      BLOCKS                      @L1A
+²00000A                              462+S99EMGSV DS     CL1                    SEVERITY LEVEL FOR MESSAGES @L1A 01-IEFZB
+²                                    463+*                                      PROCESSING                  @L1A
+²                      00000         464+S99XINFO EQU    X'00'                  INFORMATIONAL MSG SEVERITY  @L2A 01-IEFZB
+²                      00004         465+S99XWARN EQU    X'04'                  WARNING MESSAGE SEVERITY    @L2A 01-IEFZB
+²                      00008         466+S99XSEVE EQU    X'08'                  SEVERE MESSAGE SEVERITY     @L2A 01-IEFZB
+²00000B                              467+S99ENMSG DS     CL1                    NUMBER OF MESSAGE BLOCKS         01-IEFZB
+²                                    468+*                                       RETURNED                   @D1C
+²00000C                              469+S99ECPPL DS     F                      ADDRESS OF CPPL             @L1A 01-IEFZB
+²000010                              470+S99EMRC  DS     0CL4                   MESSAGE SERVICE RETURN CODE @L1A 01-IEFZB
+²000010                              471+S99ERCR  DS     CL1                    RESERVED                    @L1A 01-IEFZB
+²000011                              472+S99ERCM  DS     CL1                    RESERVED                    @D1C 01-IEFZB
+²000012                              473+S99ERCO  DS     CL1                    RETURN CODE DEALING WITH    @L1A 01-IEFZB
+²                                    474+*                                      MESSAGE OUTPUT              @L1A
+²000013                              475+S99ERCF  DS     CL1                    RETURN CODE DEALING WITH    @L1A 01-IEFZB
+²                                    476+*                                      STORAGE FOR MESSAGE BLOCKS  @L1A
+²000014                              477+S99EWRC  DS     F                      PUTLINE/WTO RETURN CODE     @L1A 01-IEFZB
+²000018                              478+S99EMSGP DS     F                      MESSAGE BLOCK POINTER       @L1A 01-IEFZB
+²00001C                              479+S99ESIRC DS     0F                     INFORMATION RETRIEVAL       @L1A 01-IEFZB
+²                                    480+*                                      RETURN CODE FOR SJF KEYS    @L1A
+²00001C                              481+S99EERR  DS     XL2                    ERROR REASON CODE                01-IEFZB
+²00001E                              482+S99EINFO DS     XL2                    INFORMATION REASON CODE          01-IEFZB
+²000020                              483+S99ERSN  DS     XL4                    SMS REASON CODE             @02C 01-IEFZB
+²                      00024         484+S99RBXLN EQU    *-S99RBX               LENGTH OF DECLARED S99RBX   @P3A 01-IEFZB
+²                                    485          IEFZB4D2                                                       00023005
+²                                    486+*
+²                                    487+*/**** START OF SPECIFICATIONS ***************************************/
+²                                    488+*/*                                                                  */
+i                                    489+*/*01* MACRO NAME = IEFZB4D2                                         */
+²                                                                                                               Page   12
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    490+*/*                                                                  */
+²                                    491+*/*01*  ACRONYM = N/A                                                */
+²                                    492+*/*                                                                  */
+²                                    493+*/*01* DESCRIPTIVE NAME = Dynamic Allocation Key Definition          */
+²                                    494+*/*                       Table                                      */
+²                                    495+*/*                                                                  */
+²                                    496+*/*01* PROPRIETARY STATEMENT=                                        */
+²                                    497+*/***PROPRIETARY_STATEMENT********************************************/
+²                                    498+*/*                                                                  */
+²                                    499+*/*                                                                  */
+²                                    500+*/* LICENSED MATERIALS - PROPERTY OF IBM                             */
+²                                    501+*/* 5694-A01 COPYRIGHT IBM CORP. 1983, 2007                          */
+²                                    502+*/*                                                                  */
+²                                    503+*/* STATUS= HBB7740                                                  */
+²                                    504+*/*                                                                  */
+²                                    505+*/***END_OF_PROPRIETARY_STATEMENT*************************************/
+²                                    506+*/*                                                              @L6M*/
+²                                    507+*/*01* DSECT NAME = SVC99KYS                                     @L6M*/
+²                                    508+*/*                                                              @L6M*/
+²                                    509+*/*01* COMPONENT = Allocation (SC1B4)                            @L6M*/
+²                                    510+*/*                                                              @L6M*/
+²                                    511+*/*01* EYE-CATCHER = None                                        @L6M*/
+²                                    512+*/*02*  OFFSET = N/A                                             @L6M*/
+²                                    513+*/*02*  LENGTH = N/A                                             @L6M*/
+²                                    514+*/*                                                              @L6M*/
+²                                    515+*/*01* STORAGE ATTRIBUTES =                                      @L6M*/
+²                                    516+*/*                                                              @L6M*/
+²                                    517+*/*02*   ALLOCATION METHOD = Data only macro                     @L6M*/
+²                                    518+*/*02*   SUBPOOL           = N/A                                 @L6M*/
+²                                    519+*/*02*   KEY               = N/A                                 @L6M*/
+²                                    520+*/*02*   RESIDENCY         = N/A                                 @L6M*/
+²                                    521+*/*02*   SIZE              = N/A                                 @L6M*/
+²                                    522+*/*02*   FREQUENCY         = N/A                                 @L6M*/
+²                                    523+*/*                                                              @L6M*/
+²                                    524+*/*01* CREATED BY = N/A                                          @L6M*/
+²                                    525+*/*                                                              @L6M*/
+²                                    526+*/*01* POINTED TO BY = N/A                                       @L6M*/
+²                                    527+*/*                                                              @L6M*/
+²                                    528+*/*01* DELETED BY = N/A                                          @L6M*/
+²                                    529+*/*                                                              @L6M*/
+²                                    530+*/*01* SERIALIZATION = None                                      @L6M*/
+²                                    531+*/*                                                              @L6M*/
+²                                    532+*/*01* FUNCTION =                                                @L6C*/
+²                                    533+*/*                                                                  */
+²                                    534+*/*02*   This macro defines the Dynamic Allocation keys for each @L6C*/
+²                                    535+*/*      of the Dynamic Allocation functions.  The keys are used     */
+²                                    536+*/*      in the text unit input to Dynamic Allocation.  A key        */
+²                                    537+*/*      identifies the information being passed in a particular     */
+²                                    538+*/*      text unit.  A key is two bytes in length.  The names        */
+²                                    539+*/*      for the keys consist of:                                    */
+²                                    540+*/*                                                                  */
+²                                    541+*/*      - The character 'D' representing Dynamic Allocation.        */
+²                                    542+*/*                                                                  */
+²                                    543+*/*      - Characters representing the Dynamic Allocation            */
+i                                    544+*/*        function.  The functions are represented by these         */
+²                                                                                                               Page   13
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    545+*/*        characters:                                               */
+²                                    546+*/*                                                                  */
+²                                    547+*/*        - 'AL' for allocation,                                    */
+²                                    548+*/*        - 'UN' for unallocation,                                  */
+²                                    549+*/*        - 'CC' for concatenation,                                 */
+²                                    550+*/*        - 'DC' for deconcatenation,                               */
+²                                    551+*/*        - 'RI' for remove in-use,                                 */
+²                                    552+*/*        - 'DN' for ddname allocation,                             */
+²                                    553+*/*        - 'IN' for information retrieval input, and               */
+²                                    554+*/*        - 'INR' for information retrieval output.                 */
+²                                    555+*/*                                                                  */
+²                                    556+*/*      - Descriptive characters (up to five).                      */
+²                                    557+*/*                                                                  */
+²                                    558+*/*01* INVOCATION ****************************************************/
+²                                    559+*/*                                                                  */
+²                                    560+*/*01* METHOD OF ACCESS =                                        @L6C*/
+²                                    561+*/*                                                                  */
+²                                    562+*/*02*   PL/X Invocation =                                       @L6C*/
+²                                    563+*/*                                                                  */
+²                                    564+*/*        %INCLUDE SYSLIB(IEFZB4D2)                                 */
+²                                    565+*/*                                                                  */
+²                                    566+*/*                                                                  */
+²                                    567+*/*                                                                  */
+²                                    568+*/*------------------------------------------------------------------*/
+²                                    569+*/*                                                                  */
+²                                    570+*/*02*   BAL Invocation =                                        @L6C*/
+²                                    571+*/*                                                                  */
+²                                    572+*/*        b                   one or more blanks (up to nine)       */
+²                                    573+*/*        IEFZB4D2            should start in column 10             */
+²                                    574+*/*        b                   one or more blanks                    */
+²                                    575+*/*                                                                  */
+²                                    576+*/********************************************************************/
+²                                    577+*/*                                                                  */
+²                                    578+*/*01* NOTES =                                                   @L6M*/
+²                                    579+*/*                                                              @L6M*/
+²                                    580+*/*        Bilingual Mapping Macro (PL/X and BAL)                @L6M*/
+²                                    581+*/*                                                              @L6M*/
+²                                    582+*/*          All fields in this macro are General Use            @L6C*/
+²                                    583+*/*          Programming Interface (GUPI).                       @L6C*/
+²                                    584+*/*                                                              @L6M*/
+²                                    585+*/*01* DEPENDENCIES =                                            @L6M*/
+²                                    586+*/*                                                              @L6M*/
+²                                    587+*/*          The IEFSJDKY macro is updated when we add new JDT   @L6M*/
+²                                    588+*/*          defined keys.                                       @L6M*/
+²                                    589+*/*                                                              @L6M*/
+²                                    590+*/*01* RESTRICTIONS = None                                       @L6M*/
+²                                    591+*/*                                                              @L6M*/
+²                                    592+*/*01* DISTRIBUTION LIBRARY = AMACLIB                            @L6M*/
+²                                    593+*/*                                                                  */
+²                                    594+*/*01* EXTERNAL CLASSIFICATION: GUPI                             @L6A*/
+²                                    595+*/*01* END OF EXTERNAL CLASSIFICATION:                           @L6A*/
+²                                    596+*/*                                                                  */
+²                                    597+*/*01* CHANGE ACTIVITY = OZ25778, 0Z28413, G32HPPJ, G29AN2F,     @L9C*/
+²                                    598+*/*                                                                  */
+i                                    599+*/*                                                                  */
+²                                                                                                               Page   14
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    600+*/*  $H1= EXTJCL   JBB2110 820605 PD2Q: SUPPORT FOR EXTENDED JCL @H1A*/
+²                                    601+*/*  $L1= ANSITAPE JBB2110 820605 PDD8: SUPPORT FOR ANSI LABELS  @L1A*/
+²                                    602+*/*  $D1= DEFERMNT JBB2110 820605 PDFR: DEFER MOUNT FOR DYNALLOC @D1A*/
+²                                    603+*/*  $L2= EXPDATE  JBB2220 860226 PDN2: 4 DIGIT YEAR EXPDT       @L2A*/
+²                                    604+*/*  $D2= DC20044  JBB2223 870522 PDN1: ADD SMS RELATED KEYS     @D2A*/
+²                                    605+*/*  $P1= PC20307  JBB2223 870703 PDV6: SUPPORT NEW INVOCATION   @P1A*/
+²                                    606+*/*                                     FOR IEFSJDKY MACRO       @P1A*/
+²                                    607+*/*  $L3= EMVS2    HBB4410 881205 PDEU: SPIN PROCESSING FOR      @L3A*/
+²                                    608+*/*                                     SYSOUT DATA SETS         @L3A*/
+²                                    609+*/*  $T1= OY13448  JBB1356 870703 PDV6: NEW DEVICE SUPPORT       @T1A*/
+²                                    610+*/*  $D3= DEO0284  HBB4410 891127 PDDU: New text unit support for    */
+²                                    611+*/*                                     browse token             @D3A*/
+²                                    612+*/*  $D4= DH30067  HBB4420 900430 PDAZ: Support of multiple      @D4A*/
+²                                    613+*/*                                     TSO/STC internal readers @D4A*/
+²                                    614+*/*  $L4= POSIX    HBB4430 920108 PDIO: OPEN/MVS Support         @L4A*/
+²                                    615+*/*  $L5= ATLIB    HBB4430 920624 PDNN: Tape Library Support     @L5A*/
+²                                    616+*/*  $P2= PKB2501  HBB4430 920731 PDNN: 10X Defect Elimination   @P2A*/
+²                                    617+*/*  $L6= ARM      HBB5520 940215 PDG5: ARM Support              @L6A*/
+²                                    618+*/*  $L7= PARMC    JBB6602 950921 PDNN: Parmlib Concatenation    @L7A*/
+²                                    619+*/*                                     Support                  @L7A*/
+²                                    620+*/*  $L8= BCPOP    HBB6605 970516 PDG5: Support for JES Open     @L8A*/
+²                                    621+*/*                                     Print Interface          @L8A*/
+²                                    622+*/*  $L9= GT32K    HBB7703 990831 PDFD: Greater than 32K Blksize @L9A*/
+²                                    623+*/*  $P3= PXD1020  HBB7703 000201 PDFD: Fix copyright            @P3A*/
+²                                    624+*/*  $LA= UASSReq  HBB7740 060930 PDHV: Unauthorized SSI request @LAA*/
+²                                    625+*/*  $P4= ME08484  HBB7740 070228 PDTY: CDPICHK and PROPCHK errors   */
+²                                    626+*/*                                                              @P4A*/
+²                                    627+*/*                                                                  */
+²                                    628+*/**** END OF SPECIFICATIONS *****************************************/
+²                                    629+*/*                                                                  */
+²                                    630+*/*  IEFZB4D2 C - Updated Copyright statement                    @P4A*/
+²                                    631+*/*  IEFZB4D2 A - Added a new text unit to allow spool file          */
+²                                    632+*/*               allocation by unauthorized invokers.           @LAA*/
+²                                    633+*/*  IEFZB4DS C - Fixed copyright/program number statements.     @P3A*/
+²                                    634+*/*  IEFZB4D2 A - Added new text units for BLKSIZE TYPES of KILOBYTE */
+²                                    635+*/*               (DALKILO), MEGABYTE (DALMEG), and GIGABYTE (DALGIG)*/
+²                                    636+*/*                                                              @L9A*/
+²                                    637+*/*  IEFZB4D2 A - Added a new text unit to return the Allocation @L8A*/
+²                                    638+*/*               Sysout Client Token (CTOKEN) associated with   @L8A*/
+²                                    639+*/*               the current Sysout Allocation.                 @L8A*/
+²                                    640+*/*  IEFZB4D2 A - Added a new text unit to return the first      @L7A*/
+²                                    641+*/*               volume serial number where an allocated data   @L7A*/
+²                                    642+*/*               set resides.                                   @L7A*/
+²                                    643+*/*  IEFZB4D2 A - Added a new text unit to indicate JES should   @L6A*/
+²                                    644+*/*               run all jobs, submitted via the dynamically-   @L6A*/
+²                                    645+*/*               allocated internal reader, on the same system  @L6A*/
+²                                    646+*/*               they were submitted on, overriding all system  @L6A*/
+²                                    647+*/*               affinities (DALOVAFF).                         @L6A*/
+²                                    648+*/*               Convert prolog to SHOWHDR format.              @L6A*/
+²                                    649+*/*  IEFZB4D2 A - Added a new text unit to define an overriding user */
+²                                    650+*/*               ID for unallocating a SYSOUT data set.         @P2A*/
+²                                    651+*/*  IEFZB4D2 A - Added a new text unit to define volume inter-  @L5A*/
+²                                    652+*/*               change attributes.                             @L5A*/
+²                                    653+*/*  IEFZB4D2 A - Added an invocation of IEFSJDKY for input keys     */
+i                                    654+*/*               to Information Retrieval                       @L4A*/
+²                                                                                                               Page   15
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    655+*/*  IEFZB4D2 C - Changed prolog to meet format requirements     @L4A*/
+²                                    656+*/*  IEFZB4D2 C - Change the descriptive name into 'DYNAMIC      @D4A*/
+²                                    657+*/*               ALLOCATION DEFINITION KEY TABLE' to            @D4A*/
+²                                    658+*/*               differentiate itself from the descriptive name @D4A*/
+²                                    659+*/*               of IEFZB4D3                                    @D4A*/
+²                                    660+*/*  IEFZB4D2 C - Add a new text unit to define browse token     @D3A*/
+²                                    661+*/*  IEFZB4D2 C - CHANGED THE COMMENT FOR DALTRTCH               @T1A*/
+²                                    662+*/*  IEFZB4D2 C - SUPPORT FOR JDT DEFINED UNALLOCATION KEYS      @L3A*/
+²                                    663+*/*  IEFZB4D2 C - SUPPORT THE CHANGE OF IEFSJDKY TO AN EXECUTABLE    */
+²                                    664+*/*               MACRO                                          @P1A*/
+²                                    665+*/*  IEFZB4D2 C - INVOKE IEFSJDKY FOR SMS RELATED KEY DEFINITION @D2A*/
+²                                    666+*/*  IEFZB4D2 C - ADDED KEY FOR 4 DIGIT YEAR EXPIRATION DATE     @L2A*/
+²                                    667+*/*  IEFZB4D2 C - ADDED KEY FOR DEFER                            @D1A*/
+²                                    668+*/*  IEFZB4D2 C - ADDED KEY FOR LRECL IN NNNNNK FORMAT               */
+²                                    669+*/*                AND ACCODE                                    @L1A*/
+²                                    670+*/*  IEFZB4D2 C - ADDED SUPPORT FOR BURST, CHARS, COPY GROUPS,       */
+²                                    671+*/*               FLASH, MODIFY AND OUTPUT REFERENCE             @H1A*/
+²                                    672+*/*  IEFZB4D2 C - ADD DALUSRID FIELD IN ALLOCATION FUNCTION  @G860P44*/
+²                                    673+*/*  IEFZB4D2 C - SU29 VECTOR PROCESSING SUBSYSTEM SUPPORT   @G29AN2F*/
+²                                    674+*/*  IEFZB4D2 C - SU32 RACF PROTECT KEY SUPPORT              @G32HPPJ*/
+²                                    675+*/*  IEFZB4D2 C - MERGED BACK TO REL 3.7                     @ZA28413*/
+²                                    676+*/*  IEFZB4D2 C - ADD SUBSYSTEM ATTRIBUTE TEXT UNIT          @ZA25778*/
+²                                    677+*/*                                                                  */
+²                                    678+*/********************************************************************/
+²                                    679+*        %GOTO PLSS99K2;                                          /* *
+²                                    680+*
+²000000                00000 00000   681+SVC99KYS DSECT                                                          01-IEFZB
+²                                    682+***********************************************************************
+²                                    683+*
+²                                    684+* KEYS FOR ALLOCATION FUNCTION
+²                                    685+*
+²                                    686+***********************************************************************
+²                      00001         687+DALDDNAM EQU   X'0001'                 DDNAME                           01-IEFZB
+²                      00002         688+DALDSNAM EQU   X'0002'                 DSNAME                           01-IEFZB
+²                      00003         689+DALMEMBR EQU   X'0003'                 MEMBER NAME                      01-IEFZB
+²                      00004         690+DALSTATS EQU   X'0004'                 DATA SET STATUS                  01-IEFZB
+²                      00005         691+DALNDISP EQU   X'0005'                 DATA SET NORMAL DISPOSITION      01-IEFZB
+²                      00006         692+DALCDISP EQU   X'0006'                 DATA SET CONDITIONAL DISP        01-IEFZB
+²                      00007         693+DALTRK   EQU   X'0007'                 TRACK SPACE TYPE                 01-IEFZB
+²                      00008         694+DALCYL   EQU   X'0008'                 CYLINDER SPACE TYPE              01-IEFZB
+²                      00009         695+DALBLKLN EQU   X'0009'                 AVERAGE DATA BLOCK LENGTH        01-IEFZB
+²                      0000A         696+DALPRIME EQU   X'000A'                 PRIMARY SPACE QUANTITY           01-IEFZB
+²                      0000B         697+DALSECND EQU   X'000B'                 SECONDARY SPACE QUANTITY         01-IEFZB
+²                      0000C         698+DALDIR   EQU   X'000C'                 DIRECTORY SPACE QUANTITY         01-IEFZB
+²                      0000D         699+DALRLSE  EQU   X'000D'                 UNUSED SPACE RELEASE             01-IEFZB
+²                      0000E         700+DALSPFRM EQU   X'000E'                 CONTIG,MXIG,ALX SPACE FORMAT     01-IEFZB
+²                      0000F         701+DALROUND EQU   X'000F'                 WHOLE CYLINDER (ROUND) SPACE     01-IEFZB
+²                      00010         702+DALVLSER EQU   X'0010'                 VOLUME SERIAL                    01-IEFZB
+²                      00011         703+DALPRIVT EQU   X'0011'                 PRIVATE VOLUME                   01-IEFZB
+²                      00012         704+DALVLSEQ EQU   X'0012'                 VOL SEQUENCE NUMBER              01-IEFZB
+²                      00013         705+DALVLCNT EQU   X'0013'                 VOLUME COUNT                     01-IEFZB
+²                      00014         706+DALVLRDS EQU   X'0014'                 VOLUME REFERENCE TO DSNAME       01-IEFZB
+²                      00015         707+DALUNIT  EQU   X'0015'                 UNIT DESCRIPTION                 01-IEFZB
+²                      00016         708+DALUNCNT EQU   X'0016'                 UNIT COUNT                       01-IEFZB
+i                      00017         709+DALPARAL EQU   X'0017'                 PARALLEL MOUNT                   01-IEFZB
+²                                                                                                               Page   16
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                      00018         710+DALSYSOU EQU   X'0018'                 SYSOUT                           01-IEFZB
+²                      00019         711+DALSPGNM EQU   X'0019'                 SYSOUT PROGRAM NAME              01-IEFZB
+²                      0001A         712+DALSFMNO EQU   X'001A'                 SYSOUT FORM NUMBER               01-IEFZB
+²                      0001B         713+DALOUTLM EQU   X'001B'                 OUTPUT LIMIT                     01-IEFZB
+²                      0001C         714+DALCLOSE EQU   X'001C'                 UNALLOCATE AT CLOSE              01-IEFZB
+²                      0001D         715+DALCOPYS EQU   X'001D'                 SYSOUT COPIES                    01-IEFZB
+²                      0001E         716+DALLABEL EQU   X'001E'                 LABEL TYPE                       01-IEFZB
+²                      0001F         717+DALDSSEQ EQU   X'001F'                 DATA SET SEQUENCE NUMBER         01-IEFZB
+²                      00020         718+DALPASPR EQU   X'0020'                 PASSWORD PROTECTION              01-IEFZB
+²                      00021         719+DALINOUT EQU   X'0021'                 INPUT ONLY OR OUTPUT ONLY        01-IEFZB
+²                      00022         720+DALEXPDT EQU   X'0022'                 2 DIGIT YEAR EXPIRATION DATE     01-IEFZB
+²                      00023         721+DALRETPD EQU   X'0023'                 RETENTION PERIOD                 01-IEFZB
+²                      00024         722+DALDUMMY EQU   X'0024'                 DUMMY ALLOCATION                 01-IEFZB
+²                      00025         723+DALFCBIM EQU   X'0025'                 FCB IMAGE-ID                     01-IEFZB
+²                      00026         724+DALFCBAV EQU   X'0026'                 FCB FORM ALIGNMENT,IMAGE VERIFY  01-IEFZB
+²                      00027         725+DALQNAME EQU   X'0027'                 QNAME ALLOCATION                 01-IEFZB
+²                      00028         726+DALTERM  EQU   X'0028'                 TERMINAL ALLOCATION              01-IEFZB
+²                      00029         727+DALUCS   EQU   X'0029'                 UNIVERSAL CHARACTER SET          01-IEFZB
+²                      0002A         728+DALUFOLD EQU   X'002A'                 UCS FOLD MODE                    01-IEFZB
+²                      0002B         729+DALUVRFY EQU   X'002B'                 UCS VERIFY CHARACTER SET         01-IEFZB
+²                      0002C         730+DALDCBDS EQU   X'002C'                 DCB DSNAME REFERENCE             01-IEFZB
+²                      0002D         731+DALDCBDD EQU   X'002D'                 DCB DDNAME REFERENCE             01-IEFZB
+²                      0002E         732+DALBFALN EQU   X'002E'                 BUFFER ALIGNMENT                 01-IEFZB
+²                      0002F         733+DALBFTEK EQU   X'002F'                 BUFFERING TECHNIQUE              01-IEFZB
+²                      00030         734+DALBLKSZ EQU   X'0030'                 BLOCKSIZE                        01-IEFZB
+²                      00031         735+DALBUFIN EQU   X'0031'                 NUMBER OF INPUT BUFFERS          01-IEFZB
+²                      00032         736+DALBUFL  EQU   X'0032'                 BUFFER LENGTH                    01-IEFZB
+²                      00033         737+DALBUFMX EQU   X'0033'                 MAXIMUM NUMBER OF BUFFERS        01-IEFZB
+²                      00034         738+DALBUFNO EQU   X'0034'                 NUMBER OF DCB BUFFERS            01-IEFZB
+²                      00035         739+DALBUFOF EQU   X'0035'                 BUFFER OFFSET                    01-IEFZB
+²                      00036         740+DALBUFOU EQU   X'0036'                 NUMBER OF OUTPUT BUFFERS         01-IEFZB
+²                      00037         741+DALBUFRQ EQU   X'0037'                 NUMBER OF GET MACRO BUFFERS      01-IEFZB
+²                      00038         742+DALBUFSZ EQU   X'0038'                 LINE BUFFER SIZE                 01-IEFZB
+²                      00039         743+DALCODE  EQU   X'0039'                 PAPER TAPE CODE                  01-IEFZB
+²                      0003A         744+DALCPRI  EQU   X'003A'                 SEND/RECEIVE PRIORITY            01-IEFZB
+²                      0003B         745+DALDEN   EQU   X'003B'                 TAPE DENSITY                     01-IEFZB
+²                      0003C         746+DALDSORG EQU   X'003C'                 DATA SET ORGANIZATION            01-IEFZB
+²                      0003D         747+DALEROPT EQU   X'003D'                 ERROR OPTIONS                    01-IEFZB
+²                      0003E         748+DALGNCP  EQU   X'003E'                 NO. OF GAM I/O BEFORE WAIT       01-IEFZB
+²                      0003F         749+DALINTVL EQU   X'003F'                 POLLING INTERVAL                 01-IEFZB
+²                      00040         750+DALKYLEN EQU   X'0040'                 DATA SET KEYS LENGTH             01-IEFZB
+²                      00041         751+DALLIMCT EQU   X'0041'                 SEARCH LIMIT                     01-IEFZB
+²                      00042         752+DALLRECL EQU   X'0042'                 LOGICAL RECORD  LENGTH           01-IEFZB
+²                      00043         753+DALMODE  EQU   X'0043'                 CARD READER/PUNCH MODE           01-IEFZB
+²                      00044         754+DALNCP   EQU   X'0044'                 NO. READ/WRITE BEFORE CHECK      01-IEFZB
+²                      00045         755+DALOPTCD EQU   X'0045'                 OPTIONAL SERVICES                01-IEFZB
+²                      00046         756+DALPCIR  EQU   X'0046'                 RECEIVING PCI                    01-IEFZB
+²                      00047         757+DALPCIS  EQU   X'0047'                 SENDING PCI                      01-IEFZB
+²                      00048         758+DALPRTSP EQU   X'0048'                 PRINTER LINE SPACING             01-IEFZB
+²                      00049         759+DALRECFM EQU   X'0049'                 RECORD FORMAT                    01-IEFZB
+²                      0004A         760+DALRSRVF EQU   X'004A'                 FIRST BUFFER RESERVE             01-IEFZB
+²                      0004B         761+DALRSRVS EQU   X'004B'                 SECONDARY BUFFER RESERVE         01-IEFZB
+²                      0004C         762+DALSOWA  EQU   X'004C'                 TCAM USER WORK AREA SIZE         01-IEFZB
+²                      0004D         763+DALSTACK EQU   X'004D'                 STACKER BIN                      01-IEFZB
+i                      0004E         764+DALTHRSH EQU   X'004E'                 MESSAGE QUEUE PERCENTAGE         01-IEFZB
+²                                                                                                               Page   17
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                      0004F         765+DALTRTCH EQU   X'004F'                 TAPE RECORDING TECHNOLOGY @T1C   01-IEFZB
+²                      00050         766+DALPASSW EQU   X'0050'                 PASSWORD                         01-IEFZB
+²                      00051         767+DALIPLTX EQU   X'0051'                 IPL TEXT ID                      01-IEFZB
+²                      00052         768+DALPERMA EQU   X'0052'                 PERMANENTLY ALLOCATED ATTRIB     01-IEFZB
+²                      00053         769+DALCNVRT EQU   X'0053'                 CONVERTIBLE ATTRIBUTE            01-IEFZB
+²                      00054         770+DALDIAGN EQU   X'0054'                 OPEN/CLOSE/EOV DIAGNOSTIC TRACE  01-IEFZB
+²                      00055         771+DALRTDDN EQU   X'0055'                 RETURN DDNAME                    01-IEFZB
+²                      00056         772+DALRTDSN EQU   X'0056'                 RETURN DSNAME                    01-IEFZB
+²                      00057         773+DALRTORG EQU   X'0057'                 RETURN D.S. ORGANIZATION         01-IEFZB
+²                      00058         774+DALSUSER EQU   X'0058'                 SYSOUT REMOTE USER               01-IEFZB
+²                      00059         775+DALSHOLD EQU   X'0059'                 SYSOUT HOLD QUEUE                01-IEFZB
+²                      0005A         776+DALFUNC  EQU   X'005A'                 D.S. TYPE FOR 3525 CARD DEVICE   01-IEFZB
+²                      0005B         777+DALFRID  EQU   X'005B'                 IMAGELIB MEMBER FOR SHARK        01-IEFZB
+²                      0005C         778+DALSSREQ EQU   X'005C'                 SUBSYSTEM REQUEST                01-IEFZB
+²                      0005D         779+DALRTVOL EQU   X'005D'                 RETURN VOLUME SERIAL             01-IEFZB
+²                      0005E         780+DALMSVGP EQU   X'005E'                 MSVGP FOR 3330V        @Y30LPPD  01-IEFZB
+²                      0005F         781+DALSSNM  EQU   X'005F'                 SUBSYSTEM NAME REQUEST @G29AN2F  01-IEFZB
+²                      00060         782+DALSSPRM EQU   X'0060'                 SUBSYSTEM PARAMETERS   @G29AN2F  01-IEFZB
+²                      00061         783+DALPROT  EQU   X'0061'                 RACF PROTECT FEATURE   @G32HPPJ  01-IEFZB
+²                      00062         784+DALSSATT EQU   X'0062'                 SUBSYSTEM ATTRIBUTE    @ZA25778  01-IEFZB
+²                      00063         785+DALUSRID EQU   X'0063'                 SYSOUT USER ID         @G860P44  01-IEFZB
+²                      00064         786+DALBURST EQU   X'0064'                 BURSTER-TRIMMER-STACKER    @H1A  01-IEFZB
+²                      00065         787+DALCHARS EQU   X'0065'                 CHAR ARRANGEMENT TABLE     @H1A  01-IEFZB
+²                      00066         788+DALCOPYG EQU   X'0066'                 COPY GROUP VALUES          @H1A  01-IEFZB
+²                      00067         789+DALFFORM EQU   X'0067'                 FLASH FORMS OVERLAY        @H1A  01-IEFZB
+²                      00068         790+DALFCNT  EQU   X'0068'                 FLASH FORMS OVERLAY COUNT  @H1A  01-IEFZB
+²                      00069         791+DALMMOD  EQU   X'0069'                 COPY MODIFICATION MODULE   @H1A  01-IEFZB
+²                      0006A         792+DALMTRC  EQU   X'006A'                 TABLE REFERENCE CHARACTER  @H1A  01-IEFZB
+²                      0006B         793+DALLRECK EQU   X'006B'                 LRECL IN MULT OF 1K FORMAT @L1A  01-IEFZB
+²                      0006C         794+DALDEFER EQU   X'006C'                 DEFER MOUNT UNTIL OPEN     @D1A  01-IEFZB
+²                      0006D         795+DALEXPDL EQU   X'006D'                 4 DIGIT YEAR EXP. DATE     @L2A  01-IEFZB
+²                      0006E         796+DALBRTKN EQU   X'006E'                 Browse token supplied      @D3A  01-IEFZB
+²                      0006F         797+DALINCHG EQU   X'006F'                 Volume Interchange               01-IEFZB
+²                                    798+*                                      Attributes                 @L5A
+²                      00070         799+DALOVAFF EQU   X'0070'                 Tell JES to override       @L6A  01-IEFZB
+²                                    800+*                                      system affinity for INTRDR @L6A
+²                      00071         801+DALRTCTK EQU   X'0071'                 Return Allocation Sysout   @L8A  01-IEFZB
+²                                    802+*                                      Client Token               @L8A
+²                      00072         803+DALKILO  EQU   X'0072'                 BLKSIZE OF KILOBYTE        @L9A  01-IEFZB
+²                      00073         804+DALMEG   EQU   X'0073'                 BLKSIZE OF MEGABYTE        @L9A  01-IEFZB
+²                      00074         805+DALGIG   EQU   X'0074'                 BLKSIZE OF GIGABYTE        @L9A  01-IEFZB
+²                      00075         806+DALUASSR EQU   X'0075'                 Unauthorized subsystem     @LAA  01-IEFZB
+²                                    807+*                                      request                    @LAA
+²                      08001         808+DALACODE EQU   X'8001'                 ACCESSIBILITY CODE         @L1A  01-IEFZB
+²                      08002         809+DALOUTPT EQU   X'8002'                 OUTPUT REFERENCE           @H1A  01-IEFZB
+²                                    810+*  JDT defined Allocation keys
+²                                    812+*        SJF DD ALLOCATION KEYS                               *    @L3A
+²                      08003         813+DALCNTL    EQU   X'8003'        CNTL                               @D1A 02-IEFSJ
+²                      08004         814+DALSTCL    EQU   X'8004'        STORCLAS                                02-IEFSJ
+²                      08005         815+DALMGCL    EQU   X'8005'        MGMTCLAS                                02-IEFSJ
+²                      08006         816+DALDACL    EQU   X'8006'        DATACLAS                                02-IEFSJ
+²                      0800B         817+DALRECO    EQU   X'800B'        RECORG                                  02-IEFSJ
+²                      0800C         818+DALKEYO    EQU   X'800C'       KEYOFF                                   02-IEFSJ
+²                      0800D         819+DALREFD    EQU   X'800D'       REFDD                                    02-IEFSJ
+i                      0800E         820+DALSECM    EQU   X'800E'       SECMODEL                                 02-IEFSJ
+²                                                                                                               Page   18
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                      0800F         821+DALLIKE    EQU   X'800F'        LIKE                                    02-IEFSJ
+²                      08010         822+DALAVGR    EQU   X'8010'        AVGREC                                  02-IEFSJ
+²                      08012         823+DALDSNT    EQU   X'8012'        DSNTYPE                          @L1A   02-IEFSJ
+²                      08013         824+DALSPIN    EQU   X'8013'        SPIN                             @L2A   02-IEFSJ
+²                      08014         825+DALSEGM    EQU   X'8014'        SEGMENT                          @L2A   02-IEFSJ
+²                                    826+*                                                                  @L4A
+²                      08017         827+DALPATH    EQU   X'8017'        PATH                               @L4A 02-IEFSJ
+²                                    828+*                                                                  @L4A
+²                      08018         829+DALPOPT    EQU   X'8018'        PATHOPTS                           @L4A 02-IEFSJ
+²                      08019         830+DALPMDE    EQU   X'8019'        PATHMODE                           @L4A 02-IEFSJ
+²                      0801A         831+DALPNDS    EQU   X'801A'        PATHDISP - Normal Disposition      @L4A 02-IEFSJ
+²                      0801B         832+DALPCDS    EQU   X'801B'        PATHDISP - Conditional Disposition @L4A 02-IEFSJ
+²                      0801C         833+DALRLS     EQU   X'801C'        RLS - Record Level Sharing         @L5A 02-IEFSJ
+²                      0801D         834+DALFDAT    EQU   X'801D'        FILEDATA - file organization       @L6A 02-IEFSJ
+²                      0801F         835+DALLGST    EQU   X'801F'        LGSTREAM                           @02A 02-IEFSJ
+²                      08020         836+DALDCCS    EQU   X'8020'        CCSID                              @03A 02-IEFSJ
+²                      08022         837+DALBSLM    EQU   X'8022'        BLKSZLIM                           @04A 02-IEFSJ
+²                      08023         838+DALKYL1    EQU   X'8023'        KEYLABL1                           @P7C 02-IEFSJ
+²                      08024         839+DALKYL2    EQU   X'8024'        KEYLABL2                           @P7C 02-IEFSJ
+²                      08025         840+DALKYC1    EQU   X'8025'        KEYENCD1                           @P7C 02-IEFSJ
+²                      08026         841+DALKYC2    EQU   X'8026'        KEYENCD2                           @P7C 02-IEFSJ
+²                                    842+**********************************************************************
+²                                    843+*
+²                                    844+* KEYS FOR CONCATENATION FUNCTION
+²                                    845+*
+²                                    846+**********************************************************************
+²                      00001         847+DCCDDNAM EQU   X'0001'                 DDNAMES                          01-IEFZB
+²                      00004         848+DCCPERMC EQU   X'0004'                 PERMANENTLY CONCATENATED         01-IEFZB
+²                                    849+**********************************************************************
+²                                    850+*
+²                                    851+* KEYS FOR DECONCATENATION FUNCTION
+²                                    852+*
+²                                    853+***********************************************************************
+²                      00001         854+DDCDDNAM EQU   X'0001'                 DDNAME                           01-IEFZB
+²                                    855+***********************************************************************
+²                                    856+*
+²                                    857+* KEYS FOR INFORMATION RETRIEVAL FUNCTION
+²                                    858+*
+²                                    859+***********************************************************************
+²                      00001         860+DINDDNAM EQU   X'0001'                 DDNAME                           01-IEFZB
+²                      00002         861+DINDSNAM EQU   X'0002'                 DSNAME                           01-IEFZB
+²                      00004         862+DINRTDDN EQU   X'0004'                 RETURN DDNAME                    01-IEFZB
+²                      00005         863+DINRTDSN EQU   X'0005'                 RETURN DSNAME                    01-IEFZB
+²                      00006         864+DINRTMEM EQU   X'0006'                 RETURN MEMBER NAME               01-IEFZB
+²                      00007         865+DINRTSTA EQU   X'0007'                 RETURN DATA SET STATUS           01-IEFZB
+²                      00008         866+DINRTNDP EQU   X'0008'                 RETURN NORMAL DISPOSITION        01-IEFZB
+²                      00009         867+DINRTCDP EQU   X'0009'                 RETURN CONDITIONAL DISP          01-IEFZB
+²                      0000A         868+DINRTORG EQU   X'000A'                 RETURN D.S. ORGANIZATION         01-IEFZB
+²                      0000B         869+DINRTLIM EQU   X'000B'                 RETURN # TO NOT-IN-USE LIMIT     01-IEFZB
+²                      0000C         870+DINRTATT EQU   X'000C'                 RETURN DYN. ALLOC ATTRIBUTES     01-IEFZB
+²                      0000D         871+DINRTLST EQU   X'000D'                 RETURN LAST ENTRY INDICATION     01-IEFZB
+²                      0000E         872+DINRTTYP EQU   X'000E'                 RETURN S.D. TYPE INDICATION      01-IEFZB
+²                      0000F         873+DINRELNO EQU   X'000F'                 RELATIVE REQUEST NUMBER          01-IEFZB
+²                      00010         874+DINRTVOL EQU   X'0010'                 Return First Volser        @L7A  01-IEFZB
+i                                    875+*  JDT defined Information Retrieval output keys
+²                                                                                                               Page   19
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    877+*        SJF DD INFORMATION RETRIEVAL KEYS                    *    @L3A
+²                      0C003         878+DINRCNTL   EQU   X'C003'        CNTL                               @D1A 02-IEFSJ
+²                      0C004         879+DINRSTCL   EQU   X'C004'        STORCLAS                                02-IEFSJ
+²                      0C005         880+DINRMGCL   EQU   X'C005'        MGMTCLAS                                02-IEFSJ
+²                      0C006         881+DINRDACL   EQU   X'C006'        DATACLAS                                02-IEFSJ
+²                      0C00B         882+DINRRECO   EQU   X'C00B'        RECORG                                  02-IEFSJ
+²                      0C00C         883+DINRKEYO   EQU   X'C00C'        KEYOFF                                  02-IEFSJ
+²                      0C00D         884+DINRREFD   EQU   X'C00D'        REFDD                                   02-IEFSJ
+²                      0C00E         885+DINRSECM   EQU   X'C00E'        SECMODEL                                02-IEFSJ
+²                      0C00F         886+DINRLIKE   EQU   X'C00F'        LIKE                                    02-IEFSJ
+²                      0C010         887+DINRAVGR   EQU   X'C010'        AVGREC                                  02-IEFSJ
+²                      0C012         888+DINRDSNT   EQU   X'C012'        DSNTYPE                           @L1A  02-IEFSJ
+²                      0C013         889+DINRSPIN   EQU   X'C013'        SPIN                              @L2A  02-IEFSJ
+²                      0C014         890+DINRSEGM   EQU   X'C014'        SEGMENT                           @L2A  02-IEFSJ
+²                      0C017         891+DINRPATH   EQU   X'C017'        PATH                               @L4A 02-IEFSJ
+²                      0C018         892+DINRPOPT   EQU   X'C018'        PATHOPTS                           @L4A 02-IEFSJ
+²                      0C019         893+DINRPMDE   EQU   X'C019'        PATHMODE                           @L4A 02-IEFSJ
+²                      0C01A         894+DINRPNDS   EQU   X'C01A'        NORMAL PATHDISP                    @L4A 02-IEFSJ
+²                      0C01B         895+DINRCNDS   EQU   X'C01B'        CONDITIONAL PATHDISP               @L4A 02-IEFSJ
+²                      0C01B         896+DINRPCDS   EQU   X'C01B'        CONDITIONAL PATHDISP               @P5A 02-IEFSJ
+²                      0C01D         897+DINRFDAT   EQU   X'C01D'        FILEDATA                           @L6A 02-IEFSJ
+²                                    898+*  JDT defined Information Retrieval input keys
+²                                    900+*        SJF DD INFORMATION RETRIEVAL INPUT KEYS              *    @L4A
+²                      08017         901+DINPATH    EQU   X'8017'        PATH                               @L4A 02-IEFSJ
+²                                    902+**********************************************************************
+²                                    903+*
+²                                    904+* KEYS FOR REMOVE IN-USE FUNCTION
+²                                    905+*
+²                                    906+**********************************************************************
+²                      00001         907+DRITCBAD EQU   X'0001'                 TCB ADDRESS                      01-IEFZB
+²                      00002         908+DRICURNT EQU   X'0002'                 CURRENT TASK OPTION              01-IEFZB
+²                                    909+**********************************************************************
+²                                    910+*
+²                                    911+* KEYS FOR DDNAME ALLOCATION FUNCTION
+²                                    912+*
+²                                    913+**********************************************************************
+²                      00001         914+DDNDDNAM EQU   X'0001'                 DDNAME                           01-IEFZB
+²                      00002         915+DDNRTDUM EQU   X'0002'                 RETURN DUMMY D.S. INDICATION     01-IEFZB
+²                                    916+**********************************************************************
+²                                    917+*
+²                                    918+* KEYS FOR UNALLOCATION FUNCTION
+²                                    919+*
+²                                    920+**********************************************************************
+²                      00001         921+DUNDDNAM EQU   X'0001'                 DDNAME                           01-IEFZB
+²                      00002         922+DUNDSNAM EQU   X'0002'                 DSNAME                           01-IEFZB
+²                      00003         923+DUNMEMBR EQU   X'0003'                 MEMBER NAME                      01-IEFZB
+²                      00005         924+DUNOVDSP EQU   X'0005'                 OVERRIDING DISPOSITION           01-IEFZB
+²                      00007         925+DUNUNALC EQU   X'0007'                 UNALLOC OPTION                   01-IEFZB
+²                      00008         926+DUNREMOV EQU   X'0008'                 REMOVE OPTION                    01-IEFZB
+²                      0000A         927+DUNOVSNH EQU   X'000A'                 OVERRIDING SYSOUT NOHOLD         01-IEFZB
+²                      00018         928+DUNOVCLS EQU   X'0018'                 OVERRIDING SYSOUT CLASS          01-IEFZB
+²                      00058         929+DUNOVSUS EQU   X'0058'                 OVERRIDING SYSOUT NODE     @P2C  01-IEFZB
+²                      00059         930+DUNOVSHQ EQU   X'0059'                 OVERRIDING SYSOUT HOLD QUEUE     01-IEFZB
+²                      00063         931+DUNOVUID EQU   X'0063'                 Overriding SYSOUT User ID  @P2A  01-IEFZB
+i                                    932+*  JDT defined Unallocation keys                                  @L3A
+²                                                                                                               Page   20
+  Active Usings: SAMPLE+X'6',R12
+D-Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/22 07.00
+²                                    934+*        SJF DD UNALLOCATION KEYS                             *    @L3A
+²                      08013         935+DUNSPIN    EQU   X'8013'        SPIN                               @L3A 02-IEFSJ
+²                                    936+*
+²                      08017         937+DUNPATH    EQU   X'8017'        PATH                               @L4A 02-IEFSJ
+²                                    938+*
+²                      0801A         939+DUNOVPDS    EQU   X'801A'        PATHDISP - Override Disposition   @L4A 02-IEFSJ
+²                                    940          END                                                            00030000
 ¯
-                               Ordinary Symbol and Literal Cross Reference                                     Page    4
-Symbol   Length   Value     Id    R Type Asm  Program   Defn References                     HLASM R6.0  2014/07/15 17.15
-²FLD           4 0000003C 00000002     F  F                39   23M
-²R1            1 00000001 00500001 A   U                    3   22M   22    23    26M   27M   27    28M   29M   29    30M
-²                                                               31M   31    32M   33M   33
-²R12           1 0000000C 00000001 A   U                   14   19    20M   21U   35M   37M   41    43M
-²R13           1 0000000D 00000001 A   U                   15   19    37    41    43
-²R14           1 0000000E 00000001 A   U                   16   19    37M   38B   41    43M   44B
-²R2            1 00000002 00000001 A   U                    4   26B   28B   30B   32B
-²R3            1 00000003 00000001 A   U                    5   26B   28B   30B   32B   34B   42B
-²TEST          1 00000036 00000002     U                   36   24B
+                               Ordinary Symbol and Literal Cross Reference                                     Page   21
+Symbol   Length   Value     Id    R Type Asm  Program   Defn References                     HLASM R6.0  2014/07/22 07.00
+²RB           20 0000006C 00000002     X  X                60   28    33M   51
+²RBPTR         4 00000068 00000002     F  F                59   30M   47
+²R1            1 00000001 00000001 A   U                    3   47M
+²R12           1 0000000C 00000001 A   U                   14   19    20M   21U   55M
+²R13           1 0000000D 00000001 A   U                   15   19    22    23    24M   25    54M   55
+²R14           1 0000000E 00000001 A   U                   16   19    55M   56B
+²R2            1 00000002 00000001 A   U                    4   22M   25    51M
+²R4            1 00000004 00000001 A   U                    6   28M   29M   30    32M   33    35M   36M   37    39M   40M
+²                                                               41    43M   44M   45
+²SAVEAREA ***UNDEFINED*** 00000000     U                        23    24    54
+²S99RBX        1 00000000 FFFFFFFA     J                  444  484
+²TPTR          4 00000080 00000002     F  F                61   32    37M   41M   45M
+²TU1           6 0000008C 00000002     X  X                62   35    43
+²TU2           6 00000098 00000002     X  X                64   39
 ¯
-                                  Unreferenced Symbols Defined in CSECTs                                       Page    5
-  Defn  Symbol                                                                              HLASM R6.0  2014/07/15 17.15
+                                  Unreferenced Symbols Defined in CSECTs                                       Page   22
+  Defn  Symbol                                                                              HLASM R6.0  2014/07/22 07.00
+²    57  FLD
 ²     2  R0
 ²    12  R10
 ²    13  R11
 ²    17  R15
-²     6  R4
+²     5  R3
 ²     7  R5
 ²     8  R6
 ²     9  R7
 ²    10  R8
 ²    11  R9
 ²    18  SAMPLE
-²    40  SAMPLE2
+²    66  TU3
 ¯
-                                          Macro and Copy Code Source Summary                                   Page    6
- Con Source                                        Volume    Members                        HLASM R6.0  2014/07/15 17.15
+                                          Macro and Copy Code Source Summary                                   Page   23
+ Con Source                                        Volume    Members                        HLASM R6.0  2014/07/22 07.00
+²  L1 SYS1.MACLIB                                   ZARES1    DYNALLOC IEFSJDKY IEFZB4D0 IEFZB4D2
 ²  L2 EMCPROJ.MACLIB                                ZAIMS1    GENREG
 ¯
-                                                      Using Map                                                Page    7
-²                                                                                            HLASM R6.0  2014/07/15 17.15
+                                                Dsect Cross Reference                                          Page   24
+Dsect     Length      Id       Defn                                                         HLASM R6.0  2014/07/22 07.00
+²SVC99KYS 00000000  FFFFFFF9     681
+²S99RB    00000014  FFFFFFFE     304
+²S99RBP   00000004  FFFFFFFF     301
+²S99RBX   00000024  FFFFFFFA     444
+²S99TUFLD 00000003  FFFFFFFB     438
+²S99TUNIT 00000007  FFFFFFFC     429
+²S99TUPL  00000004  FFFFFFFD     423
+¯
+                                                      Using Map                                                Page   25
+²                                                                                            HLASM R6.0  2014/07/22 07.00
 ²  Stmt  -----Location----- Action ----------------Using----------------- Reg Max     Last Label and Using Text
           Count      Id           Type          Value    Range     Id        Disp    Stmt
-²    21  00000006  00000002 USING  ORDINARY    00000006 00001000 00000002  12 00036     24 *,R12
+²    21  00000006  00000002 USING  ORDINARY    00000006 00001000 00000002  12 00092     51 *,R12
 ¯
-                                   General Purpose Register Cross Reference                                    Page    8
- Register  References (M=modified, B=branch, U=USING, D=DROP, N=index)                      HLASM R6.0  2014/07/15 17.15
-²    0(0)      19    37M   41    43M
-²    1(1)      19    22M   22    23    26M   27M   27    28M   29M   29    30M   31M   31    32M   33M   33    37M   41
-²              43M
-²    2(2)      19    26N   28N   30N   32N   37M   41    43M
-²    3(3)      19    26    28    30    32    34B   37M   41    42B   43M
-²    4(4)      19    37M   41    43M
-²    5(5)      19    37M   41    43M
-²    6(6)      19    37M   41    43M
-²    7(7)      19    37M   41    43M
-²    8(8)      19    37M   41    43M
-²    9(9)      19    37M   41    43M
-²   10(A)      19    37M   41    43M
-²   11(B)      19    37M   41    43M
-²   12(C)      19    20M   21U   35M   37M   41    43M
-²   13(D)      19    37    41    43
-²   14(E)      19    37M   38B   41    43M   44B
-²   15(F)      19    37M   41    43M
+                                   General Purpose Register Cross Reference                                    Page   26
+ Register  References (M=modified, B=branch, U=USING, D=DROP, N=index)                      HLASM R6.0  2014/07/22 07.00
+²    0(0)      19    55M
+²    1(1)      19    47M   55M
+²    2(2)      19    22M   25    51M   55M
+²    3(3)      19    55M
+²    4(4)      19    28M   29M   30    32M   33    35M   36M   37    39M   40M   41    43M   44M   45    55M
+²    5(5)      19    55M
+²    6(6)      19    55M
+²    7(7)      19    55M
+²    8(8)      19    55M
+²    9(9)      19    55M
+²   10(A)      19    55M
+²   11(B)      19    55M
+²   12(C)      19    20M   21U   55M
+²   13(D)      19    22    23    24M   25    54M   55
+²   14(E)      19    55M   56B
+²   15(F)      19    55M
 ¯
-                                  Diagnostic Cross Reference and Assembler Summary                             Page    9
-                                                                                            HLASM R6.0  2014/07/15 17.15
-²     No Statements Flagged in this Assembly
+                                  Diagnostic Cross Reference and Assembler Summary                             Page   27
+                                                                                            HLASM R6.0  2014/07/22 07.00
+Statements Flagged
+²    23(P1,7), 24(P1,8), 54(P1,36)
+
+      3 Statements Flagged in this Assembly        8 was Highest Severity Code
 HIGH LEVEL ASSEMBLER, 5696-234, RELEASE 6.0, PTF UK37157
 SYSTEM: z/OS 01.10.00              JOBNAME: SAMPLE      STEPNAME: COMPILE    PROCSTEP: (NOPROC)
 ²Data Sets Allocated for this Assembly
@@ -177,9 +1135,9 @@
 ²     SYSLIN   EMCPROJ.OBJ                                  ZAIMS1  SAMPLE
 ²     SYSPRINT EMCPROJ.LISTING                              ZAIMS1  SAMPLE
 ²
-²  32128K allocated to Buffer Pool       Storage required     200K
-²     29 Primary Input Records Read           12 Library Records Read                  0 Work File Reads
-²      0 ASMAOPT Records Read                185 Primary Print Records Written         0 Work File Writes
-      5 Object Records Written                0 ADATA Records Written
-²Assembly Start Time: 17.15.05 Stop Time: 17.15.05 Processor Time: 00.00.00.0650
-²Return Code 000
+²  32128K allocated to Buffer Pool       Storage required     344K
+²     51 Primary Input Records Read         1834 Library Records Read                  0 Work File Reads
+²      0 ASMAOPT Records Read               1143 Primary Print Records Written         0 Work File Writes
+      6 Object Records Written                0 ADATA Records Written
+²Assembly Start Time: 07.00.17 Stop Time: 07.00.18 Processor Time: 00.00.00.3465
+²Return Code 008

@@ -10,8 +10,10 @@ SAMPLE   CSECT                                                          00010000
                                                                         00011013
                                                                         00011315
 *        ESTAE MYESTAE,CT,XCTL=YES,PARAM=DEBUG                          00011419
-         ESPIE SET,MYESTAE,(6),PARAM=DEBUG                              00011519
-                                                                        00011619
+         ESPIE SET,MYESTAE,((1,15)),PARAM=DEBUG                         00011520
+         LINK  EP=MODULE4                                               00011620
+INF      B     INF                                                      00011720
+         WTO   'GOAL'                                                   00011820
          LA    R2,GOAL                                                  00016518
          BCTR  R2,0                                                     00016618
          BR    R2                                                       00016718
@@ -19,8 +21,7 @@ SAMPLE   CSECT                                                          00010000
          XR    R1,R1                                                    00016918
          WTO   'ZERO R1'                                                00017018
 GOAL     EQU   *                                                        00017118
-         WTO   'GOAL'                                                   00017218
-         ESTAE 0                                                        00017318
+*        ESTAE 0                                                        00017320
                                                                         00017402
          L     R13,SAVEAREA+4                                           00017806
                                                                         00017902

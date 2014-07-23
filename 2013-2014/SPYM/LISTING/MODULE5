@@ -1,6 +1,6 @@
 ¯
                                          High Level Assembler Option Summary                   (PTF UK37157)   Page    1
-                                                                                            HLASM R6.0  2014/07/21 06.46
+                                                                                            HLASM R6.0  2014/07/21 16.34
 ²  No Overriding ASMAOPT Parameters
 ²  No Overriding Parameters
 ²  No Process Statements
@@ -53,13 +53,13 @@
 ²  No Overriding DD Names
 ¯
                                               External Symbol Dictionary                                       Page    2
-Symbol   Type   Id     Address  Length   Owner Id Flags Alias-of                            HLASM R6.0  2014/07/21 06.46
+Symbol   Type   Id     Address  Length   Owner Id Flags Alias-of                            HLASM R6.0  2014/07/21 16.34
 ²          PC 00000001 00000000 00000000             00
 ²SAMPLE    SD 00000002 00000000 000000B4             00
 ¯
 ²                                                                                                               Page    3
   Active Usings: None
-  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/21 06.46
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/21 16.34
 ²                                      1          GENREG                                                         00001000
 ²                      00000           2+R0       EQU   0                                                        01-GENRE
 ²                      00001           3+R1       EQU   1                                                        01-GENRE
@@ -116,7 +116,7 @@
 i                      0004E          58 RETRN    EQU   *                                                        00013111
 ²                                                                                                               Page    4
   Active Usings: SAMPLE+X'6',R12
-  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/21 06.46
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/21 16.34
 ²                                     59          WTO   'HEY5'                                                   00013213
 ²00004E 0700                          61+         CNOP  0,4                                                      01-WTO
 ²000050 A715 0006            0005C    62+         BRAS  1,IHB0008A               BRANCH AROUND MESSAGE      @LCC 01-WTO
@@ -133,7 +133,7 @@ i                      0004E          58 RETRN    EQU   *                       
 ²                                     74          END                                                            00030000
 ¯
                                Ordinary Symbol and Literal Cross Reference                                     Page    5
-Symbol   Length   Value     Id    R Type Asm  Program   Defn References                     HLASM R6.0  2014/07/21 06.46
+Symbol   Length   Value     Id    R Type Asm  Program   Defn References                     HLASM R6.0  2014/07/21 16.34
 ²IHB0004A      2 00000038 00000002     H  H                45   41B
 ²IHB0006A      2 0000004C 00000002     H  H                56   52B
 ²IHB0008A      2 0000005C 00000002     H  H                66   62B
@@ -152,7 +152,7 @@ i                      0004E          58 RETRN    EQU   *                       
 ²SAVEAREA      4 0000006C 00000002     F  F                73   23M   25    68
 ¯
                                   Unreferenced Symbols Defined in CSECTs                                       Page    6
-  Defn  Symbol                                                                              HLASM R6.0  2014/07/21 06.46
+  Defn  Symbol                                                                              HLASM R6.0  2014/07/21 16.34
 ²    72  FLD
 ²     3  R1
 ²    13  R11
@@ -166,18 +166,18 @@ i                      0004E          58 RETRN    EQU   *                       
 ²    18  SAMPLE
 ¯
                                           Macro and Copy Code Source Summary                                   Page    7
- Con Source                                        Volume    Members                        HLASM R6.0  2014/07/21 06.46
+ Con Source                                        Volume    Members                        HLASM R6.0  2014/07/21 16.34
 ²  L1 SYS1.MACLIB                                   ZARES1    LOAD     SYSSTATE WTO
 ²  L2 EMCPROJ.MACLIB                                ZAIMS1    GENREG
 ¯
                                                       Using Map                                                Page    8
-²                                                                                            HLASM R6.0  2014/07/21 06.46
+²                                                                                            HLASM R6.0  2014/07/21 16.34
 ²  Stmt  -----Location----- Action ----------------Using----------------- Reg Max     Last Label and Using Text
           Count      Id           Type          Value    Range     Id        Disp    Stmt
 ²    21  00000006  00000002 USING  ORDINARY    00000006 00001000 00000002  12 0006A     68 *,R12
 ¯
                                    General Purpose Register Cross Reference                                    Page    9
- Register  References (M=modified, B=branch, U=USING, D=DROP, N=index)                      HLASM R6.0  2014/07/21 06.46
+ Register  References (M=modified, B=branch, U=USING, D=DROP, N=index)                      HLASM R6.0  2014/07/21 16.34
 ²    0(0)      19    34M   37    70M
 ²    1(1)      19    35M   35    41M   52M   62M   70M
 ²    2(2)      19    24M   26    47M   70M
@@ -196,7 +196,7 @@ i                      0004E          58 RETRN    EQU   *                       
 ²   15(F)      19    30M   34    70M
 ¯
                                   Diagnostic Cross Reference and Assembler Summary                             Page   10
-                                                                                            HLASM R6.0  2014/07/21 06.46
+                                                                                            HLASM R6.0  2014/07/21 16.34
 ²     No Statements Flagged in this Assembly
 HIGH LEVEL ASSEMBLER, 5696-234, RELEASE 6.0, PTF UK37157
 SYSTEM: z/OS 01.10.00              JOBNAME: SAMPLE      STEPNAME: COMPILE    PROCSTEP: (NOPROC)
@@ -212,5 +212,5 @@ i                      0004E          58 RETRN    EQU   *                       
 ²     25 Primary Input Records Read         3600 Library Records Read                  0 Work File Reads
 ²      0 ASMAOPT Records Read                216 Primary Print Records Written         0 Work File Writes
       4 Object Records Written                0 ADATA Records Written
-²Assembly Start Time: 06.46.45 Stop Time: 06.46.45 Processor Time: 00.00.00.2123
+²Assembly Start Time: 16.34.47 Stop Time: 16.34.47 Processor Time: 00.00.00.2116
 ²Return Code 000

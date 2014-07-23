@@ -1,37 +1,17 @@
-         MACRO                                                          00010001
-         UPUSH &NAME=DSTACK,&C                                          00020001
-         GBLA  &IUSERST                                                 00021002
-         LCLC  &R                                                       00030001
-         LCLC  &TMPR                                                    00040001
-&IUSERST SETA  &IUSERST+1                                               00041002
-         AIF   ('&C'(1,1) EQ '(').REG IF (C = (REG)) THEN REG           00050001
-         ST    2,SA&NAME+28           SAVE R2                           00060001
-&TMPR    SETC  '2'                    TMPR = 2                          00070001
-         L     &TMPR,&C               TMPR := C                         00080001
-         AGO   .M1                                                      00090001
-.REG     ANOP                                                           00100001
-&TMPR    SETC  '&C'(2,K'&C-2)         C = (REG) -> TMPR = REG           00110001
-         AIF   ('&TMPR' NE '1').M1                                      00120001
-&R       SETC  '2'                                                      00130001
-         AGO   .M2                                                      00140001
-.M1      ANOP                                                           00150001
-&R       SETC  '1'                                                      00160001
-.M2      ANOP                                                           00170001
-         ST    &R,SA&NAME+24          SAVE &R                           00180001
-         L     &R,H&NAME              &R=H&NAME                         00190001
-         LA    &R,1(,&R)              &R=&R+1                           00200001
-         ST    &R,H&NAME              H&NAME=&R                         00210001
-         SLA   &R,2                   &R=&R*4                           00220001
-         C     &R,L'ST&NAME                                             00221002
-         BE    UPER&IUSERST                                             00222003
-         ST    &TMPR,ST&NAME.(&R)                                       00230001
-         AIF   ('&C'(1,1) EQ '(').END                                   00240001
-         L     &TMPR,SA&NAME          RESTORE R2                        00250001
-.END     ANOP                                                           00260001
-         B     ENDUP&IUSERST                                            00261004
-UPER&IUSERST EQU   *                                                    00262002
-         WTO   'ERROR IN MACRO UPUSH'                                   00263002
-         ABEND 777                                                      00264002
-ENDUP&IUSERST  EQU   *                                                  00265004
-         L     &R,SA&NAME+24          RESTORE &R                        00270001
-         MEND                                                           00280001
+         MACRO                                                          00020000
+         UPUSH &C                                                       00030001
+         LCLC  &TEMP                                                    00030106
+&TEMP    SETC  '&C'                                                     00030207
+         L     R1,TOP                                                   00030303
+         LA    R1,4(,R1)                                                00030403
+         AIF   ('&TEMP'(1,1) EQ '(').REGISTR                            00031006
+.MEMORY  L     R15,&TEMP                                                00051006
+&TEMP    SETC  'R15'                                                    00052007
+         AGO   .SAVE                                                    00053006
+.REGISTR ANOP                                                           00054002
+         LCLA  &N                                                       00054106
+&N       SETA  K'&TEMP-2                                                00054208
+&TEMP    SETC  '&TEMP'(2,&N)                                            00055008
+.SAVE    ST    &TEMP,STACK(R1)                                          00060006
+         ST    R1,TOP                                                   00070000
+         MEND                                                           00080000

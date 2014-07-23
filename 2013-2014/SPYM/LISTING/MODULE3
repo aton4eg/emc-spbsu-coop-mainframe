@@ -1,6 +1,6 @@
 ¯
                                          High Level Assembler Option Summary                   (PTF UK37157)   Page    1
-                                                                                            HLASM R6.0  2014/07/21 06.47
+                                                                                            HLASM R6.0  2014/07/21 16.35
 ²  No Overriding ASMAOPT Parameters
 ²  No Overriding Parameters
 ²  No Process Statements
@@ -53,13 +53,13 @@
 ²  No Overriding DD Names
 ¯
                                               External Symbol Dictionary                                       Page    2
-Symbol   Type   Id     Address  Length   Owner Id Flags Alias-of                            HLASM R6.0  2014/07/21 06.47
+Symbol   Type   Id     Address  Length   Owner Id Flags Alias-of                            HLASM R6.0  2014/07/21 16.35
 ²          PC 00000001 00000000 00000000             00
-²SAMPLE    SD 00000002 00000000 000000B4             00
+²SAMPLE    SD 00000002 00000000 000000F0             00
 ¯
 ²                                                                                                               Page    3
   Active Usings: None
-  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/21 06.47
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/21 16.35
 ²                                      1          GENREG                                                         00001000
 ²                      00000           2+R0       EQU   0                                                        01-GENRE
 ²                      00001           3+R1       EQU   1                                                        01-GENRE
@@ -77,13 +77,13 @@
 ²                      0000D          15+R13      EQU   13                                                       01-GENRE
 ²                      0000E          16+R14      EQU   14                                                       01-GENRE
 ²                      0000F          17+R15      EQU   15                                                       01-GENRE
-²000000                00000 000B4    18 SAMPLE   CSECT                                                          00010000
+²000000                00000 000F0    18 SAMPLE   CSECT                                                          00010000
 ²000000 90EC D00C            0000C    19          STM   R14,R12,12(R13)                                          00010301
 ²000004 0DC0                          20          BASR  R12,0                                                    00010401
                  R:C  00006          21          USING *,R12                                                    00010501
-²000006 50D0 C06A            00070    23          ST    R13,SAVEAREA+4                                           00010702
+²000006 50D0 C0A6            000AC    23          ST    R13,SAVEAREA+4                                           00010702
 ²00000A 182D                          24          LR    R2,R13                                                   00010802
-²00000C 41D0 C066            0006C    25          LA    R13,SAVEAREA                                             00010902
+²00000C 41D0 C0A2            000A8    25          LA    R13,SAVEAREA                                             00010902
 ²000010 50D0 2008            00008    26          ST    R13,8(,R2)                                               00011002
 ²                                     27          LOAD  EP=MODULE5                                               00012413
 ²000014                               29+         CNOP  0,4                                                 @L2P 01-LOAD
@@ -116,7 +116,7 @@
 i                      0004E          58 RETRN    EQU   *                                                        00013111
 ²                                                                                                               Page    4
   Active Usings: SAMPLE+X'6',R12
-  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/21 06.47
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/21 16.35
 ²                                     59          WTO   'HEY0'                                                   00013214
 ²00004E 0700                          61+         CNOP  0,4                                                      01-WTO
 ²000050 A715 0006            0005C    62+         BRAS  1,IHB0008A               BRANCH AROUND MESSAGE      @LCC 01-WTO
@@ -124,36 +124,72 @@ i                      0004E          58 RETRN    EQU   *                       
 ²000056 0000                          64+         DC    B'0000000000000000'      MCSFLAGS                        01-WTO
 ²000058 C8C5E8F0                      65+         DC    C'HEY0'                  MESSAGE TEXT               @L6C 01-WTO
 ²00005C                               66+IHB0008A DS    0H                                                       01-WTO
-²00005C 0A23                          67+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
-00005E 58D0 C06A            00070    68          L     R13,SAVEAREA+4                                           00013311
-²000062 98EC D00C            0000C    70          LM    R14,R12,12(R13)                                          00014000
-²000066 07FE                          71          BR    R14                                                      00020000
-²000068                               72 FLD      DS    F                                                        00021001
-²00006C                               73 SAVEAREA DS    18F                                                      00022002
-²                                     74          END                                                            00030000
+00005C 0A23                          67+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+²                                     70          LOAD  EP=MODULE4                                               00013515
+²00005E 0700                          72+         CNOP  0,4                                                 @L2P 01-LOAD
+²000060 4DF0 C066            0006C    73+         BAS   15,LOAD2_0010      BRANCH AROUND CONSTANT(S)             01-LOAD
+²000064                               74+LD2_0010    DS 0H                                                       01-LOAD
+²000064 D4D6C4E4D3C5F440              75+LE2_0010    DC CL8'MODULE4'       ENTRY POINT NAME                      01-LOAD
+²00006C                               76+LOAD2_0010    DS 0H                                                     01-LOAD
+²00006C 4100 F000            00000    77+         LA    0,LE2_0010-LD2_0010(,15)         ADDR OF PARAMETER       01-LOAD
+²000070 1B11                          78+         SR    1,1                SHOW NO DCB PRESENT                   01-LOAD
+²000072 0A08                          79+         SVC   8                                                        01-LOAD
+²000074 4120 C084            0008A    80          LA    R2,RETRN2                                                00013615
+²000078 1830                          81          LR    R3,R0                                                    00013715
+²00007A 07F3                          82          BR    R3                                                       00013815
+²                                     83          WTO   'HEY2'                                                   00013915
+²00007C                               85+         CNOP  0,4                                                      01-WTO
+²00007C A715 0006            00088    86+         BRAS  1,IHB0012A               BRANCH AROUND MESSAGE      @LCC 01-WTO
+²000080 0008                          87+         DC    AL2(8)                   TEXT LENGTH            @YA17152 01-WTO
+²000082 0000                          88+         DC    B'0000000000000000'      MCSFLAGS                        01-WTO
+²000084 C8C5E8F2                      89+         DC    C'HEY2'                  MESSAGE TEXT               @L6C 01-WTO
+²000088                               90+IHB0012A DS    0H                                                       01-WTO
+²000088 0A23                          91+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+²                      0008A          92 RETRN2   EQU   *                                                        00014015
+²                                     93          WTO   'HEY0'                                                   00014115
+²00008A 0700                          95+         CNOP  0,4                                                      01-WTO
+²00008C A715 0006            00098    96+         BRAS  1,IHB0014A               BRANCH AROUND MESSAGE      @LCC 01-WTO
+²000090 0008                          97+         DC    AL2(8)                   TEXT LENGTH            @YA17152 01-WTO
+²000092 0000                          98+         DC    B'0000000000000000'      MCSFLAGS                        01-WTO
+²000094 C8C5E8F0                      99+         DC    C'HEY0'                  MESSAGE TEXT               @L6C 01-WTO
+²000098                              100+IHB0014A DS    0H                                                       01-WTO
+²000098 0A23                         101+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+00009A 58D0 C0A6            000AC   102          L     R13,SAVEAREA+4                                           00014211
+²00009E 98EC D00C            0000C   104          LM    R14,R12,12(R13)                                          00015000
+²0000A2 07FE                         105          BR    R14                                                      00020000
+²0000A4                              106 FLD      DS    F                                                        00021001
+²0000A8                              107 SAVEAREA DS    18F                                                      00022002
+²                                    108          END                                                            00030000
 ¯
                                Ordinary Symbol and Literal Cross Reference                                     Page    5
-Symbol   Length   Value     Id    R Type Asm  Program   Defn References                     HLASM R6.0  2014/07/21 06.47
+Symbol   Length   Value     Id    R Type Asm  Program   Defn References                     HLASM R6.0  2014/07/21 16.35
 ²IHB0004A      2 00000038 00000002     H  H                45   41B
 ²IHB0006A      2 0000004C 00000002     H  H                56   52B
 ²IHB0008A      2 0000005C 00000002     H  H                66   62B
+²IHB0012A      2 00000088 00000002     H  H                90   86B
+²IHB0014A      2 00000098 00000002     H  H               100   96B
 ²LD2_0002      2 00000018 00000002     H  H                31   34
+²LD2_0010      2 00000064 00000002     H  H                74   77
 ²LE2_0002      8 00000018 00000002     C  C                32   34
+²LE2_0010      8 00000064 00000002     C  C                75   77
 ²LOAD2_0002
 ²              2 00000020 00000002     H  H                33   30B
+²LOAD2_0010
+²              2 0000006C 00000002     H  H                76   73B
 ²RETRN         1 0000004E 00000002     U                   58   47
-²R0            1 00000000 00000001 A   U                    2   37
+²RETRN2        1 0000008A 00000002     U                   92   80
+²R0            1 00000000 00000001 A   U                    2   37    81
 ²R10           1 0000000A 00000001 A   U                   12   47M
-²R12           1 0000000C 00000001 A   U                   14   19    20M   21U   70M
-²R13           1 0000000D 00000001 A   U                   15   19    23    24    25M   26    68M   70
-²R14           1 0000000E 00000001 A   U                   16   19    70M   71B
-²R2            1 00000002 00000001 A   U                    4   24M   26
-²R3            1 00000003 00000001 A   U                    5   37M   48B
-²SAVEAREA      4 0000006C 00000002     F  F                73   23M   25    68
+²R12           1 0000000C 00000001 A   U                   14   19    20M   21U  104M
+²R13           1 0000000D 00000001 A   U                   15   19    23    24    25M   26   102M  104
+²R14           1 0000000E 00000001 A   U                   16   19   104M  105B
+²R2            1 00000002 00000001 A   U                    4   24M   26    80M
+²R3            1 00000003 00000001 A   U                    5   37M   48B   81M   82B
+²SAVEAREA      4 000000A8 00000002     F  F               107   23M   25   102
 ¯
                                   Unreferenced Symbols Defined in CSECTs                                       Page    6
-  Defn  Symbol                                                                              HLASM R6.0  2014/07/21 06.47
-²    72  FLD
+  Defn  Symbol                                                                              HLASM R6.0  2014/07/21 16.35
+²   106  FLD
 ²     3  R1
 ²    13  R11
 ²    17  R15
@@ -166,37 +202,37 @@ i                      0004E          58 RETRN    EQU   *                       
 ²    18  SAMPLE
 ¯
                                           Macro and Copy Code Source Summary                                   Page    7
- Con Source                                        Volume    Members                        HLASM R6.0  2014/07/21 06.47
+ Con Source                                        Volume    Members                        HLASM R6.0  2014/07/21 16.35
 ²  L1 SYS1.MACLIB                                   ZARES1    LOAD     SYSSTATE WTO
 ²  L2 EMCPROJ.MACLIB                                ZAIMS1    GENREG
 ¯
                                                       Using Map                                                Page    8
-²                                                                                            HLASM R6.0  2014/07/21 06.47
+²                                                                                            HLASM R6.0  2014/07/21 16.35
 ²  Stmt  -----Location----- Action ----------------Using----------------- Reg Max     Last Label and Using Text
           Count      Id           Type          Value    Range     Id        Disp    Stmt
-²    21  00000006  00000002 USING  ORDINARY    00000006 00001000 00000002  12 0006A     68 *,R12
+²    21  00000006  00000002 USING  ORDINARY    00000006 00001000 00000002  12 000A6    102 *,R12
 ¯
                                    General Purpose Register Cross Reference                                    Page    9
- Register  References (M=modified, B=branch, U=USING, D=DROP, N=index)                      HLASM R6.0  2014/07/21 06.47
-²    0(0)      19    34M   37    70M
-²    1(1)      19    35M   35    41M   52M   62M   70M
-²    2(2)      19    24M   26    70M
-²    3(3)      19    37M   48B   70M
-²    4(4)      19    70M
-²    5(5)      19    70M
-²    6(6)      19    70M
-²    7(7)      19    70M
-²    8(8)      19    70M
-²    9(9)      19    70M
-²   10(A)      19    47M   70M
-²   11(B)      19    70M
-²   12(C)      19    20M   21U   70M
-²   13(D)      19    23    24    25M   26    68M   70
-²   14(E)      19    70M   71B
-²   15(F)      19    30M   34    70M
+ Register  References (M=modified, B=branch, U=USING, D=DROP, N=index)                      HLASM R6.0  2014/07/21 16.35
+²    0(0)      19    34M   37    77M   81   104M
+²    1(1)      19    35M   35    41M   52M   62M   78M   78    86M   96M  104M
+²    2(2)      19    24M   26    80M  104M
+²    3(3)      19    37M   48B   81M   82B  104M
+²    4(4)      19   104M
+²    5(5)      19   104M
+²    6(6)      19   104M
+²    7(7)      19   104M
+²    8(8)      19   104M
+²    9(9)      19   104M
+²   10(A)      19    47M  104M
+²   11(B)      19   104M
+²   12(C)      19    20M   21U  104M
+²   13(D)      19    23    24    25M   26   102M  104
+²   14(E)      19   104M  105B
+²   15(F)      19    30M   34    73M   77   104M
 ¯
                                   Diagnostic Cross Reference and Assembler Summary                             Page   10
-                                                                                            HLASM R6.0  2014/07/21 06.47
+                                                                                            HLASM R6.0  2014/07/21 16.35
 ²     No Statements Flagged in this Assembly
 HIGH LEVEL ASSEMBLER, 5696-234, RELEASE 6.0, PTF UK37157
 SYSTEM: z/OS 01.10.00              JOBNAME: SAMPLE      STEPNAME: COMPILE    PROCSTEP: (NOPROC)
@@ -209,8 +245,8 @@ i                      0004E          58 RETRN    EQU   *                       
 ²     SYSPRINT EMCPROJ.LISTING                              ZAIMS1  MODULE3
 ²
 ²  32128K allocated to Buffer Pool       Storage required     376K
-²     25 Primary Input Records Read         3600 Library Records Read                  0 Work File Reads
-²      0 ASMAOPT Records Read                216 Primary Print Records Written         0 Work File Writes
-      4 Object Records Written                0 ADATA Records Written
-²Assembly Start Time: 06.47.31 Stop Time: 06.47.31 Processor Time: 00.00.00.2134
+²     34 Primary Input Records Read         3600 Library Records Read                  0 Work File Reads
+²      0 ASMAOPT Records Read                252 Primary Print Records Written         0 Work File Writes
+      5 Object Records Written                0 ADATA Records Written
+²Assembly Start Time: 16.35.00 Stop Time: 16.35.00 Processor Time: 00.00.00.2258
 ²Return Code 000
