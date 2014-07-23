@@ -1,17 +1,38 @@
-         MACRO                                                          00020000
-         UPOP  &C                                                       00030001
-         LCLC  &TEMP                                                    00031004
-&TEMP    SETC  '&C'                                                     00032005
-         L     R1,TOP                                                   00040000
-         AIF   ('&TEMP'(1,1) EQ '(').REGISTR                            00041004
-         L     R15,STACK(R1)                                            00042002
-&TEMP    SETC  'R15'                                                    00042104
-         ANOP  .LOAD                                                    00042203
-.REGISTR ANOP                                                           00042303
-         LCLA  &N                                                       00042405
-&N       SETA  K'&TEMP-2                                                00042507
-&TEMP    SETC  '&TEMP'(2,&N)                                            00042705
-.LOAD    L     &TEMP,STACK(R1)                                          00050004
-         S     R1,=X'00000004'                                          00060003
-         ST    R1,TOP                                                   00070000
-         MEND                                                           00080000
+         MACRO                                                          00010002
+         UPOP  &NAME=DSTACK,&C                                          00020002
+         GBLA  &IUSERST                                                 00030004
+         LCLC  &TMPR                                                    00040002
+         LCLC  &R                                                       00050002
+&IUSERST SETA  &IUSERST+1                                               00060004
+         AIF   ('&C'(1,1) EQ '(').REG                                   00070002
+         ST    2,SA&NAME+28           SAVE R2                           00080002
+&TMPR    SETC  '2'                                                      00090002
+         AGO   .M1                                                      00100002
+.REG     ANOP                                                           00110002
+&TMPR    SETC  '&C'(2,K'&C-2)                                           00120002
+         AIF   ('&TMPR' NE '1').M1                                      00130002
+&R       SETC  '2'                                                      00140002
+         AGO   .M2                                                      00150002
+.M1      ANOP                                                           00160002
+&R       SETC  '1'                                                      00170002
+.M2      ANOP                                                           00180002
+         ST    &R,SA&NAME+24          SAVE &R                           00190002
+         L     &R,H&NAME              &R=H&NAME                         00200002
+         LTR   &R,&R                                                    00210002
+         BE    UPER&IUSERST                                             00220004
+         SLA   &R,2                   &R=&R*4                           00230002
+         L     &TMPR,ST&NAME.(&R)                                       00240002
+         SRA   &R,2                   &R=&R/4                           00250002
+         BCTR  &R,0                   &R=&R-1                           00260002
+         ST    &R,H&NAME              H&NAME=&R                         00270002
+         AIF   ('&C'(1,1) EQ '(').END                                   00280002
+         ST    &TMPR,&C                                                 00290002
+         L     2,SA&NAME+28           RESTORE R2                        00300002
+.END     ANOP                                                           00310002
+         B     ENDUP&IUSERST                                            00311005
+UPER&IUSERST EQU   *                                                    00320004
+         WTO   'ERROR IN MACRO UPOP'                                    00320103
+         ABEND 777                                                      00321003
+ENDUP&IUSERST EQU   *                                                   00322005
+         L     &R,SA&NAME+24          RESTORE &R                        00330002
+         MEND                                                           00340002
