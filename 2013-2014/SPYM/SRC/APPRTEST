@@ -1,0 +1,41 @@
+         GENREG                                                         00010001
+APPRTEST CSECT                                                          00020001
+APPRTEST AMODE 31                                                       00021003
+APPRTEST RMODE 24                                                       00022003
+         STM   R14,R12,12(R13)                                          00030001
+                                                                        00040001
+         BASR  R12,0                                                    00050001
+         USING *,R12                                                    00060001
+                                                                        00070001
+         ST    R13,SAVEAREA+4                                           00080001
+         LR    R2,R13                                                   00090001
+         LA    R13,SAVEAREA                                             00100001
+         ST    R13,8(R2)                                                00110001
+*        OPEN  (OUT,OUTPUT)                                             00111004
+*        ST    R14,TEMP                                                 00111104
+*        PUT   OUT,TEMP                                                 00111204
+                                                                        00120001
+         DC    X'0000'                                                  00140007
+RETRY    EQU   *                                                        00170001
+                                                                        00170101
+*        SVC   241                                                      00171007
+         WTO   'RESTORED'                                               00171102
+                                                                        00171204
+         L     R13,SAVEAREA+4                                           00180001
+         LM    R14,R12,12(R13)                                          00190001
+                                                                        00190104
+*        ST    R14,TEMP                                                 00191004
+*        PUT   OUT,TEMP                                                 00192004
+*        CLOSE (OUT)                                                    00193004
+                                                                        00194004
+         BR    R14                                                      00200001
+SAVEAREA DS    18F                                                      00210001
+                                                                        00220001
+MYESTAE  EQU   *                                                        00230001
+         STM   R14,R12,12(R13)                                          00240001
+         WTO   'MODULE ESTAE'                                           00250001
+         LM    R14,R12,12(R13)                                          00260001
+         BR    R14                                                      00270001
+OUT      DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)                         00271004
+TEMP     DS    F                                                        00272004
+         END                                                            00280001

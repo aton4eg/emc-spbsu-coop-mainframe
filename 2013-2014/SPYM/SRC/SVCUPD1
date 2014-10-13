@@ -1,0 +1,109 @@
+         GENREG                                                         00010000
+SVCUPD   CSECT                                                          00020000
+SVCUPD   AMODE 31                                                       00021004
+SVCUPD   RMODE 24                                                       00022004
+         STM   R14,R12,12(R13)                                          00030000
+                                                                        00040000
+         BASR  R12,0                                                    00050000
+         USING *,R12                                                    00060000
+                                                                        00070000
+         ST    R13,SAVEAREA+4                                           00080000
+         LR    R2,R13                                                   00090000
+         LA    R13,SAVEAREA                                             00100000
+         ST    R13,8(R2)                                                00110000
+                                                                        00111004
+         XR    R1,R1                                                    00112004
+         ST    R1,MYECB                                                 00113004
+                                                                        00114005
+       GETMAIN RU,LV=RETDATA#,LOC=BELOW                                 00114105
+         LR    R7,R1                   MAKE DATA AREA FOR RETRY ROUTINE 00114205
+         USING RETDATA,R7                                               00114305
+         MVC   RETRA(4),=A(MYRETRY)                                     00114405
+         DROP  R7                                                       00114505
+                                                                        00115005
+                                                                        00120000
+*SVCTEST                                                                00121009
+       MODESET KEY=ZERO,MODE=SUP                                        00121109
+         LOAD  EP=SVC241,GLOBAL=(YES,F),EOM=NO                          00121209
+         LR    R2,R0                                                    00121309
+      SVCUPDTE 241,REPLACE,TYPE=4,EP=(R2),LOCKS=LOCAL                   00121409
+       MODESET KEY=NZERO,MODE=PROB                                      00121509
+*241 230 242                                                            00121609
+                                                                        00121705
+       ATTACHX EP=APPRTEST,ESTAI=(MYESTAI,(R7)),ECB=MYECB               00122009
+NXTWAIT  EQU   *                                                        00133009
+         XR    R1,R1                                                    00134009
+         ST    R1,MYECB                                                 00135009
+         WAIT  ECB=MYECB                                                00136009
+         WTO   'WAIT END WORK'                                          00136109
+         NI    MYECB,B'01000000'                                        00137009
+         LT    R1,MYECB                                                 00138009
+         BE    NXTWAIT                                                  00139009
+         WTO   'WAIT END'                                               00139109
+                                                                        00150000
+         L     R13,SAVEAREA+4                                           00160000
+         LM    R14,R12,12(R13)                                          00170000
+         BR    R14                                                      00180000
+                                                                        00181004
+SAVEAREA DS    18F                                                      00190000
+MYECB    DS    1F                                                       00200004
+                                                                        00201004
+MYSVC    EQU   *                                                        00210000
+*        WTO   'SVC'                                                    00220006
+         BR    R14                                                      00221000
+DEBUG    DCB   DDNAME=DEBUG,MACRF=(PM),DSORG=PS                         00221108
+TEMP     DS    8F                                                       00221209
+                                                                        00221308
+                                                                        00221405
+MYRETRY  EQU   *                                                        00221504
+         LR    R3,R1                                                    00221605
+         WTO   'MODULE RETRY'                                           00221705
+         LR    R1,R3                                                    00221805
+                                                                        00221905
+         LR    R2,R1                                                    00222005
+         USING RETDATA,R2                                               00222105
+         L     R3,PSW+4                                                 00222206
+         LA    R3,2(,R3)                                                00222306
+         ST    R3,PSW+4          CORRECT PSW                            00222406
+                                                                        00222505
+*        NI    PSW+1,B'11110111' 12 BIT INVERTED                        00222606
+                                                                        00222805
+       MODESET MODE=SUP,KEY=ZERO                                        00223109
+*MAGIC: IF MODESET WILL BE EXECUTED ABEND WILL OCCUR                    00223209
+         LA    R13,SAREA                                                00223309
+         LM    R0,R1,0(R13)                                             00223409
+         LM    R3,R12,12(R13)                                           00223509
+         LM    R14,R15,56(R13)   RESTORE REGISTERS                      00223609
+         L     R13,52(R13)                                              00223709
+                                                                        00223809
+         LPSW  PSW               EXIT TO PROGRAM                        00223909
+                                                                        00224009
+*        L     R2,PSW+4                                                 00224109
+*        BR    R2                                                       00224209
+         DROP  R2                                                       00224309
+                                                                        00224409
+MYESTAI  EQU   *                                                        00224509
+                                                                        00224705
+         USING SDWA,R1                                                  00224800
+         USING RETDATA,R2                                               00224905
+         L     R4,RETRA             SET JUMP TO MYRETRY                 00225005
+                                                                        00225105
+         MVC   PSW(8),SDWAEC1      PREPARE PSW                          00225206
+         MVC   SAREA(64),SDWAGRSV   PREPARE REGISTERS                   00225305
+                                                                        00225405
+         SETRP RC=4,RETREGS=NO,FRESDWA=YES,RETADDR=(R4),DUMP=NO         00225505
+         BR    R14                  GOTO MYRETRY                        00225605
+         DROP  R2                                                       00225705
+                                                                        00225805
+         LTORG                                                          00225905
+       IHASDWA                                                          00226000
+                                                                        00226105
+RETDATA  DSECT                                                          00226205
+RETRA    DS    F                                                        00227005
+RESEX    DS    F                                                        00227105
+SAREA    DS    18F                                                      00228005
+PSW      DS    2F                                                       00229005
+RETDATA# EQU   *-RETRA                                                  00229105
+                                                                        00229206
+         CVT   DSECT=YES                                                00229306
+         END                                                            00230000

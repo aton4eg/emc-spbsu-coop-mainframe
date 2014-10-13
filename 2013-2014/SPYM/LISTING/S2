@@ -1,0 +1,172 @@
+¯
+                                         High Level Assembler Option Summary                   (PTF UK37157)   Page    1
+                                                                                            HLASM R6.0  2014/07/25 19.15
+²  No Overriding ASMAOPT Parameters
+²  No Overriding Parameters
+²  No Process Statements
+
+
+  Options for this Assembly
+²  NOADATA
+²    ALIGN
+²  NOASA
+²    BATCH
+²    CODEPAGE(047C)
+²  NOCOMPAT
+²  NODBCS
+²  NODECK
+²    DXREF
+²    ESD
+²  NOEXIT
+²    FLAG(0,ALIGN,CONT,EXLITW,NOIMPLEN,NOPAGE0,PUSH,RECORD,NOSUBSTR,USING0)
+²  NOFOLD
+²  NOGOFF
+²  NOINFO
+²    LANGUAGE(EN)
+²  NOLIBMAC
+²    LINECOUNT(60)
+²    LIST(121)
+²    MACHINE(,NOLIST)
+²    MXREF(SOURCE)
+²    OBJECT
+²    OPTABLE(UNI,NOLIST)
+²  NOPCONTROL
+²  NOPESTOP
+²  NOPROFILE
+²  NORA2
+²  NORENT
+²    RLD
+²    RXREF
+²    SECTALGN(8)
+²    SIZE(MAX)
+²  NOSUPRWARN
+²    SYSPARM()
+²  NOTERM
+²  NOTEST
+²    THREAD
+²  NOTRANSLATE
+²    TYPECHECK(MAGNITUDE,REGISTER)
+²    USING(NOLIMIT,MAP,WARN(15))
+²  NOWORKFILE
+²    XREF(SHORT,UNREFS)
+
+²  No Overriding DD Names
+¯
+                                              External Symbol Dictionary                                       Page    2
+Symbol   Type   Id     Address  Length   Owner Id Flags Alias-of                            HLASM R6.0  2014/07/25 19.15
+²MYPROGRM  SD 00000001 00000000 000000AC             00
+¯
+²                                                                                                               Page    3
+  Active Usings: None
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/07/25 19.15
+²000000                00000 000AC     1 MYPROGRM CSECT                                                          00010000
+²000000 90EC D00C            0000C     2          STM   14,12,12(13)                                             00020000
+²000004 05C0                           3          BALR  RBASE,0                                                  00030000
+²                 R:C  00006           4          USING *,RBASE                                                  00040000
+²000006 50D0 C062            00068     5          ST    13,SAVEAREA+4                                            00050000
+²00000A 182D                           6          LR    2,13                                                     00060000
+²00000C 41D0 C05E            00064     7          LA    13,SAVEAREA                                              00070000
+²000010 50D0 2008            00008     8          ST    13,8(,2)                                                 00080000
+²                                      9 *---------------------------                                            00090000
+²                                     10          WTO   'START S2'                                               00091000
+²000014                               12+         CNOP  0,4                                                      01-WTO
+²000014 A715 0008            00024    13+         BRAS  1,IHB0001A               BRANCH AROUND MESSAGE      @LCC 01-WTO
+²000018 000C                          14+         DC    AL2(12)                  TEXT LENGTH            @YA17152 01-WTO
+²00001A 0000                          15+         DC    B'0000000000000000'      MCSFLAGS                        01-WTO
+²00001C E2E3C1D9E340E2F2              16+         DC    C'START S2'              MESSAGE TEXT               @L6C 01-WTO
+²000024                               17+IHB0001A DS    0H                                                       01-WTO
+²000024 0A23                          18+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+²                                     19          LOAD  EP=S3                                                    00100000
+²000026 0700                          21+         CNOP  0,4                                                 @L2P 01-LOAD
+²000028 4DF0 C02E            00034    22+         BAS   15,LOAD2_0003      BRANCH AROUND CONSTANT(S)             01-LOAD
+²00002C                               23+LD2_0003    DS 0H                                                       01-LOAD
+²00002C E2F3404040404040              24+LE2_0003    DC CL8'S3'            ENTRY POINT NAME                      01-LOAD
+²000034                               25+LOAD2_0003    DS 0H                                                     01-LOAD
+²000034 4100 F000            00000    26+         LA    0,LE2_0003-LD2_0003(,15)         ADDR OF PARAMETER       01-LOAD
+²000038 1B11                          27+         SR    1,1                SHOW NO DCB PRESENT                   01-LOAD
+²00003A 0A08                          28+         SVC   8                                                        01-LOAD
+²00003C 1830                          29          LR    3,0                                                      00110000
+²00003E 41E0 C03E            00044    30          LA    14,END                                                   00120000
+²000042 07F3                          31          BR    3                                                        00130000
+²                      00044          32 END      EQU   *                                                        00140000
+²                                     33          WTO   'FINISH S2'                                              00141000
+²000044                               35+         CNOP  0,4                                                      01-WTO
+²000044 A715 0009            00056    36+         BRAS  1,IHB0005A               BRANCH AROUND MESSAGE      @LCC 01-WTO
+²000048 000D                          37+         DC    AL2(13)                  TEXT LENGTH            @YA17152 01-WTO
+²00004A 0000                          38+         DC    B'0000000000000000'      MCSFLAGS                        01-WTO
+²00004C C6C9D5C9E2C840E2              39+         DC    C'FINISH S2'             MESSAGE TEXT               @L6C 01-WTO
+²000056                               40+IHB0005A DS    0H                                                       01-WTO
+²000056 0A23                          41+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+²                                     42 *---------------------------                                            00150000
+²000058 58D0 C062            00068    43          L     13,SAVEAREA+4                                            00160000
+²00005C 98EC D00C            0000C    44          LM    14,12,12(13)                                             00170000
+²000060 17FF                          45          XR    15,15                                                    00180000
+²000062 07FE                          46          BR    14                                                       00190000
+²                                     47 *---------------------------                                            00200000
+²                      0000C          48 RBASE    EQU   12                                                       00210000
+²000064                               49 SAVEAREA DS    18F                                                      00220000
+²                                     50          END                                                            00230000
+¯
+                               Ordinary Symbol and Literal Cross Reference                                     Page    4
+Symbol   Length   Value     Id    R Type Asm  Program   Defn References                     HLASM R6.0  2014/07/25 19.15
+²END           1 00000044 00000001     U                   32   30
+²IHB0001A      2 00000024 00000001     H  H                17   13B
+²IHB0005A      2 00000056 00000001     H  H                40   36B
+²LD2_0003      2 0000002C 00000001     H  H                23   26
+²LE2_0003      8 0000002C 00000001     C  C                24   26
+²LOAD2_0003
+²              2 00000034 00000001     H  H                25   22B
+²RBASE         1 0000000C 00000001 A   U                   48    3M    4U
+²SAVEAREA      4 00000064 00000001     F  F                49    5M    7    43
+¯
+                                  Unreferenced Symbols Defined in CSECTs                                       Page    5
+  Defn  Symbol                                                                              HLASM R6.0  2014/07/25 19.15
+²     1  MYPROGRM
+¯
+                                          Macro and Copy Code Source Summary                                   Page    6
+ Con Source                                        Volume    Members                        HLASM R6.0  2014/07/25 19.15
+²  L1 SYS1.MACLIB                                   ZARES1    LOAD     SYSSTATE WTO
+¯
+                                                      Using Map                                                Page    7
+²                                                                                            HLASM R6.0  2014/07/25 19.15
+²  Stmt  -----Location----- Action ----------------Using----------------- Reg Max     Last Label and Using Text
+          Count      Id           Type          Value    Range     Id        Disp    Stmt
+²     4  00000006  00000001 USING  ORDINARY    00000006 00001000 00000001  12 00062     43 *,RBASE
+¯
+                                   General Purpose Register Cross Reference                                    Page    8
+ Register  References (M=modified, B=branch, U=USING, D=DROP, N=index)                      HLASM R6.0  2014/07/25 19.15
+²    0(0)       2    26M   29    44M
+²    1(1)       2    13M   27M   27    36M   44M
+²    2(2)       2     6M    8    44M
+²    3(3)       2    29M   31B   44M
+²    4(4)       2    44M
+²    5(5)       2    44M
+²    6(6)       2    44M
+²    7(7)       2    44M
+²    8(8)       2    44M
+²    9(9)       2    44M
+²   10(A)       2    44M
+²   11(B)       2    44M
+²   12(C)       2     3M    4U   44M
+²   13(D)       2     5     6     7M    8    43M   44
+²   14(E)       2    30M   44M   46B
+²   15(F)       2    22M   26    44M   45M   45
+¯
+                                  Diagnostic Cross Reference and Assembler Summary                             Page    9
+                                                                                            HLASM R6.0  2014/07/25 19.15
+²     No Statements Flagged in this Assembly
+HIGH LEVEL ASSEMBLER, 5696-234, RELEASE 6.0, PTF UK37157
+SYSTEM: z/OS 01.10.00              JOBNAME: S2          STEPNAME: COMPILE    PROCSTEP: (NOPROC)
+²Data Sets Allocated for this Assembly
+² Con DDname   Data Set Name                                Volume  Member
+²  P1 SYSIN    EMCPROJ.SRC                                  ZAIMS1  S2
+²  L1 SYSLIB   SYS1.MACLIB                                  ZARES1
+²     SYSLIN   EMCPROJ.OBJ                                  ZAIMS1  S2
+²     SYSPRINT EMCPROJ.LISTING                              ZAIMS1  S2
+²
+²  32128K allocated to Buffer Pool       Storage required     352K
+²     25 Primary Input Records Read         3588 Library Records Read                  0 Work File Reads
+²      0 ASMAOPT Records Read                172 Primary Print Records Written         0 Work File Writes
+      5 Object Records Written                0 ADATA Records Written
+²Assembly Start Time: 19.15.22 Stop Time: 19.15.22 Processor Time: 00.00.00.1949
+²Return Code 000

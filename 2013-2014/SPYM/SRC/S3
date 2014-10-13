@@ -10,7 +10,7 @@ MYPROGRM CSECT                                                          00010000
          WTO   'START S3'                                               00091000
          LOAD  EP=S4                                                    00100000
          LR    3,0                                                      00110000
-         LA    14,END                                                   00120000
+         LA    14,END                                                   00120001
          BR    3                                                        00130000
 END      EQU   *                                                        00140000
          WTO   'FINISH S3'                                              00141000

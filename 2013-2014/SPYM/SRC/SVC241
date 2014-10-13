@@ -1,0 +1,7 @@
+SVC241   CSECT                                                          00010000
+         DS    0H                                                       00011000
+         LR    3,14                                                     00012002
+         WTO   'HELLO!',LINKAGE=BRANCH                                  00013002
+         LR    14,3                                                     00014002
+         BR    14                                                       00020000
+         END                                                            00030000

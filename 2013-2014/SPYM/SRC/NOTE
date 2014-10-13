@@ -1,0 +1,66 @@
+         GENREG                                                         00001000
+MYPROGRM CSECT                                                          00010000
+         STM   R14,R12,12(R13)                                          00020000
+                                                                        00021000
+         BASR  R12,0                                                    00022000
+         USING *,R12                                                    00023000
+                                                                        00024000
+         LR    R2,R13                                                   00030000
+         ST    R13,SAVEAREA+4                                           00031000
+         LA    R13,SAVEAREA                                             00040000
+         ST    R13,8(R2)                                                00050000
+                                                                        00051000
+         LA    R3,TESTSTR                                               00051100
+         WTO   TEXT=(R3)                                                00051200
+         OPEN  (OUT)                                                    00051301
+         PUT   RPL=RPL1                                                 00051501
+         MVC   WRK1(16),WRK2                                            00051601
+         PUT   RPL=RPL1                                                 00051701
+         MVC   WRK1(16),WRK3                                            00051801
+         PUT   RPL=RPL1                                                 00051901
+         CLOSE (OUT)                                                    00052001
+                                                                        00053001
+                                                                        00053101
+         OPEN  (IN)                                                     00053201
+LOOP     EQU   *                                                        00053301
+         GET   RPL=RETRVE                                               00053401
+         WTO   TEXT=(R3)                                                00053501
+         B     LOOP                                                     00054001
+                                                                        00054101
+         B     ENDPROC                                                  00054301
+EODAD1   EQU   *                                                        00055001
+         WTO   'IN  ERROR'                                              00056001
+         CLOSE (IN)                                                     00056101
+         B     ENDPROC                                                  00057001
+                                                                        00058001
+EODAD2   EQU   *                                                        00058101
+         WTO   'OUT ERROR'                                              00058201
+         B     ENDPROC                                                  00058301
+                                                                        00059001
+ENDPROC  EQU   *                                                        00060001
+         L     R13,SAVEAREA+4                                           00070000
+         LM    R14,R12,12(R13)                                          00080000
+         BR    R14                                                      00090000
+                                                                        00091000
+SAVEAREA DS    18F                                                      00092000
+IN       ACB   AM=VSAM,DDNAME=DB,MACRF=(KEY,SEQ,IN),EXLST=EXITS1        00093001
+OUT      ACB   AM=VSAM,DDNAME=DB,MACRF=(KEY,SEQ,OUT),EXLST=EXITS2,     X00094001
+               STRNO=1                                                  00094101
+EXITS1   EXLST EODAD=EODAD1                                             00095000
+EXITS2   EXLST EODAD=EODAD2                                             00096000
+RPL1     RPL   ACB=OUT,AM=VSAM,AREA=WRK1,AREALEN=16,                   X00096101
+               OPTCD=(KEY,SEQ,SYN,NUP,MVE),RECLEN=16                    00096201
+RPL2     RPL   ACB=OUT,AM=VSAM,AREA=WRK2,AREALEN=16,                   X00096301
+               OPTCD=(KEY,SEQ,SYN,NUP,MVE),RECLEN=16                    00096401
+RPL3     RPL   ACB=OUT,AM=VSAM,AREA=WRK3,AREALEN=16,                   X00096501
+               OPTCD=(KEY,SEQ,SYN,NUP,MVE),RECLEN=16                    00096601
+WRK1     DC    CL16'KEY11118 OLOLO11'                                   00096701
+WRK2     DC    CL16'KEY22228 OLOLO22'                                   00096801
+WRK3     DC    CL16'KEY33338 OLOLO33'                                   00096901
+RETRVE   RPL   ACB=IN,AREA=TESTSTR_,AREALEN=16,                        X00097001
+               OPTCD=(KEY,SEQ,SYN,NUP,MVE)                              00097101
+         DS    0F                                                       00097201
+MSG      DS    CL128                                                    00097301
+TESTSTR  DC    H'16'                                                    00097401
+TESTSTR_ DC    CL16'                '                                   00098001
+         END                                                            00100000
