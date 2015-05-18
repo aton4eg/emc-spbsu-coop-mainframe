@@ -1,0 +1,106 @@
+         COPY  PDPTOP
+         CSECT
+* Program text area
+         DS    0F
+* X-func ololo prologue
+OLOLO    PDPPRLG CINDEX=0,FRAME=88,BASER=12,ENTRY=YES
+         B     FEN0
+         LTORG
+FEN0     EQU   *
+         DROP  12
+         BALR  12,0
+         USING *,12
+PG0      EQU   *
+         LR    11,1
+         L     10,=A(PGT0)
+* Function ololo code
+L2       EQU   *
+         B     L2
+* Function ololo epilogue
+         PDPEPIL
+* Function ololo literal pool
+         DS    0F
+         LTORG
+* Function ololo page table
+         DS    0F
+PGT0     EQU   *
+         DC    A(PG0)
+         DS    0F
+* X-func ololo2 prologue
+OLOLO2   PDPPRLG CINDEX=1,FRAME=88,BASER=12,ENTRY=YES
+         B     FEN1
+         LTORG
+FEN1     EQU   *
+         DROP  12
+         BALR  12,0
+         USING *,12
+PG1      EQU   *
+         LR    11,1
+         L     10,=A(PGT1)
+* Function ololo2 code
+         L     3,4(11)
+         L     2,0(11)
+         SLR   15,15
+         IC    15,0(2,3)
+* Function ololo2 epilogue
+         PDPEPIL
+* Function ololo2 literal pool
+         DS    0F
+         LTORG
+* Function ololo2 page table
+         DS    0F
+PGT1     EQU   *
+         DC    A(PG1)
+         DS    0F
+         DC    C'GCCMVS!!'
+         EXTRN @@CRT0
+         ENTRY @@MAIN
+@@MAIN   DS    0H
+         USING *,15
+         L     15,=V(@@CRT0)
+         BR    15
+         DROP  15
+         LTORG
+* X-func main prologue
+MAIN     PDPPRLG CINDEX=2,FRAME=504,BASER=12,ENTRY=YES
+         B     FEN2
+         LTORG
+FEN2     EQU   *
+         DROP  12
+         BALR  12,0
+         USING *,12
+PG2      EQU   *
+         LR    11,1
+         L     10,=A(PGT2)
+* Function main code
+         XR 4,4
+MVC 0(4,2),=X'00000002'
+         A     2,=F'200'
+         MVC   88(4,13),=F'100'
+         LA    1,88(,13)
+         L     15,=V(MALLOC)
+         BALR  14,15
+         LR    3,15
+         MVC   104(4,13),=F'6'
+         MVC   0(4,15),=F'1'
+         MVC   88(4,13),=F'1'
+         ST    2,92(13)
+         MVC   96(4,13),=F'0'
+         LA    1,88(,13)
+         L     15,=A(OLOLO)
+         BALR  14,15
+         N     15,=XL4'000000FF'
+         AR    2,15
+         A     2,0(3)
+         LR    15,2
+         A     15,104(13)
+* Function main epilogue
+         PDPEPIL
+* Function main literal pool
+         DS    0F
+         LTORG
+* Function main page table
+         DS    0F
+PGT2     EQU   *
+         DC    A(PG2)
+         END   @@MAIN

@@ -1,0 +1,114 @@
+DALLOC   PROCBGN                                                        00094700
+*R0 ADDR OF PARM AREA, R1 ADDR OF 8-BYTE DDNAME                         00094800
+*IN R0 RETURNS ADDR TO S99TXTPP                                         00094900
+         LR    R3,R0                                                    00095000
+         LR    R5,R1                                                    00095100
+*        WTO   'CALLED DYN ALLOC'                                       00095200
+       GETMAIN RU,LV=20,LOC=ANY         GET MEMORY FOR S99RB            00095300
+         LR    R10,R1                  R10:=R1                          00095400
+         USING S99RB,R10               S99RB~R10                        00095500
+                                                                        00095600
+         XR    R1,R1                                                    00095700
+         ST    R1,0(R10)                                                00095800
+         MVC   4(16,R10),0(R10)                                         00095900
+                                                                        00096000
+         LHI   R1,X'0014'                                               00096100
+         STC   R1,S99RBLN              SET S99RB LENGTH                 00096200
+                                                                        00096300
+         OI    S99VERB,S99VRBAL        SET ACTION ALLOCATE              00096400
+                                                                        00096500
+       GETMAIN RU,LV=16,LOC=ANY        GET MEMORY FOR TEXT POINTER LIST 00096600
+         LR    R9,R1                   S99TXTP~R9                       00096700
+                                                                        00096800
+         ST    R9,S99TXTPP             SET TEXT POINTER LIST            00096900
+         B     SCTB                                                     00097000
+LEFT     DC    CL1'00'                                                  00097100
+         DC    CL1'('                                                   00097200
+COMMA    DC    CL1'00'                                                  00097300
+         DC    CL1','                                                   00097400
+SPACE    DC    CL1'00'                                                  00097500
+         DC    CL1' '                                                   00097600
+SCANTAB  DC    256X'00'            SCANTAB SET                          00097700
+         ORG   SCANTAB+C'('                                             00097800
+         DC    C'('                                                     00097900
+         ORG   SCANTAB+C','                                             00098000
+         DC    C','                                                     00098100
+         ORG   SCANTAB+C' '                                             00098200
+         DC    C' '                                                     00098300
+         ORG                                                            00098400
+MYTRT    TRT   2(0,R3),SCANTAB        GET IN R1 ADDR OF (               00098500
+SCTB     EQU   *                                                        00098600
+                                                                        00098700
+         TRT   0(8,R5),SCANTAB       SEEK SPACE                         00098801
+         BC    B'0111',EXAUS                                            00098901
+         XR    R1,R1                                                    00099001
+         LHI   R1,X'0008'                                               00099101
+         B     ENDIF#90                                                 00099200
+EXAUS    EQU   *                                                        00099300
+         SR    R1,R5                  R1:=SPACE ADDR-FIRST SYM ADDR     00099400
+ENDIF#90 EQU   *                                                        00099500
+                                                                        00099600
+         LR    R7,R1                  R7:=R1                            00099700
+         STM   R14,R6,12(R13)                                           00099800
+      TEXTUNIT UTYPE=DDNAME,PARM=(R5),PARMLENGTH=(R7),LAST=FALSE        00099900
+         LM    R14,R6,12(R13)                                           00100000
+         ST    R8,0(,R9)                                                00100100
+                                                                        00100200
+         STM   R14,R6,12(R13)                                           00100300
+      TEXTUNIT UTYPE=DISP,PARM=SHR,PARMLENGTH=X'0001',LAST=FALSE        00100400
+         LM    R14,R6,12(R13)                                           00100500
+         ST    R8,4(,R9)                                                00100600
+                                                                        00100700
+         XR    R5,R5                                                    00100800
+         XR    R2,R2                                                    00100900
+         LH    R5,0(,R3)                                                00101000
+         EX    R5,MYTRT                SEEK (                           00101100
+         C     R2,=X'00000000'                                          00101200
+         BNE   MEMBR                   NOT FOUND                        00101300
+*        WTO   'NOT MEMBER'                                             00101402
+         LR    R4,R3                                                    00101500
+         AHI   R4,X'0002'                                               00101603
+         STM   R14,R6,12(R13)                                           00101700
+      TEXTUNIT UTYPE=DSNAME,PARM=(R4),PARMLENGTH=(R5),LAST=TRUE         00101800
+         LM    R14,R6,12(R13)                                           00101900
+         ST    R8,8(,R9)                                                00102000
+         B     ENDIF                                                    00102100
+MEMBR    EQU   *                                                        00102200
+*        WTO   'MEMBER PRESENTS'                                        00102302
+         LR    R4,R3                                                    00102400
+         AHI   R4,X'0002'                                               00102500
+         LR    R6,R1                   R6:=R1 - ADDR OF (               00102600
+         LR    R5,R6                   R5:=R6                           00102700
+         SR    R5,R4                   R5:=R5-R3                        00102800
+         STM   R14,R6,12(R13)                                           00102900
+      TEXTUNIT UTYPE=DSNAME,PARM=(R4),PARMLENGTH=(R5),LAST=FALSE        00103000
+         LM    R14,R6,12(R13)                                           00103100
+         ST    R8,8(,R9)                                                00103200
+                                                                        00103300
+         XR    R7,R7                                                    00103400
+         LH    R7,0(,R3)               R7:=LENGTH OF PARM               00103500
+                                                                        00103600
+         LR    R5,R6                  R5:=ADDR OF (                     00103700
+         SR    R5,R4                  R5:=LENGTH FROM START TO (        00103800
+                                                                        00103900
+         SR    R7,R5                  R7:=LENGTH FROM ( TO END          00104000
+         BCTR  R7,0                   GET OUT (                         00104100
+         BCTR  R7,0                   GET OUT )                         00104200
+         AHI   R6,X'0001'             MAKE OFFSET                       00104300
+                                                                        00104400
+         STM   R14,R6,12(R13)                                           00104500
+      TEXTUNIT UTYPE=MEMBER,PARM=(R6),PARMLENGTH=(R7),LAST=TRUE         00104600
+         LM    R14,R6,12(R13)                                           00104700
+         ST    R8,12(,R9)                                               00104800
+                                                                        00104900
+ENDIF    EQU   *                                                        00105000
+       GETMAIN RU,LV=4,LOC=ANY                                          00105100
+         LR    R2,R10                                                   00105200
+         OILH  R2,X'8000'              SET END OF POINTER BLOCK         00105300
+         ST    R2,0(,R1)                                                00105400
+         LR    R11,R1                                                   00105500
+      DYNALLOC ,                                                        00105600
+GOOD     LR    R0,R11                  RETURN ADDR FOR ALL STRUCTURE    00105700
+         DROP  R10                                                      00106500
+DALLOC   PROCEND                                                        00106600
+                                                                        00106700

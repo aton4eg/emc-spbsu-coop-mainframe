@@ -1,0 +1,43 @@
+         GENREG                                                         00001004
+SVC241   CSECT                                                          00010000
+SVC241   AMODE 31                                                       00010106
+SVC241   RMODE 24                                                       00010206
+         DS    0H                                                       00011000
+                                                                        00011106
+*        XR    R3,R3                                                    00011506
+*        LA    R3,332                                                   00011606
+*        LURA  R4,R3                                                    00011706
+*        AHI   R4,X'0002'                                               00011806
+*        STURA R4,R3                                                    00011906
+                                                                        00012006
+*        USING RBBASIC,R5                                               00012212
+*        NILH  R5,X'80FF'                                               00012512
+*        L     R10,RBGRS1                                               00012812
+*        L     R11,RBGRS4                                               00012912
+*        DC    X'0000'                                                  00013012
+*==============                                                         00013810
+         BASR  R12,0                                                    00013910
+         USING *,R12                                                    00014010
+         LR    R6,R14                                                   00014110
+       IEARBUP WHICHRB=PREV,FUNCTION=UPDATE,                           X00014210
+               PSWBYTE03=NO,ADDRTYPE=DELTA,PSWDELTA=DLT                 00014310
+         LR    R14,R6                                                   00014410
+*=====                                                                  00014510
+*        BASR  R12,0                                                    00014610
+*        USING *,R12                                                    00014710
+*        LR    3,14                                                     00014810
+*        WTO   'HELLO!',LINKAGE=BRANCH                                  00014910
+*        LR    14,3                                                     00015010
+*        LOAD  EP=S1                                                    00016007
+         BR    14                                                       00020005
+         DS    0F                                                       00020106
+         LTORG                                                          00020209
+DLT      DC    F'2'                                                     00021006
+        IHAPSA                                                          00022010
+         CVT   DSECT=YES                                                00024006
+         IHAECVT                                                        00025006
+         IKJTCB                                                         00025110
+         IHARB                                                          00026006
+         IKJRB                                                          00027006
+        IHALCCAO                                                        00028011
+         END                                                            00030000

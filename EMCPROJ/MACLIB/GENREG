@@ -1,0 +1,12 @@
+         MACRO                                                          00010000
+         GENREG                                                         00020000
+         GBLA  &F                                                       00030000
+         LCLA  &I                                                       00040000
+         AIF (&F GT 0).EXIT                                             00050000
+.LOOP    AIF (&I GT 15).EXIT                                            00060000
+R&I      EQU   &I                                                       00070000
+&I       SETA &I+1                                                      00080000
+         AGO .LOOP                                                      00090000
+&F       SETA &F+1                                                      00100000
+.EXIT    ANOP                                                           00110000
+         MEND                                                           00120000

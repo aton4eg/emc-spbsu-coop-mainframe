@@ -1,0 +1,22 @@
+         MACRO                                                          00010002
+         STOREREG &C                                                    00020002
+         LCLC  &TEMP                                                    00030002
+         LCLA  &LENGTH                                                  00040002
+&LENGTH  SETA  K'&C                                                     00050002
+         AIF   ('&C'(1,1) NE '(').FLD                                   00060002
+         AIF   ('&C'(&LENGTH,1) NE ')').EXEPT                           00070002
+&TEMP    SETC  '&C'(2,&LENGTH-2)                                        00080002
+         STM   R14,R12,12(R13)                                          00090002
+         ST    R13,4(&TEMP)                                             00100002
+         ST    &TEMP,8(R13)                                             00110002
+         LR    R13,&TEMP                                                00120002
+         MEXIT                                                          00130002
+.FLD     STM   R14,R12,12(R13)                                          00140002
+         ST    R13,&C+4                                                 00150002
+         LR    R1,R13                                                   00160002
+         LA    R13,&C                                                   00170002
+         ST    R13,8(R1)                                                00180002
+         MEXIT                                                          00190002
+.EXEPT   MNOTE 'ERROR'                                                  00200002
+         MEND                                                           00210002
+                                                                        00220002

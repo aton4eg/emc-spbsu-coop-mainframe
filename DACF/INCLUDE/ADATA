@@ -1,0 +1,65 @@
+#ifndef ADATA_H
+#define ADATA_H
+typedef struct adataHead adataHead;
+struct adataHead{
+  char      lngCode;
+  short int recordType;
+  char      adataArchLevel;
+  char      flag;
+  char      editionNumber;
+  long int  res1;
+  short int adataLng;
+}__attribute__((__packed__));
+
+typedef struct srcAnalysisHead srcAnalysisHead;
+struct srcAnalysisHead{
+  long int  ESDID;
+  long int  statementNum;
+  long int  inputRecNum;
+  long int  parentRecNum;
+  long int  inputAsgnFileNum;
+  long int  parentAsgnFileNum;
+  long int  locCounter;
+  char      inpitRecOrigin;
+  char      parentRecOrigin;
+  char      printFlags;
+  short int res1;
+  char      srcRecType;
+  char      asmOpCode;
+  char      flags;
+  long int  res2;
+  long int  address1;
+  long int  res3;
+  long int  address2;
+  long int  nameEntryOffset;
+  long int  nameEntryLng;
+  long int  opEntryOffset;
+  long int  opEntryLng;
+  long int  operandEntryOffset;
+  long int  operandEntryLng;
+  long int  remarksEntryOffset;
+  long int  remarksEntryLng;
+  long int  contIndFieldOffset;
+  long int  res4;
+  long int  inputMacroOrCopyMemberNameOffset;
+  long int  inputMacroOrCopyMemberNameLng;
+  long int  parentMacroOrCopyMemberNameOffset;
+  long int  parentMacroOrCopyMemberNameLng;
+  long int  srcRecOffset;
+  long int  srcRecLng;
+  long int  res5;
+  long int  res6;
+}__attribute__((__packed__));
+
+typedef struct machineInstrHead machineInstrHead;
+struct machineInstrHead{
+  long int  ESDID;
+  long int  statementNum;
+  long int  locCounter;
+  long int  res1;
+  long int  res2;
+  long int  instrOffset;
+  long int  instrLng;
+  char      instr;
+}__attribute__((__packed__));
+#endif

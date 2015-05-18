@@ -1,0 +1,22 @@
+//CALL     JOB  NOTIFY=IBMUSER
+//*===================================*
+//DSETCRT  PROC
+//EXSTEP   EXEC PGM=IEFBR14
+//DSET     DD   DISP=(NEW,CATLG),SPACE=(TRK,(1,1)),VOL=SER=ZAIMS1,
+//             DCB=(LRECL=80,BLKSIZE=80,DSORG=PS,RECFM=FB),
+//             DSN=&DSETNM
+//         PEND
+//*===================================*
+//EXSTEP   EXEC DSETCRT,DSETNM=EMCPROJ.OLOLO
+
+
+
+
+
+
+
+
+
+
+
+

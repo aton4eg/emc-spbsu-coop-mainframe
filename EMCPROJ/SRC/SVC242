@@ -1,0 +1,21 @@
+         GENREG                                                         00001000
+SVC242   CSECT                                                          00010000
+SVC242   AMODE 31                                                       00020000
+SVC242   RMODE 31                                                       00030000
+         BASR  R12,0                                                    00030100
+         USING *,R12                                                    00030200
+         LR    R10,R14                                                  00031000
+       PREPDCB PARM=GET,'DEBUG   ',EODAD=NO,(R4)                        00031101
+       GETMAIN RU,LV=130,LOC=BELOW                                      00031201
+         LR    R5,R1                                                    00031301
+         OPEN  ((R4),INPUT),MODE=31                                     00031401
+         WTO   'SVC ISSUED'                                             00031500
+         GET   (R4),(R5)                                                00031601
+         CLOSE ((R4)),MODE=31                                           00031701
+      FREEMAIN RU,LV=130,A=(R5)                                         00031801
+         LR    R14,R10                                                  00033000
+         BR    R14                                                      00040000
+         LTORG                                                          00040100
+CONST    DC    CL8'SVCISSUED'                                           00041000
+         DCBD  DSORG=(PS),DEVD=(DA)                                     00042000
+         END                                                            00050000

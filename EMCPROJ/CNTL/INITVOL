@@ -1,0 +1,7 @@
+//INITVOL     JOB
+//RUN         EXEC  PGM=ICKDSF
+//SYSPRINT    DD    SYSOUT=*
+//SYSIN       DD    *
+    INIT  UNIT(0AA4)  VOLID(CKD001) NOVERIFY  -
+          VTOC(1,0,270) INDEX(0,1,14)
+/*

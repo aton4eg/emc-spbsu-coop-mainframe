@@ -1,0 +1,119 @@
+         GENREG                                                         00001000
+DSRVTST  CSECT                                                          00010000
+DSRVTST  AMODE 31                                                       00011005
+DSRVTST  RMODE 24                                                       00012000
+         STM   R14,R12,12(R13)                                          00020000
+                                                                        00021000
+         BASR  R12,0                                                    00022000
+         USING *,R12                                                    00023000
+                                                                        00024000
+         LR    R2,R13                                                   00030000
+         ST    R13,SAVEAREA+4                                           00031000
+         LA    R13,SAVEAREA                                             00032009
+         ST    R13,8(R2)                                                00033000
+*================================DIFFERENCE BETWEEN LA R4...            00033109
+*        L     R2,=X'0000F000'                                          00033211
+*        USING IHADCB,R2                                                00033311
+*        LA    R3,DCBDDNAM                                              00033411
+*        XR    R4,R4                                                    00033511
+*        LA    R4,DCBDDNAM-IHADCB(R4)                                   00033611
+*        XR    R5,R5                                                    00033711
+*        LA    R5,DCBDDNAM(R5)                                          00033811
+*        DROP  R2                                                       00033911
+*        XR    R6,R6                                                    00034011
+*        LA    R6,DCBDDNAM-IHADCB(R6)                                   00034111
+*        XR    R7,R7                                                    00034211
+*        AHI   R7,X'0002'                                               00034311
+*        LA    R7,DCBDDNAM-IHADCB(R7)                                   00034411
+*        DCBDDNAM                                                       00034511
+*        DC    X'0000'                                                  00034611
+                                                                        00034709
+*================================                                       00034809
+         OPEN  (ADATA,INPUT)                                            00034905
+         ST    R15,OPRET                                                00035002
+         LA    R2,BUFFADDR                                              00035110
+         LA    R3,ADATA                                                 00035213
+         LA    R5,RET                                                   00035314
+         LA    R6,RSN                                                   00035414
+        DESERV FUNC=GET_ALL,AREAPTR=(R2),DCB=(R3),                     X00035513
+               RETCODE=(5),RSNCODE=(6),CONN_INTENT=NONE                 00035614
+         DC    X'0000'                                                  00035713
+         BLDL  ADATA,LIST                                               00035805
+         ST    R15,BLRET                                                00035905
+         FIND  ADATA,MEMBNM,D                                           00036005
+         ST    R15,FIRET                                                00036104
+       GETMAIN R,LV=32768                                               00036205
+         LR    R5,R1                                                    00036305
+*        READ  DECBNAME,SF,ADATA,VBREC,100                              00036405
+*        GET   ADATA,(R5)                                               00036505
+                                                                        00036603
+         OPEN  (ADATAM,INPUT)                                           00036706
+         GET   ADATAM,(R5)                                              00036806
+         CLOSE (ADATAM)                                                 00036906
+         CLOSE (ADATA)                                                  00037006
+                                                                        00037105
+         OPEN  (DEBUG,OUTPUT)                                           00037204
+                                                                        00037302
+         L     R2,0(,R2)                                                00037412
+         USING DESB,R2                                                  00037502
+         LA    R3,DESB_DATA                                             00037602
+                                                                        00037706
+                                                                        00037806
+         USING SMDE,R3                                                  00037902
+         LR    R7,R3                                                    00038006
+         A     R7,SMDE_LEN                                              00038106
+                                                                        00038206
+         LH    R4,SMDE_NAME_OFF                                         00038302
+         AR    R4,R3            OFFSET FROM BEGINNING OF BASIC SECTION  00038403
+                                                                        00038506
+         LH    R8,SMDE_NAME_OFF-SMDE(R7)                                00038607
+         AR    R8,R7                                                    00038706
+                                                                        00038806
+*        PUT   DEBUG,BLRET                                              00038907
+*        PUT   DEBUG,FIRET                                              00039007
+*        PUT   DEBUG,OPRET                                              00039107
+*        PUT   DEBUG,RET                                                00039207
+*        PUT   DEBUG,RSN                                                00039307
+         PUT   DEBUG,(R4)                                               00039407
+         PUT   DEBUG,(R8)                                               00039507
+*        PUT   DEBUG,(R5)                                               00039607
+         PUT   DEBUG,DESB_COUNT                                         00039706
+         PUT   DEBUG,DESB_NEXT                                          00039806
+*        PUT   DEBUG,VBREC                                              00039906
+         CLOSE (DEBUG)                                                  00040006
+         L     R13,4(R13)                                               00040106
+         LM    R14,R12,12(R13)                                          00040206
+         XR    R15,R15                                                  00040306
+         BR    R14                                                      00040406
+                                                                        00040506
+         LTORG                                                          00040606
+MEMBNM   DC    CL8'S1      '                                            00040704
+                                                                        00040804
+BUFFADDR DS    F                                                        00040902
+                                                                        00041004
+SAVEAREA DS    18F                                                      00041100
+                                                                        00041204
+PREF     DS    CL8                                                      00041304
+LIST     DC    XL4'0001003E'     FF+LENGTH                              00041404
+         DC    CL8'S1      '     NAME                                   00041503
+         DC    XL3'00'           TTR                                    00041603
+         DC    XL1'00'           K - KONCATENATION                      00041703
+         DC    XL1'00'           Z - PRIVATE LIBRARY                    00041803
+         DC    XL1'00'           C - FILLS BY BLDL                      00041903
+         DC    XL62'00'          USER DATA                              00042003
+                                                                        00042104
+TEMP     DS    F                                                        00042206
+RET      DS    F                                                        00042302
+RSN      DS    F                                                        00042402
+BLRET    DS    F                                                        00042504
+FIRET    DS    F                                                        00042604
+OPRET    DS    F                                                        00042702
+OLOLO    DC    A(1)                                                     00042808
+ADATA    DCB   DDNAME=ADATA,DSORG=PO,MACRF=(R)                          00042908
+ADATAM   DCB   DDNAME=ADATAM,DSORG=PS,MACRF=(GM)                        00043005
+DEBUG    DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)                         00043105
+VBREC    DS    100F                                                     00043205
+MAP      DCBD  DSORG=(PS,PO),DEVD=(DA)                                  00043307
+        IGWDES                                                          00043405
+       IGWSMDE                                                          00044002
+         END                                                            00050000

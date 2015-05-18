@@ -1,0 +1,59 @@
+         GENREG                                                         00001000
+SMPL1M4  CSECT                                                          00010000
+SMPL1M4  AMODE 31                                                       00011000
+SMPL1M4  RMODE ANY                                                      00012000
+                                                                        00013000
+         STM   R14,R12,12(R13)                                          00020000
+         BASR  R12,0                                                    00030000
+         USING *,R12                                                    00040000
+       GETMAIN RU,LV=DATA#,LOC=ANY                                      00050000
+         LR    R11,R1                                                   00060000
+         USING DATA,R11                                                 00070000
+                                                                        00080000
+         LR    R2,R13                                                   00090000
+         ST    R13,SAVEAREA+4                                           00100000
+         LA    R13,SAVEAREA                                             00110000
+         ST    R13,8(R2)                                                00120000
+                                                                        00130000
+         WTO   'M4 START'                                               00131000
+*        LOAD  EP=SMPL1M4                                               00140000
+*        LR    R10,R0                                                   00150000
+*        BASR  R14,R10                                                  00160000
+         WTO   'M4 END'                                                 00170000
+                                                                        00180000
+         L     R13,4(R13)                                               00190000
+         LM    R14,R12,12(R13)                                          00200000
+         XR    R15,R15                                                  00210000
+         BR    R14                                                      00220000
+         WTO   'KOKOKO'                                                 00220102
+SMPL1M5  CSECT                                                          00221000
+SMPL1M5  AMODE 31                                                       00222000
+SMPL1M5  RMODE ANY                                                      00223000
+                                                                        00224000
+         STM   R14,R12,12(R13)                                          00225000
+         BASR  R12,0                                                    00226000
+         USING *,R12                                                    00227000
+       GETMAIN RU,LV=DATA#,LOC=ANY                                      00228000
+         LR    R11,R1                                                   00229000
+         USING DATA,R11                                                 00229100
+                                                                        00229200
+         LR    R2,R13                                                   00229300
+         ST    R13,SAVEAREA+4                                           00229400
+         LA    R13,SAVEAREA                                             00229500
+         ST    R13,8(R2)                                                00229600
+                                                                        00229700
+         WTO   'M5 START'                                               00229800
+*        LOAD  EP=SMPL1M4                                               00229900
+*        LR    R10,R0                                                   00230000
+*        BASR  R14,R10                                                  00230100
+         WTO   'M5 END'                                                 00230200
+                                                                        00230300
+         L     R13,4(R13)                                               00230400
+         LM    R14,R12,12(R13)                                          00230500
+         XR    R15,R15                                                  00230600
+         BR    R14                                                      00230700
+                                                                        00231000
+DATA     DSECT                                                          00240000
+SAVEAREA DS    18F                                                      00250000
+DATA#    EQU   *-SAVEAREA                                               00260000
+         END                                                            00270000

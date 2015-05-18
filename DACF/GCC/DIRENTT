@@ -1,0 +1,42 @@
+#include "dirent.h"
+
+int main (int argc,char* argv[]){
+
+  dirent* res;
+  dirent* cur_dirent;
+  dirent  rt;
+  int     loc;
+  DIR* dir_stream = opendir("dd:INLIB");
+  if (dir_stream==0){
+    printf("incorrect dd");
+  }
+  else{
+/*  while ((cur_dirent=readdir (dir_stream))!=0){
+      printf("%s\n",cur_dirent->d_name);
+    }; */
+    rddir_r (dir_stream,&rt,&res);
+    while (res!=0){
+      printf("%s\n",res->d_name);
+      rddir_r (dir_stream,&rt,&res);
+    };
+    rewinddir(dir_stream);
+    while ((cur_dirent=readdir (dir_stream))!=0){
+      printf("%s\n",cur_dirent->d_name);
+    };
+    rewinddir(dir_stream);
+    cur_dirent=readdir (dir_stream);
+    cur_dirent=readdir (dir_stream);
+    printf("%s\n",cur_dirent->d_name);
+    loc = telldir(dir_stream);
+    while ((cur_dirent=readdir (dir_stream))!=0){
+      printf("%s\n",cur_dirent->d_name);
+    };
+    rewinddir(dir_stream);
+    seekdir(dir_stream,loc);
+    cur_dirent=readdir (dir_stream);
+    printf("%s\n",cur_dirent->d_name);
+    closedir(dir_stream);
+  };
+
+  return 0;
+}

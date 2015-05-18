@@ -1,0 +1,65 @@
+#include <stdio.h>
+typedef unsigned int uint;
+extern uint SVCUPD (uint test_type,uint test_count);
+
+typedef struct mylist mylist;
+struct mylist{
+    uint arr[100];
+    int endp;
+};
+
+mylist* getList(){
+   mylist* temp = malloc(sizeof(mylist));
+   temp->endp = 0;
+   return (temp);
+}
+
+void push(mylist* l,int value){
+   l->arr[l->endp] = value;
+   l->endp = l->endp +1;
+}
+
+
+int main(int argc, char *argv[]){
+
+   char** end_ptr = 0;
+
+   mylist* est  = getList();
+   mylist* svc  = getList();
+   mylist* trap = getList();
+   mylist* esp  = getList();
+
+   long start_loop = strtol (argv[1],end_ptr,10);
+   long step       = strtol (argv[2],end_ptr,10);
+   long step_count = strtol (argv[3],end_ptr,10);
+
+   uint result = 0;
+   printf ("Start loop: %d\n",start_loop);
+   printf ("Step      : %d\n",step);
+   printf ("Step count: %d\n",step_count);
+
+   int i = 0;
+   int end_loop = step_count*step+start_loop;
+   for (i = start_loop;i<end_loop;i = i+step){
+       push(est,SVCUPD(3,i));   /**estai**/
+       push(svc,SVCUPD(2,i));        /** svc**/
+       push(trap,SVCUPD(1,i));         /**trap**/
+       push(esp,SVCUPD(4,i));         /**espie**/
+   };
+
+
+   printf("=======================================================\n");
+   printf("TEST COUNT|ESTAE     |SVC       |TRAP      |ESPIE     |\n");
+   printf("          |TIME      |TIME      |TIME      |TIME      |\n");
+
+   int j = 0;
+   for (i = start_loop;i<end_loop;i = i+step){
+       printf("%10d|",i);
+       printf("%10d|",est->arr[j]);    /*   estai*/
+       printf("%10d|",svc->arr[j]);    /*   svc*/
+       printf("%10d|",trap->arr[j]);       /*trap*/
+       printf("%10d|\n",esp->arr[j]);       /*espie*/
+       j++;
+   };
+   return (0);
+}

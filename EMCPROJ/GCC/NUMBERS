@@ -1,0 +1,17 @@
+#include <stdio.h>
+
+int main (int argc, char **argv){
+  FILE* outfile;
+  int i;
+  int n = 20;
+/**_asm__(
+   "LR  R1,R1"
+  outfile = fopen ("dd:out80","w, lrecl=80");
+  );**/
+  outfile = fopen ("emcproj.d80(out80)","w");
+  for(i = 0;i<11;i++){
+    fprintf(outfile,"OLOLO!!! %d\n",i);
+  };
+  fclose (outfile);
+  return 0;
+}

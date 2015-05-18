@@ -1,0 +1,41 @@
+         MACRO                                                          00010001
+         TRAPKIT                                                        00011001
+DUCT     DSECT                                                          00020000
+DUIBM1   DS    F                                                        00030000
+DUIBM2   DS    F                                                        00040000
+         DS    F                                                        00050000
+DUIBM4   DS    F                                                        00060000
+DUALD    DS    F                                                        00070000
+         DS    2F                                                       00080000
+DUPRGM   DS    F                                                        00090000
+DUBSAADR DS    F                                                        00100000
+DUBSAPSW DS    F                                                        00110000
+         DS    F                                                        00120000
+DUTRPCTL DS    F                                                        00130000
+         DS    4F                                                       00140000
+DUCT#    EQU   *-DUIBM1                                                 00150000
+                                                                        00160000
+TRAPCB   DSECT                                                          00170000
+CBFLAGS  DS    F                                                        00180000
+         DS    2F                                                       00190000
+TRAPSAA  DS    F                                                        00200000
+         DS    F                                                        00210000
+TRAPPAA  DS    F                                                        00220000
+CBUSRFLD DS    2F                                                       00230000
+         DS    8F                                                       00240000
+TRAPCB#  EQU   *-CBFLAGS                                                00250000
+PFLAG    EQU   B'0000000000000100'                                      00260000
+RFLAG    EQU   B'0000000000000010'                                      00270000
+EFLAG    EQU   B'0000000000000001'                                      00280000
+                                                                        00290000
+TRAPSA   DSECT                                                          00300000
+SAFLAGS  DS    F                                                        00310000
+         DS    F                                                        00320000
+SECOP    DS    F                                                        00330000
+AR15     DS    F                                                        00340000
+PSW      DS    4F                                                       00350000
+GR       DS    32F                                                      00360000
+SAUSRFLD DS    2F                                                       00370000
+         DS    22F                                                      00380000
+TRAPSA#  EQU   *-SAFLAGS                                                00390000
+         MEND                                                           00400002

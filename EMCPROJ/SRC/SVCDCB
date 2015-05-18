@@ -1,0 +1,26 @@
+         GENREG                                                         00001000
+SVCDCB   CSECT                                                          00010000
+SVCDCB   AMODE 31                                                       00011000
+SVCDCB   RMODE 31                                                       00012000
+         STM   R14,R12,12(R13)                                          00020000
+         BASR  R12,0                                                    00030000
+         USING *,R12                                                    00040000
+                                                                        00050000
+         ST    R13,SAVEAREA+4                                           00060000
+         LR    R2,R13                                                   00070000
+         LA    R13,SAVEAREA                                             00080000
+         ST    R13,8(R2)                                                00090000
+                                                                        00100000
+       MODESET KEY=ZERO,MODE=SUP                                        00110000
+         LOAD  EP=SVC242,GLOBAL=(YES,F),EOM=NO                          00111000
+         LR    R2,R0              R2:=ADDRESS OF SVC PROGRAM            00112000
+      SVCUPDTE 242,REPLACE,TYPE=4,EP=(R2)                               00113000
+       MODESET KEY=ZERO,MODE=SUP                                        00120000
+         SVC   242                                                      00130000
+                                                                        00140000
+         L     R13,4(R13)                                               00150000
+         LM    R14,R12,12(R13)                                          00160000
+         BR    R14                                                      00170000
+SAVEAREA DS    18F                                                      00180000
+         CVT   DSECT=YES                                                00181001
+         END                                                            00190000

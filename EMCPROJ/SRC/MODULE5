@@ -1,0 +1,25 @@
+         GENREG                                                         00001000
+SAMPLE   CSECT                                                          00010000
+         STM   R14,R12,12(R13)                                          00010301
+         BASR  R12,0                                                    00010401
+         USING *,R12                                                    00010501
+                                                                        00010611
+         ST    R13,SAVEAREA+4                                           00010702
+         LR    R2,R13                                                   00010802
+         LA    R13,SAVEAREA                                             00010902
+         ST    R13,8(,R2)                                               00011002
+         LOAD  EP=MODULE4                                               00012411
+         LR    R3,R0                                                    00012512
+         WTO   'HEY3'                                                   00012613
+         LA    R2,RETRN                                                 00012711
+         BR    R3                                                       00012911
+         WTO   'HEY4'                                                   00013013
+RETRN    EQU   *                                                        00013111
+         WTO   'HEY5'                                                   00013213
+         L     R13,SAVEAREA+4                                           00013311
+                                                                        00013402
+         LM    R14,R12,12(R13)                                          00014000
+         BR    R10                                                      00020013
+FLD      DS    F                                                        00021001
+SAVEAREA DS    18F                                                      00022002
+         END                                                            00030000

@@ -1,0 +1,12 @@
+#ifndef SPYMLIB_H
+#define SPYMLIB_H
+typedef long int routine;
+typedef long int t_ecb;
+
+routine loadModule(char* name);
+routine loadSVC(char* name,long int fn);
+int installSVC(routine ptr);
+int startAlien(char* name,char* lib,t_ecb* ecb);
+int waitAlien(t_ecb* ecb);
+extern void testRt(int* m,int sAH);
+#endif

@@ -1,0 +1,168 @@
+¯
+                                         High Level Assembler Option Summary                   (PTF UK37157)   Page    1
+                                                                                            HLASM R6.0  2015/02/05 06.00
+²  No Overriding ASMAOPT Parameters
+²  Overriding Parameters-  ADATA
+²  No Process Statements
+
+
+  Options for this Assembly
+²3   ADATA
+²    ALIGN
+²  NOASA
+²    BATCH
+²    CODEPAGE(047C)
+²  NOCOMPAT
+²  NODBCS
+²  NODECK
+²    DXREF
+²    ESD
+²  NOEXIT
+²    FLAG(0,ALIGN,CONT,EXLITW,NOIMPLEN,NOPAGE0,PUSH,RECORD,NOSUBSTR,USING0)
+²  NOFOLD
+²  NOGOFF
+²  NOINFO
+²    LANGUAGE(EN)
+²  NOLIBMAC
+²    LINECOUNT(60)
+²    LIST(121)
+²    MACHINE(,NOLIST)
+²    MXREF(SOURCE)
+²    OBJECT
+²    OPTABLE(UNI,NOLIST)
+²  NOPCONTROL
+²  NOPESTOP
+²  NOPROFILE
+²  NORA2
+²  NORENT
+²    RLD
+²    RXREF
+²    SECTALGN(8)
+²    SIZE(MAX)
+²  NOSUPRWARN
+²    SYSPARM()
+²  NOTERM
+²  NOTEST
+²    THREAD
+²  NOTRANSLATE
+²    TYPECHECK(MAGNITUDE,REGISTER)
+²    USING(NOLIMIT,MAP,WARN(15))
+²  NOWORKFILE
+²    XREF(SHORT,UNREFS)
+
+²  No Overriding DD Names
+¯
+                                              External Symbol Dictionary                                       Page    2
+Symbol   Type   Id     Address  Length   Owner Id Flags Alias-of                            HLASM R6.0  2015/02/05 06.00
+²MYPROGR2  SD 00000001 00000000 00000098             00
+²RET1      ER 00000002
+¯
+²                                                                                                               Page    3
+  Active Usings: None
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2015/02/05 06.00
+²000000                00000 00098     1 MYPROGR2 CSECT                                                          00010000
+²                                      2          ENTRY MYPROGR2                                                 00010101
+²                                      3          EXTRN RET1                                                     00011000
+²000000 90EC D00C            0000C     4          STM   14,12,12(13)                                             00020000
+²000004 05C0                           5          BALR  RBASE,0                                                  00030001
+²                 R:C  00006           6          USING *,RBASE                                                  00040001
+²000006 50D0 C04E            00054     7          ST    13,SAVEAREA+4                                            00050000
+²00000A 182D                           8          LR    2,13                                                     00060000
+²00000C 41D0 C04A            00050     9          LA    13,SAVEAREA                                              00070000
+²000010 50D0 2008            00008    10          ST    13,8(,2)                                                 00080000
+²                                     11 *---------------------------                                            00090000
+²                                     12          WTO   'START S2'                                               00091000
+²000014                               14+         CNOP  0,4                                                      01-WTO
+²000014 A715 0008            00024    15+         BRAS  1,IHB0001A               BRANCH AROUND MESSAGE      @LCC 01-WTO
+²000018 000C                          16+         DC    AL2(12)                  TEXT LENGTH            @YA17152 01-WTO
+²00001A 0000                          17+         DC    B'0000000000000000'      MCSFLAGS                        01-WTO
+²00001C E2E3C1D9E340E2F2              18+         DC    C'START S2'              MESSAGE TEXT               @L6C 01-WTO
+²000024                               19+IHB0001A DS    0H                                                       01-WTO
+²000024 0A23                          20+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+²                                     21 *        LOAD  EP=S3                                                    00100000
+²                                     22 *        LR    3,0                                                      00110000
+²                                     23 *        LA    14,END                                                   00120000
+²                                     24 *        BR    3                                                        00130000
+²                                     25 *ND      EQU   *                                                        00140000
+²                                     26          WTO   'FINISH S2'                                              00141000
+²000026 0700                          28+         CNOP  0,4                                                      01-WTO
+²000028 A715 0009            0003A    29+         BRAS  1,IHB0003A               BRANCH AROUND MESSAGE      @LCC 01-WTO
+²00002C 000D                          30+         DC    AL2(13)                  TEXT LENGTH            @YA17152 01-WTO
+²00002E 0000                          31+         DC    B'0000000000000000'      MCSFLAGS                        01-WTO
+²000030 C6C9D5C9E2C840E2              32+         DC    C'FINISH S2'             MESSAGE TEXT               @L6C 01-WTO
+²00003A                               33+IHB0003A DS    0H                                                       01-WTO
+²00003A 0A23                          34+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+²                                     35 *---------------------------                                            00150000
+²00003C 58E0 C046            0004C    36          L     14,RET1_                                                 00151001
+²000040 58D0 C04E            00054    37          L     13,SAVEAREA+4                                            00160000
+²000044 98FC D00C            0000C    38          LM    15,12,12(13)                                             00170001
+²000048 17FF                          39          XR    15,15                                                    00180000
+²00004A 07FE                          40          BR    14                                                       00190001
+²                                     41 *---------------------------                                            00200000
+²00004C 00000000                      42 RET1_    DC    A(RET1)                                                  00201001
+²                      0000C          43 RBASE    EQU   12                                                       00210000
+²000050                               44 SAVEAREA DS    18F                                                      00220000
+²                                     45          END                                                            00230000
+¯
+                                                 Relocation Dictionary                                         Page    4
+   Pos.Id   Rel.Id   Address  Type  Action                                                  HLASM R6.0  2015/02/05 06.00
+²  00000001 00000002 0000004C   A 4     +
+¯
+                               Ordinary Symbol and Literal Cross Reference                                     Page    5
+Symbol   Length   Value     Id    R Type Asm  Program   Defn References                     HLASM R6.0  2015/02/05 06.00
+²IHB0001A      2 00000024 00000001     H  H                19   15B
+²IHB0003A      2 0000003A 00000001     H  H                33   29B
+²MYPROGR2      1 00000000 00000001     J                    1    2
+²RBASE         1 0000000C 00000001 A   U                   43    5M    6U
+²RET1          1 00000000 00000002     T                    3   42
+²RET1_         4 0000004C 00000001     A  A                42   36
+²SAVEAREA      4 00000050 00000001     F  F                44    7M    9    37
+¯
+                                          Macro and Copy Code Source Summary                                   Page    6
+ Con Source                                        Volume    Members                        HLASM R6.0  2015/02/05 06.00
+²  L1 SYS1.MACLIB                                   ZARES1    SYSSTATE WTO
+¯
+                                                      Using Map                                                Page    7
+²                                                                                            HLASM R6.0  2015/02/05 06.00
+²  Stmt  -----Location----- Action ----------------Using----------------- Reg Max     Last Label and Using Text
+          Count      Id           Type          Value    Range     Id        Disp    Stmt
+²     6  00000006  00000001 USING  ORDINARY    00000006 00001000 00000001  12 0004E     37 *,RBASE
+¯
+                                   General Purpose Register Cross Reference                                    Page    8
+ Register  References (M=modified, B=branch, U=USING, D=DROP, N=index)                      HLASM R6.0  2015/02/05 06.00
+²    0(0)       4    38M
+²    1(1)       4    15M   29M   38M
+²    2(2)       4     8M   10    38M
+²    3(3)       4    38M
+²    4(4)       4    38M
+²    5(5)       4    38M
+²    6(6)       4    38M
+²    7(7)       4    38M
+²    8(8)       4    38M
+²    9(9)       4    38M
+²   10(A)       4    38M
+²   11(B)       4    38M
+²   12(C)       4     5M    6U   38M
+²   13(D)       4     7     8     9M   10    37M   38
+²   14(E)       4    36M   40B
+²   15(F)       4    38M   39M   39
+¯
+                                  Diagnostic Cross Reference and Assembler Summary                             Page    9
+                                                                                            HLASM R6.0  2015/02/05 06.00
+²     No Statements Flagged in this Assembly
+HIGH LEVEL ASSEMBLER, 5696-234, RELEASE 6.0, PTF UK37157
+SYSTEM: z/OS 01.10.00              JOBNAME: S1          STEPNAME: COMPILE2   PROCSTEP: (NOPROC)
+²Data Sets Allocated for this Assembly
+² Con DDname   Data Set Name                                Volume  Member
+²  P1 SYSIN    EMCPROJ.SRC                                  ZAIMS1  S2
+²  L1 SYSLIB   SYS1.MACLIB                                  ZARES1
+²     SYSADATA EMCPROJ.ADATA                                ZAIMS1  S2
+²     SYSLIN   SYS15036.T060044.RA000.S1.OBJSET.H01
+²     SYSPRINT EMCPROJ.LISTING                              ZAIMS1  S2
+²
+²  32096K allocated to Buffer Pool       Storage required     344K
+²     29 Primary Input Records Read         3410 Library Records Read                  0 Work File Reads
+²      0 ASMAOPT Records Read                168 Primary Print Records Written         0 Work File Writes
+      6 Object Records Written              115 ADATA Records Written
+²Assembly Start Time: 06.00.44 Stop Time: 06.00.45 Processor Time: 00.00.00.1749
+²Return Code 000

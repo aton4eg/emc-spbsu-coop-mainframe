@@ -1,0 +1,55 @@
+#ifndef SPYM_H
+#define SPYM_H
+#define list_length 2000
+  char cmMDL  = 1;
+  char cmCSCT = 2;
+  char cmINST = 3;
+
+typedef struct instrNode instrNode;
+struct instrNode{
+  long int offset;
+  long int length;
+  char instr[6];
+  instrNode* next;
+}__attribute__((__packed__));
+
+typedef struct csectNode csectNode;
+struct csectNode{
+  char name[9];
+  instrNode* firstInstr;
+  int base;
+  csectNode* next;
+}__attribute__((__packed__));
+
+typedef struct moduleNode moduleNode;
+struct moduleNode{
+  char name[9];
+  csectNode* firstCsect;
+  moduleNode* next;
+}__attribute__((__packed__));
+
+typedef struct moduleDcs moduleDsc;
+struct moduleDcs{
+  long int addr;
+  long int lng;
+  char name[12];
+}__attribute__((__packed__));
+
+typedef struct traceRecord traceRecord;
+struct traceRecord{
+  char mdlName[9];                     /*if mdlName==0 => conn*/
+  char csectName[9];                   /*then it is connection*/
+  long int offset;                     /*if offset==0 also=>end*/
+  char DmdlName[9];                     /*if mdlName==0 => conn*/
+  char DcsectName[9];                   /*then it is connection*/
+  long int Doffset;                     /*if offset==0 also=>end*/
+};
+
+typedef struct traceList traceList;
+struct traceList{
+  traceRecord* lastBlock;
+  long int lastNum;
+  traceRecord* list;
+  traceList* next;
+}__attribute__((__packed__));
+#endif

@@ -1,0 +1,86 @@
+         GENREG                                                         00010001
+APPRTEST CSECT                                                          00020001
+APPRTEST AMODE 31                                                       00021003
+APPRTEST RMODE 24                                                       00022003
+         STM   R14,R12,12(R13)                                          00030001
+                                                                        00040001
+         BASR  R12,0                                                    00050001
+         USING *,R12                                                    00060001
+                                                                        00070001
+         L     R1,0(R1)                                                 00070119
+         LR    R3,R1                                                    00070219
+                                                                        00070719
+       GETMAIN RU,LV=72,LOC=BELOW                                       00071019
+                                                                        00072019
+         ST    R13,4(R1)                                                00080019
+         LR    R2,R13                                                   00090001
+         LR    R13,R1                                                   00100019
+         ST    R13,8(R2)                                                00110001
+                                                                        00110110
+         XR    R2,R2                                                    00110210
+         LA    R2,10                                                    00110310
+                                                                        00110419
+         LR    R1,R3                                                    00110519
+                                                                        00110616
+         L     R3,0(,R1)       LOAD PARAMETER INTO R3                   00110717
+         L     R5,4(,R1)       LOAD LOOP COUNT INTO R5                  00110817
+                                                                        00110920
+*TRAP TEST=============================================                 00111117
+         C     R3,=X'00000001' IF PARAMETER != 01                       00111217
+         BNE   NEXT1           GOTO NEXT1                               00111317
+         LR    R4,R5           SET LOOP COUNT                           00113017
+LOOP1    EQU   *                                                        00120018
+         TRAP2                                                          00142014
+         LR    R1,R1                                                    00160008
+         BCT   R4,LOOP1                                                 00170118
+         B     NEXT4                                                    00170322
+*SVC TEST==============================================                 00170417
+NEXT1    EQU   *                                                        00170924
+         C     R3,=X'00000002' IF PARAMETER != 02                       00171024
+         BNE   NEXT2           GOTO NEXT2                               00171124
+         LR    R4,R5           SET LOOP COUNT                           00171224
+LOOP2    EQU   *                                                        00171324
+         SVC   241                                                      00171524
+         DC    X'0000'                                                  00171624
+         LR    R1,R1                                                    00171724
+         BCT   R4,LOOP2                                                 00171824
+         B     NEXT4                                                    00171924
+*ESTAI TEST============================================                 00172024
+NEXT2    EQU   *                                                        00172124
+         C     R3,=X'00000003' IF PARAMETER != 03                       00172224
+         BNE   NEXT3           GOTO NEXT3                               00172324
+         LR    R4,R5           SET LOOP COUNT                           00173018
+LOOP3    EQU   *                                                        00174018
+         DC    X'0000'                                                  00176016
+         LR    R1,R1                                                    00179016
+         BCT   R4,LOOP3                                                 00179118
+         B     NEXT4                                                    00179322
+*ESP TEST==============================================                 00179422
+NEXT3    EQU   *                                                        00179522
+         C     R3,=X'00000004' IF PARAMETER != 02                       00179622
+         BNE   NEXT4           GOTO NEXT2                               00179722
+         LR    R4,R5           SET LOOP COUNT                           00179822
+LOOP4    EQU   *                                                        00179922
+         DC    X'0000'                                                  00180122
+         LR    R1,R1                                                    00180222
+         BCT   R4,LOOP4                                                 00180322
+         B     NEXT4                                                    00180422
+                                                                        00180516
+NEXT4    EQU   *                                                        00180622
+         LR    R2,R13                                                   00180719
+         L     R13,4(R13)                                               00180819
+      FREEMAIN RU,LV=72,A=(R2)                                          00181019
+         LM    R14,R12,12(R13)                                          00190001
+                                                                        00190104
+         BR    R14                                                      00200001
+         LTORG                                                          00210024
+                                                                        00220001
+MYESTAE  CSECT                                                          00230024
+         STM   R14,R12,12(R13)                                          00240001
+         WTO   'MODULE ESTAE'                                           00250001
+         LM    R14,R12,12(R13)                                          00260001
+         BR    R14                                                      00270001
+OUT      DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)                         00271004
+TEMP     DS    F                                                        00272004
+         LTORG                                                          00273008
+         END                                                            00280001

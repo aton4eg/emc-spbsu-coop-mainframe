@@ -1,0 +1,209 @@
+#include "stdio.h"
+#include "spymlib.h"
+#include "spym.h"
+#define lngINST 15
+#define lngCSCT 13
+#define lngMDL  9
+
+void printList(traceRecord* first_record){
+  int i = 0;
+  traceRecord* tz = first_record;
+  FILE* sout = fopen("dd:SPYM$OUT","w, lrecl=131");
+  fprintf(sout,"THREAD=START====================\n ");
+  fprintf(sout,"DEPARTURE                     ");
+  fprintf(sout,"DESTINATION                   \n");
+  fprintf(sout," MDL NAME | CSECT NM | OFFSET | ");
+  fprintf(sout,"MDL NAME | csect NM | OFFSET |\n ");
+  while(tz[i].mdlName[0] || tz[i].offset){
+    if (!tz[i].mdlName[0]){
+      tz = (traceRecord*)tz->offset;
+      i = 0;
+    }
+/*  fwrite(tz[i].mdlName,1,9,sout);
+    fwrite(tz[i].csectName,1,9,sout);
+    fwrite(&tz[i].offset,1,4,sout);            */
+    fprintf(sout,"\n");
+    fprintf(sout,"%s  | %8s | %6X | %8s | %8s | %6X |\n",
+            tz[i].mdlName,tz[i].csectName,tz[i].offset,
+            tz[i].DmdlName,tz[i].DcsectName,tz[i].Doffset);
+    i++;
+  }
+  fprintf(sout,"THREAD=END======================\n ");
+  fclose(sout);
+}
+
+void printTrace(traceList* first_trace){
+  traceList* tz = first_trace;
+  while (tz){
+    printList(tz->list);
+    tz = tz->next;
+  }
+}
+
+instrNode* parseInstr(FILE* spym){
+  char buffer[15];
+  fpos_t rest_pos = 0;
+  if(fread(&buffer,lngINST,1,spym)){
+    instrNode* first_instr = malloc(sizeof(instrNode));
+    instrNode* curr_instr = first_instr;
+    curr_instr->next = 0;
+    memcpy(&curr_instr->offset,buffer+1,4);
+    memcpy(&curr_instr->length,buffer+5,4);
+    memcpy(&curr_instr->instr,buffer+9,6);
+    fgetpos(spym,&rest_pos);
+    while (fread(&buffer,lngINST,1,spym) && buffer[0]==cmINST){
+      curr_instr->next = malloc(sizeof(instrNode));
+      curr_instr=curr_instr->next;
+      curr_instr->next = 0;
+      memcpy(&curr_instr->offset,buffer+1,4);
+      memcpy(&curr_instr->length,buffer+5,4);
+      memcpy(&curr_instr->instr,buffer+9,6);
+      fgetpos(spym,&rest_pos);
+    }
+/*  fwrite(&buffer,1,15,stdout);
+    printf("\n");  */
+    if(buffer[0]==cmMDL || buffer[0]==cmCSCT){
+      fsetpos(spym,&rest_pos);
+    }
+/*  fread(&buffer,lngINST,1,spym); fwrite(&buffer,1,15,stdout);*/
+
+    return first_instr;
+  }
+  else{
+      printf("backzero\n");
+    return 0;
+  }
+}
+
+csectNode* parseCsect(FILE* spym){
+  char buffer[15];
+  fpos_t rest_pos = 0;
+  if(fread(&buffer,lngCSCT,1,spym)){
+    csectNode* first_csect = malloc(sizeof(csectNode));
+    csectNode* curr_csect = first_csect;
+    curr_csect->next = 0;
+    memcpy(curr_csect->name,buffer+1,8);  curr_csect->name[8] = 0;
+    memcpy(&curr_csect->base,buffer+9,4);
+
+    curr_csect->firstInstr = parseInstr(spym);
+
+    fgetpos(spym,&rest_pos);
+    while (fread(&buffer,lngCSCT,1,spym) && buffer[0]==cmCSCT){
+      curr_csect->next = malloc(sizeof(csectNode));
+      curr_csect=curr_csect->next;
+      curr_csect->next = 0;
+      memcpy(curr_csect->name,buffer+1,8);curr_csect->name[8] = 0;
+      memcpy(&curr_csect->base,buffer+9,4);
+      curr_csect->firstInstr = parseInstr(spym);
+      fgetpos(spym,&rest_pos);
+    };
+
+    if(buffer[0]==cmMDL){
+      fsetpos(spym,&rest_pos);
+    }
+
+    return first_csect;
+  }
+  else{
+    return 0;
+  }
+}
+
+moduleNode* parseModule(FILE* spym){
+  char buffer[15];
+  if(fread(&buffer,lngMDL,1,spym)){
+    moduleNode* first_module = malloc(sizeof(moduleNode));
+    moduleNode* curr_module = first_module;
+    curr_module->next = 0;
+    memcpy(curr_module->name,buffer+1,8);curr_module->name[8] = 0;
+    curr_module->name[8] = 0;
+/*  fwrite(curr_module->name,1,8,stdout); */
+
+
+    curr_module->firstCsect = parseCsect(spym);
+
+    while (fread(&buffer,lngMDL,1,spym)){
+      curr_module->next = malloc(sizeof(moduleNode));
+      curr_module = curr_module->next;
+      curr_module->next = 0;
+      memcpy(curr_module->name,buffer+1,8);curr_module->name[8] = 0;
+      curr_module->name[8] = 0;
+      curr_module->firstCsect= parseCsect(spym);
+    }
+    return first_module;
+  }
+  else{
+    return 0;
+  };
+}
+
+void printInstr(instrNode* curr_instr){
+  while (curr_instr){
+    printf("Instr: %X %X \n",curr_instr->offset,
+                             curr_instr->length );
+
+    fwrite(&curr_instr->instr,1,6,stdout);
+    fwrite(&curr_instr->offset,1,6,stdout);
+    printf("\n");
+    curr_instr = curr_instr->next;
+  };
+}
+
+void printCsect(csectNode* curr_csect){
+  while (curr_csect){
+    printf("Csect: %X ",curr_csect->base);
+    fwrite(curr_csect->name,1,8,stdout);
+    printf("\n");
+    printInstr(curr_csect->firstInstr);
+    curr_csect = curr_csect->next;
+  };
+}
+
+void printModule(moduleNode* curr_module){
+  while (curr_module){
+    printf("Module:");
+    fwrite(curr_module->name,1,8,stdout);
+    printf("\n");
+    printCsect(curr_module->firstCsect);
+    curr_module = curr_module->next;
+  };
+}
+
+int main(int argc,char* argv[]){
+   FILE* spym = fopen("dd:SPYM$IN","rb, recfm=u");
+
+   t_ecb ecb = 0;
+
+   moduleNode* first_module = parseModule(spym);
+   printModuleStruct(first_module);
+   routine svc = loadSVC("SVC241",(long int)first_module);
+
+/* routine initTrc = loadModule("INITTRC");*/
+
+   installSVC(svc);
+
+/*inittrc and crtrc test*/
+/* int m[80];
+   __asm__("WTO 'olol2'");
+   testRt(m,0); */
+/*inittrc and crtrc test*/
+
+   startAlien(argv[1],"DD:SPYM$LIB",&ecb);
+   waitAlien(&ecb);
+
+   traceList* first_trace = *((int*)svc+4);
+/* FILE* sout = fopen("dd:SPYM$OUT","w, lrecl=131");
+   fwrite(first_trace->list,1,80,sout);
+   fclose(sout); */
+   printTrace(first_trace);
+
+
+
+   __asm__("WTO 'olol3'");
+/* printModuleStruct(first_module);*.
+/* __asm__("WTO 'olol4'");
+   __asm__("WTO 'olol5'");    */
+
+  fclose(spym);
+  return 0;
+}

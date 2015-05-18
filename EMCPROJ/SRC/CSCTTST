@@ -1,0 +1,59 @@
+         GENREG                                                         00010001
+CSCT1    CSECT                                                          00021000
+CSCT1    RMODE 31                                                       00030000
+CSCT1    AMODE 31                                                       00040000
+         STM   R14,R12,12(R13)                                          00041000
+                                                                        00042000
+         BASR  R12,0                                                    00042100
+         USING *,R12                                                    00042200
+                                                                        00042300
+         LR    R2,R13                                                   00043000
+         ST    R13,SAREA1+4                                             00044001
+         LA    R13,SAREA1                                               00045001
+         ST    R13,8(R2)                                                00046000
+         WTO   'CSCT1'                                                  00046103
+                                                                        00046200
+*        WTOR  'REPLY FOR CSCT2 CLOSE',RPLADDR1,20,MYECB1               00046303
+*        WAIT  ECB=MYECB1                                               00046403
+                                                                        00047000
+         L     R14,CSCT2ADD                                             00047103
+         L     R13,4(R13)                                               00048000
+         LM    R15,R12,12(R13)                                          00049003
+         XR    R15,R15                                                  00049100
+         BR    R14                                                      00049200
+SAREA1   DS    18F                                                      00049300
+RPLADDR1 DC    A(RPL1)                                                  00049401
+RPL1     DS    18F                                                      00049501
+RPLLNG1  DS    F                                                        00049601
+MYECB1   DC    F'00'                                                    00049701
+CSCT2ADD DC    A(CSCT2)                                                 00049803
+         DROP  R12                                                      00049900
+                                                                        00050000
+CSCT2    CSECT                                                          00051000
+CSCT2    RMODE 24                                                       00060000
+CSCT2    AMODE 31                                                       00070000
+         STM   R14,R12,12(R13)                                          00071000
+                                                                        00072000
+         BASR  R12,0                                                    00073000
+         USING *,R12                                                    00074000
+                                                                        00075000
+         LR    R2,R13                                                   00076000
+         ST    R13,SAREA2+4                                             00077001
+         LA    R13,SAREA2                                               00078001
+         ST    R13,8(R2)                                                00079000
+                                                                        00079100
+         WTO   'CSCT2'                                                  00079203
+*        WTOR  'REPLY FOR CSCT1 CLOSE',RPLADDR2,20,MYECB2               00079303
+*        WAIT  ECB=MYECB2                                               00079403
+                                                                        00079500
+         L     R13,4(R13)                                               00079600
+         LM    R14,R12,12(R13)                                          00079700
+         XR    R15,R15                                                  00079800
+         BR    R14                                                      00079900
+         LTORG                                                          00080001
+SAREA2   DS    18F                                                      00080101
+RPLADDR2 DC    A(RPL2)                                                  00080201
+RPL2     DS    18F                                                      00080301
+RPLLNG2  DS    F                                                        00081001
+MYECB2   DC    F'00'                                                    00082001
+         END                                                            00090000

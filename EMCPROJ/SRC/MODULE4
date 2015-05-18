@@ -1,0 +1,28 @@
+         GENREG                                                         00001000
+SAMPLE   CSECT                                                          00010000
+         STM   R14,R12,12(R13)                                          00010113
+                                                                        00010213
+         BASR  R12,0                                                    00010313
+         USING *,R12                                                    00010413
+                                                                        00010513
+         ST    R13,SAVEAREA+4                                           00010613
+         LR    R2,R13                                                   00010713
+         LA    R13,SAVEAREA                                             00010813
+         ST    R13,8(R2)                                                00010913
+                                                                        00011013
+         ESTAE MYESTAE,CT,XCTL=YES                                      00011113
+         DC    X'0000'                                                  00011213
+         DS    0F                                                       00011314
+RETRY    EQU   *                                                        00011414
+                                                                        00011513
+         L     R13,SAVEAREA+4                                           00011613
+         LM    R14,R12,12(R13)                                          00011713
+         BR    R14                                                      00011813
+SAVEAREA DS    18F                                                      00012013
+                                                                        00012113
+MYESTAE  EQU   *                                                        00012213
+         STM   R14,R12,12(R13)                                          00012314
+         WTO   'MODULE ESTAE'                                           00012413
+         LM    R14,R12,12(R13)                                          00012514
+         BR    R14                                                      00012614
+         END                                                            00012710

@@ -1,0 +1,10 @@
+PROCADDR DSECT                                                          00010000
+TCB@     DS    F                                                        00010102
+MDLTREE@ DS    F                                                        00010202
+MDLDSC@  DS    F                                                        00010302
+TRCLIST@ DS    F                                                        00010402
+ADDR@    DS    F                                                        00010502
+INITTRC@ DS    F                                                        00011002
+CRTRC@   DS    F                                                        00020002
+SAREA    DS    18F                                                      00031002
+PROCADDR# EQU *-TCB@                                                    00040002

@@ -1,0 +1,49 @@
+         GENREG                                                         00001000
+INITTRC  CSECT                                                          00010000
+INITTRC  AMODE 31                                                       00020000
+INITTRC  RMODE ANY                                                      00030000
+         BASR  R12,0                                                    00040000
+         USING *,R12                                                    00050000
+         B     SKIPDATA                                                 00060000
+TRCLIST@ DC    F'00000000'                                0008          00070000
+TRCLISTE DS    F                                                        00080000
+MDLADATA DS    F            SO WE WILL JMP AT INITTRC+12                00090000
+CRTRC    DS    F            CRTRC ADDR                                  00100000
+SKIPDATA EQU   *                                                        00110000
+         XR    R2,R2                                                    00120000
+                                                                        00130000
+LOCK     TS    FLAG         LOCK                                        00140000
+         BC    B'0001',LOCK                                             00150000
+                                                                        00160000
+         L     R3,TRCLIST@                                              00170001
+       GETMAIN RU,LV=TRCLIST#,LOC=ANY,KEY=8                             00190000
+                                                                        00200000
+         LTR   R3,R3                                                    00210000
+         BNE   LSTEX#1                                                  00220000
+         ST    R1,TRCLIST@                                              00230000
+         ST    R1,TRCLISTE                                              00240000
+         LR    R3,R1                                                    00241002
+         B     ENDIF#1                                                  00250000
+LSTEX#1  EQU   *                                                        00260000
+         L     R4,TRCLISTE                                              00261002
+         ST    R1,NEXT-TRCLIST(R4)                                      00270000
+         ST    R1,TRCLISTE                                              00280000
+         B     ENDIF#1                                                  00310000
+ENDIF#1  EQU   *                                                        00320000
+         ST    R2,LIST-TRCLIST(R1)                                      00321002
+         ST    R2,NEXT-TRCLIST(R1)                                      00322002
+         ST    R2,FLAG      UNLOCK                                      00330000
+         LR    R15,R1       RETURN R15 POINTER TO TRCLIST               00340000
+                                                                        00350000
+                                                                        00360000
+         BR    R14                                                      00370000
+FLAG     DS    F'00000000'                                              00380001
+LISTLNG  DC    X'7D0'                                                   00390000
+                                                                        00400000
+TRCLIST  DSECT                                                          00410000
+LSTBLK   DS    F                                                        00420000
+LSTNUM   DS    F                                                        00430000
+LIST     DS    F                                                        00440000
+NEXT     DS    F                                                        00450000
+TRCLIST# EQU   *-LSTBLK                                                 00460000
+         END                                                            00470000

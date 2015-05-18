@@ -1,0 +1,27 @@
+         GENREG                                                         00010001
+ATCHTST2 CSECT                                                          00020001
+         STM   R14,R12,12(R13)                                          00030001
+         BASR  R12,0                                                    00040001
+         USING *,R12                                                    00050001
+                                                                        00051002
+       GETMAIN R,LV=MYDSECT#                                            00052002
+         LR    R11,R1                                                   00053002
+         USING MYDSECT,R11                                              00054002
+                                                                        00055002
+         ST    R13,SAVEAREA+4                                           00060001
+         LR    R2,R13                                                   00070001
+         LA    R13,SAVEAREA                                             00080001
+         ST    R13,8(R2)                                                00090001
+                                                                        00100001
+                                                                        00110001
+                                                                        00230001
+         WTO   'ATCHTST2 STARTTED '                                     00240001
+         L     R13,SAVEAREA+4                                           00250001
+         LM    R14,R12,12(R13)                                          00260001
+         BR    R14                                                      00270001
+MYDSECT  DSECT                                                          00271002
+MYECB    DS    F                                                        00280001
+TCB      DS    F                                                        00290001
+SAVEAREA DS    18F                                                      00300001
+MYDSECT# EQU   *-MYECB                                                  00301002
+         END                                                            00310001

@@ -1,0 +1,436 @@
+         MACRO                                                          00000123
+         PUSHSA                                                         00000223
+*        ADD MEMORY PARAMETER OR CHECKING                               00000323
+         STM   R14,R12,12(R13)                                          00000423
+       GETMAIN R,LV=72                                                  00000623
+         LR    R2,R1                                                    00000723
+         LR    R3,R13                                                   00000823
+         ST    R13,4(R2)                                                00000923
+         LR    R13,R2                                                   00001023
+         ST    R13,8(R3)                                                00001123
+                                                                        00001223
+         L     R13,4(R13)                                               00001323
+         LM    R14,R12,12(R13)                                          00001423
+         L     R13,8(R13)                                               00001623
+         MEND                                                           00001723
+*=============================================                          00001823
+         MACRO                                                          00001923
+         POPSA                                                          00002023
+*        ADD MEMORY PARAMETER OR CHECKING                               00002123
+         L     R2,4(13)                                                 00002223
+      FREEMAIN R,LV=72,A=(R13)                                          00002323
+         LR    R13,R2                                                   00002423
+         LM    R14,R12,12(R13)                                          00002523
+         MEND                                                           00003223
+*=============================================                          00003323
+         MACRO                                                          00003417
+     TRAPCBGEN &P=1,&R=1,&TRAPSA=,&TRAPPA=                              00003517
+*GETS BIT P, BIT R, TRAP SAVE AREA ADDRESS, TRAP PROGRAM ADDR           00003618
+*RETURNS IN R15 ADDR OF TRAP CONTROL BLOCK                              00003719
+       GETMAIN RU,LV=TRAPCB#,LOC=BELOW                                  00003833
+         LR    R15,R1                 CREATED DATA AREA                 00004019
+         USING TRAPCB,R15                                               00005019
+                                                                        00005117
+         XR    R1,R1                                                    00006017
+         ST    R1,CBFLAGS                                               00007017
+         MVC   1(TRAPCB#-1,R15),0(R15) FILL DATA AREA WITH ZERO         00008020
+                                                                        00009017
+         AIF   (&P EQ 0).ZERO#1                                         00009119
+         OILH  R1,PFLAG                SET P FLAG                       00009329
+.ZERO#1  ANOP                                                           00009418
+                                                                        00009517
+         AIF   (&R EQ 0).ZERO#2                                         00009619
+         OILH  R1,RFLAG                SET R FLAG                       00009729
+.ZERO#2  ANOP                                                           00009818
+                                                                        00009917
+         ST    R1,CBFLAGS                                               00010018
+                                                                        00010118
+         AIF   ('&TRAPSA'(1,1) NE '(').S1                               00010219
+&A       SETA  K'&TRAPSA-2                                              00010418
+&H       SETC  '&TRAPSA'(2,&A)                                          00010520
+         SRL   &H,3(0)                 CLEAR LAST 3 BIT OF TRAPSA       00010629
+         SLL   &H,3(0)                 CLEAR LAST 3 BIT OF TRAPSA       00010729
+         ST    &H,TRAPSAA              SAVE TRAP SAVE AREA ADDRESS      00010829
+         AGO   .S2END                                                   00010923
+.S1      ANOP                                                           00011023
+         L     R1,&TRAPSA                                               00011123
+         SRL   R1,3(0)                 CLEAR LAST 3 BIT OF TRAPSA       00011229
+         SLL   R1,3(0)                 CLEAR LAST 3 BIT OF TRAPSA       00011329
+         ST    R1,TRAPSAA              SAVE TRAP SAVE AREA ADDRESS      00011429
+.S2END   ANOP                                                           00011523
+                                                                        00011623
+         AIF   ('&TRAPPA'(1,1) NE '(').P1                               00011723
+&A       SETA  K'&TRAPPA-2                                              00011823
+&H       SETC  '&TRAPPA'(2,&A)                                          00011923
+         ST    &H,TRAPPAA               SAVE  TRAP PROGRAM ADDRESS      00012029
+         AGO   .P2END                                                   00012123
+.P1      ANOP                                                           00012223
+                                                                        00012323
+         MVC   TRAPPAA(4),&TRAPPA       SAVE  TRAP PROGRAM ADDRESS      00012429
+.P2END   ANOP                                                           00012523
+         DROP  R15                                                      00012623
+         MEND                                                           00012723
+*===================================================================    00012823
+         MACRO                                                          00012923
+     TRAPSAGEN                                                          00013023
+*RETRUNS IN R1 POINTER TO ZEROED SAVE AREA                              00013123
+       GETMAIN RU,LV=TRAPSA#,LOC=BELOW                                  00013233
+         XR    R15,R15                                                  00013423
+         ST    R15,SAFLAGS-TRAPSA(R1)                                   00013623
+         MVC   1(TRAPSA#-1,R1),0(R1)    FILL DATA AREA WITH ZERO        00013829
+                                                                        00013923
+         MEND                                                           00014023
+*===================================================================    00014123
+         MACRO                                                          00014223
+   DUCTSETTING &TRAPCB=                                                 00014323
+         GBLA  &E                                                       00014423
+&E       SETA  &E+1                                                     00014523
+*COPIES &TRAPCB INTO TRAP CONTROL BLOCK AND SETS ENABLE BIT IN DUCT     00014623
+         B     SKP#&E                                                   00014723
+         DS    0D                                                       00014823
+TEMP#&E  DS    2F                                                       00014923
+CR2#&E   DS    2F                                                       00015023
+DUCT#&E  DS    F                                                        00015123
+SKP#&E   EQU   *                                                        00015220
+         STCTL R2,R2,CR2#&E               SAVE CR2 TO CR2#              00015329
+                                                                        00015418
+         AIF   ('&TRAPCB'(1,1) NE '(').P1                               00015518
+&A       SETA  K'&TRAPCB-2                                              00015618
+&H       SETC  '&TRAPCB'(2,&A)                                          00015718
+         LR    R1,&H                      LOAD TRAP CB ADDRESS TO R1    00015829
+         AGO   .P2END                                                   00015920
+.P1      ANOP                                                           00016019
+                                                                        00016119
+         L     R1,&H                      LOAD TRAP CB ADDRESS TO R1    00016229
+.P2END   ANOP                                                           00016319
+                                                                        00016419
+         L     R15,CR2#&E                 LOAD CR2 CONTENT TO R15       00016529
+         SRL   R15,6(0)                   CLEAR LAST 6 BIT OF CR2       00016629
+         SLL   R15,6(0)                   CLEAR LAST 6 BIT OF CR2       00016729
+         SRL   R1,3(0)                    CLEAR LAST 3 BIT OF TRAPCB@   00016829
+         SLL   R1,3(0)                    CLEAR LAST 3 BIT OF TRAPCB@   00016929
+         OILL  R1,B'0000000000000001'     SET TRAP ENABLE FLAG TO 1     00017029
+         NILH  R1,B'0111111111111111'     SET ADDR BIT TO 0             00017129
+                                                                        00017223
+         LA    R15,44(,R15)               R15 = DUCT+44                 00017329
+*        LURA  R2,R15                     SEE INIT IN DUCT              00017429
+         STURA R1,R15                     SAVE TRAPCB ADDRESS TO DUCT   00017529
+*        DEBUG OUTPUT START                                             00017623
+*       PUSHSA                                                          00017724
+*        LR    R2,R1                                                    00017824
+*        LR    R3,R15                                                   00017924
+*        OPEN  (DEBUG,OUTPUT)                                           00018024
+*                                                                       00018124
+*        ST    R2,TEMP#&E        PUT   ADDR OF TRAPCB                   00018224
+*        PUT   DEBUG,TEMP#&E                                            00018324
+*                                                                       00018424
+*        ST    R3,TEMP#&E        PUT   ADDR OF DUCT                     00018524
+*        PUT   DEBUG,TEMP#&E                                            00018624
+*                                                                       00018724
+*        LURA  R4,R3             PUT TRAPCB                             00018824
+*        ST    R4,TEMP#&E                                               00018924
+*        PUT   DEBUG,TEMP#&E                                            00019024
+*        SRL   R4,3(0)                                                  00019124
+*        SLL   R4,3(0)                                                  00019224
+*        PUT   DEBUG,(R4)                                               00019324
+*                                                                       00019424
+*        L     R5,TRAPPAA-TRAPCB(R4) PUT TRAP PROGRAM                   00019524
+*        ST    R5,TEMP#&E                                               00019624
+*        PUT   DEBUG,TEMP#&E                                            00019724
+*        PUT   DEBUG,(R5)                                               00019824
+*                                                                       00019924
+*        LA    R5,TRAPSAA-TRAPCB(R4) PUT TRAP SA                        00020024
+*        ST    R5,TEMP#&E                                               00020124
+*        PUT   DEBUG,TEMP#&E                                            00020224
+*        SRL   R5,3(0)                                                  00020324
+*        SLL   R5,3(0)                                                  00020424
+*        PUT   DEBUG,(R5)                                               00020524
+*        WTO   'OUTPUT END'                                             00020624
+*        CLOSE (DEBUG)                                                  00020724
+*        POPSA                                                          00020824
+*        DEBUG OUTPUT END                                               00020923
+                                                                        00021023
+         MEND                                                           00021123
+                                                                        00021223
+         GENREG                                                         00021322
+SVCUPD   CSECT                                                          00021400
+SVCUPD   AMODE 31                                                       00021504
+SVCUPD   RMODE 24                                                       00022004
+         ENTRY SVCUPD                                                   00023031
+         STM   R14,R12,12(R13)                                          00030000
+                                                                        00040000
+         BASR  R12,0                                                    00050000
+         USING *,R12                                                    00060000
+                                                                        00070000
+         ST    R13,SAVEAREA+4                                           00080000
+         LR    R2,R13                                                   00090000
+         LA    R13,SAVEAREA                                             00100000
+         ST    R13,8(R2)                     SAVEAREA INITIALIZATION    00110029
+                                                                        00110130
+         LR    R6,R1                   R6 = ADDR OF PARAMETERS          00110230
+                                                                        00111033
+         XR    R1,R1                                                    00112004
+         ST    R1,MYECB                      SET ECB TO 0               00113029
+       GETMAIN RU,LV=RETDATA#,LOC=BELOW                                 00114105
+         LR    R7,R1                   MAKE DATA AREA FOR RETRY ROUTINE 00114205
+         USING RETDATA,R7                                               00114305
+         MVC   RETRA(4),=A(MYRETRY)    SAVE RETRY ROUTINE ADDRESS       00114429
+         DROP  R7                                                       00114505
+                                                                        00115016
+*ESPIE MOUNT                                                            00116041
+         ESPIE SET,MYESPIE,(1,3)                                        00117041
+*SVCTEST                                                                00121009
+       MODESET KEY=ZERO,MODE=SUP                                        00121209
+         LOAD  EP=SVC241,GLOBAL=(YES,F),EOM=NO                          00121409
+         LR    R2,R0                          241 230 242               00121516
+      SVCUPDTE 241,REPLACE,TYPE=4,EP=(R2)                               00121716
+*TRAP MOUNT                                                             00122033
+         LOAD  EP=TRAPM                                                 00122133
+                                                                        00122333
+         LR    R2,R0 R2 = ADDR OF TRAP PROGRAM                          00122433
+     TRAPSAGEN                                                          00122619
+                                                                        00122733
+         LR    R3,R1 R3 = ADDR OF TRAPSA FROM TRAPSAGEN/                00122819
+     TRAPCBGEN P=1,R=1,TRAPSA=(R3),TRAPPA=(R2)                          00122919
+                                                                        00123033
+   DUCTSETTING TRAPCB=(R15)                                             00123119
+*ATTACH ESTAI TEST                                                      00123729
+         L     R5,0(R6)                                                 00123831
+         C     R5,=X'00000003'                                          00123931
+         BNE   NEXT1                                                    00124031
+                                                                        00124131
+         MVC   ESTPARM+4(4),4(R6)                                       00124231
+       ATTACH  EP=APPRTEST,ECB=MYECB,SM=SUPV,                          X00124535
+               KEY=ZERO,DISP=YES,PARAM=ESTPARM,ESTAI=(MYESTAI,(R7))     00124635
+         ST    R1,TCB                                                   00124735
+         STCK  STTIME                  SAVE START TIME                  00124829
+         XR    R1,R1                                                    00124935
+         ST    R1,MYECB                SET ECB TO 0                     00125035
+         WAIT  ECB=MYECB                                                00125135
+         STCK  ENDTIME                 SAVE ENDTIME                     00125929
+         LA    R8,TCB                                                   00126035
+        DETACH (R8)                                                     00126135
+       MODESET KEY=NZERO,MODE=PROB                                      00126241
+         LG    R4,ENDTIME              R4 = ENDTIME                     00126329
+         SG    R4,STTIME               R4-STTIME                        00126429
+         STG   R4,ESTTIME              SAVE R4 TO ESTAITIME             00126529
+         L     R2,ESTTIME                                               00127034
+         L     R3,ESTTIME+4                                             00127134
+         SRDL  R2,16                                                    00127241
+         LR    R15,R3                                                   00127334
+         B     NEXT4                                                    00127441
+*ATTACH SVC TEST                                                        00127529
+NEXT1    EQU   *                                                        00127631
+         L     R5,0(R6)                                                 00127731
+         C     R5,=X'00000002'                                          00127831
+         BNE   NEXT2                                                    00127931
+                                                                        00128031
+         MVC   SVCPARM+4(4),4(R6)                                       00128131
+       ATTACH  EP=APPRTEST,ECB=MYECB,SM=SUPV,                          X00128234
+               KEY=ZERO,DISP=YES,PARAM=SVCPARM                          00128329
+         STCK  STTIME                  SAVE START TIME                  00129030
+         WAIT  ECB=MYECB                                                00136029
+         STCK  ENDTIME                 SAVE ENDTIME                     00139130
+       MODESET KEY=NZERO,MODE=PROB                                      00139241
+         LG    R4,ENDTIME              R4 = ENDTIME                     00139330
+         SG    R4,STTIME               R4-STTIME                        00139430
+         STG   R4,SVCTIME              SAVE R4 TO ESTAITIME             00139530
+         L     R2,SVCTIME                                               00139934
+         L     R3,SVCTIME+4                                             00140034
+         SRDL  R2,16                                                    00140141
+         LR    R15,R3                                                   00140334
+         B     NEXT4                                                    00140741
+*LINK TRAP TEST                                                         00140829
+NEXT2    EQU   *                                                        00140931
+         L     R5,0(R6)                                                 00141031
+         C     R5,=X'00000001'                                          00141131
+         BNE   NEXT3                                                    00141231
+                                                                        00141333
+         MVC   TRAPPARM+4(4),4(R6)                                      00141437
+*      ATTACH  EP=APPRTEST,ECB=MYECB,SM=SUPV,                           00141540
+*              KEY=ZERO,DISP=YES,PARAM=TRAPPARM                         00141640
+         STCK  STTIME                  SAVE START TIME                  00141738
+*        WAIT  ECB=MYECB                                                00141840
+*        STCK  ENDTIME                 SAVE ENDTIME                     00141940
+         LOAD  EP=APPRTEST                                              00142040
+         LR    R3,R0                   LOAD EP ADDRESS IN R3            00142140
+         STCK  STTIME                  SAVE START TIME                  00142240
+         LA    R1,TRAPADDR             LOAD ADDRESS OF PARAM AREA IN R1 00142340
+         BASR  R14,R3                  BRANCH TO LOAD MODULE APPRTEST   00142440
+         STCK  ENDTIME                 SAVE END TIME                    00142540
+       MODESET KEY=NZERO,MODE=PROB                                      00142629
+         LG    R4,ENDTIME              R4 = ENDTIME                     00142730
+         SG    R4,STTIME               R4-STTIME                        00142830
+         STG   R4,TRAPTIME             SAVE R4 TO ESTAITIME             00142930
+         L     R2,TRAPTIME                                              00143034
+         L     R3,TRAPTIME+4                                            00143134
+         SRDL  R2,16                                                    00143241
+         LR    R15,R3                                                   00143334
+         B     NEXT4                                                    00143441
+NEXT3    EQU   *                                                        00143531
+*LINK TRAP TEST                                                         00143741
+         L     R5,0(R6)                                                 00143841
+         C     R5,=X'00000004'                                          00143941
+         BNE   NEXT4                                                    00144041
+                                                                        00144141
+         MVC   ESPPARM+4(4),4(R6)                                       00144241
+*      ATTACH  EP=APPRTEST,ECB=MYECB,SM=SUPV,                           00144341
+*              KEY=ZERO,DISP=YES,PARAM=TRAPPARM                         00144441
+         STCK  STTIME                  SAVE START TIME                  00144541
+*        WAIT  ECB=MYECB                                                00144641
+*        STCK  ENDTIME                 SAVE ENDTIME                     00144741
+       MODESET KEY=NZERO,MODE=PROB                                      00144841
+         LOAD  EP=APPRTEST                                              00144941
+         LR    R3,R0                   LOAD EP ADDRESS IN R3            00145041
+         STCK  STTIME                  SAVE START TIME                  00145141
+         LA    R1,ESPADDR              LOAD ADDRESS OF PARAM AREA IN R1 00145241
+         BASR  R14,R3                  BRANCH TO LOAD MODULE APPRTEST   00145341
+         STCK  ENDTIME                 SAVE END TIME                    00145441
+         LG    R4,ENDTIME              R4 = ENDTIME                     00145641
+         SG    R4,STTIME               R4-STTIME                        00145741
+         STG   R4,ESPTIME              SAVE R4 TO ESTAITIME             00145841
+         L     R2,ESPTIME                                               00145941
+         L     R3,ESPTIME+4                                             00146041
+         SRDL  R2,16                                                    00146141
+         LR    R15,R3                                                   00146241
+NEXT4    EQU   *                                                        00146341
+*        OPEN  (DEBUG,OUTPUT)                                           00146431
+*        PUT   DEBUG,ESTTIME                                            00146531
+*        PUT   DEBUG,SVCTIME                                            00146631
+*        PUT   DEBUG,TRAPTIME                                           00146731
+*        CLOSE (DEBUG)                                                  00147031
+                                                                        00148031
+                                                                        00150000
+         L     R13,SAVEAREA+4                                           00160000
+         L     R14,12(R13)                                              00170131
+         LM    R0,R12,20(R13)                                           00171031
+         BR    R14                                                      00180000
+                                                                        00181004
+SAVEAREA DS    18F                                                      00190000
+MYECB    DS    1F                                                       00200004
+                                                                        00201004
+MYSVC    EQU   *                                                        00210000
+*        WTO   'SVC'                                                    00220006
+         BR    R14                                                      00221000
+DEBUG    DCB   DDNAME=DEBUG,MACRF=(PM),DSORG=PS                         00221108
+TEMP     DS    8F                                                       00221209
+         DS    0D                                                       00221312
+STTIME   DS    2F                                                       00221410
+ENDTIME  DS    2F                                                       00221510
+TRAPTIME DS    2F                                                       00221629
+SVCTIME  DS    2F                                                       00221729
+ESTTIME  DS    2F                                                       00221829
+ESPTIME  DS    2F                                                       00221941
+TCB      DS    F                                                        00222041
+                                                                        00222130
+ESPPARM  DC    X'00000004'                                              00222241
+         DC    X'00000200'                                              00222331
+ESTPARM  DC    X'00000003'                                              00222441
+         DC    X'00000200'                                              00222541
+SVCPARM  DC    X'00000002'                                              00222630
+         DC    X'00000200'                                              00222731
+TRAPPARM DC    X'00000001'                                              00222830
+         DC    X'00000200'                                              00222931
+                                                                        00223035
+TRAPADDR DC    A(TRAPPARM)                                              00223135
+ESPADDR  DC    A(ESPPARM)                                               00223241
+                                                                        00223341
+MYRETRY  EQU   *                                                        00223441
+         LR    R3,R1                                                    00223541
+*        WTO   'MODULE RETRY'                                           00223641
+         LR    R1,R3                                                    00223741
+                                                                        00223841
+         LR    R2,R1                                                    00223941
+         USING RETDATA,R2                                               00224041
+         L     R3,RETPSW+4                                              00224141
+         LA    R3,2(,R3)                                                00224241
+         ST    R3,RETPSW+4          CORRECT PSW                         00224341
+                                                                        00224441
+*        NI    PSW+1,B'11110111' 12 BIT INVERTED                        00224541
+                                                                        00224641
+*      MODESET MODE=SUP,KEY=ZERO                                        00224741
+*MAGIC: IF MODESET WILL BE EXECUTED ABEND WILL OCCUR                    00224841
+         LA    R13,SAREA                                                00224941
+         LM    R0,R1,0(R13)                                             00225041
+         LM    R3,R12,12(R13)                                           00225141
+         LM    R14,R15,56(R13)   RESTORE REGISTERS                      00225241
+         L     R13,52(R13)                                              00225341
+                                                                        00225441
+         LPSW  RETPSW               EXIT TO PROGRAM                     00225541
+                                                                        00225641
+*        L     R2,PSW+4                                                 00225741
+*        BR    R2                                                       00225841
+         DROP  R2                                                       00225941
+                                                                        00226041
+MYESTAI  EQU   *                                                        00226141
+                                                                        00226241
+         USING SDWA,R1                                                  00226341
+         USING RETDATA,R2                                               00226441
+         L     R4,RETRA             SET JUMP TO MYRETRY                 00226541
+                                                                        00226641
+         MVC   RETPSW(8),SDWAEC1      PREPARE PSW                       00226741
+         MVC   SAREA(64),SDWAGRSV   PREPARE REGISTERS                   00226841
+                                                                        00226941
+         SETRP RC=4,RETREGS=NO,FRESDWA=YES,RETADDR=(R4),DUMP=NO         00227041
+         BR    R14                  GOTO MYRETRY                        00227141
+         DROP  R2                                                       00227241
+                                                                        00227341
+MYESPIE  EQU   *                                                        00227441
+         USING EPIE,R1                                                  00227541
+         L     R2,EPIEPSW+4                                             00227641
+         LA    R2,2(,R2)                                                00227741
+         ST    R2,EPIEPSW+4                                             00227841
+         BR    R14                                                      00227941
+         DROP  R1                                                       00228041
+         LTORG                                                          00228130
+       IHASDWA                                                          00228230
+       IHAEPIE                                                          00228341
+                                                                        00228430
+DUCT     DSECT                                                          00228530
+DUIBM1   DS    F                                                        00228630
+DUIBM2   DS    F                                                        00228730
+         DS    F                                                        00228830
+DUIBM4   DS    F                                                        00228930
+DUALD    DS    F                                                        00229030
+         DS    2F                                                       00229130
+DUPRGM   DS    F                                                        00229230
+DUBSAADR DS    F                                                        00229330
+DUBSAPSW DS    F                                                        00229430
+         DS    F                                                        00229530
+DUTRPCTL DS    F                                                        00229630
+         DS    4F                                                       00229730
+DUCT#    EQU   *-DUIBM1                                                 00229830
+                                                                        00229930
+TRAPCB   DSECT                                                          00230030
+CBFLAGS  DS    F                                                        00230130
+         DS    2F                                                       00230230
+TRAPSAA  DS    F                                                        00230330
+         DS    F                                                        00230430
+TRAPPAA  DS    F                                                        00230530
+CBUSRFLD DS    2F                                                       00230630
+         DS    8F                                                       00230730
+TRAPCB#  EQU   *-CBFLAGS                                                00230830
+PFLAG    EQU   B'0000000000000100'                                      00230930
+RFLAG    EQU   B'0000000000000010'                                      00231030
+EFLAG    EQU   B'0000000000000001'                                      00231130
+                                                                        00231230
+TRAPSA   DSECT                                                          00231330
+SAFLAGS  DS    F                                                        00231430
+         DS    F                                                        00231530
+SECOP    DS    F                                                        00231630
+AR15     DS    F                                                        00231730
+PSW      DS    4F                                                       00231830
+GR       DS    32F                                                      00231930
+SAUSRFLD DS    2F                                                       00232030
+         DS    22F                                                      00232130
+TRAPSA#  EQU   *-SAFLAGS                                                00232230
+                                                                        00232330
+RETDATA  DSECT                                                          00232430
+RETRA    DS    F                                                        00232530
+RESEX    DS    F                                                        00232630
+SAREA    DS    18F                                                      00232730
+RETPSW   DS    2F                                                       00232830
+RETDATA# EQU   *-RETRA                                                  00232930
+                                                                        00233030
+         CVT   DSECT=YES                                                00234018
+         END                                                            00240000

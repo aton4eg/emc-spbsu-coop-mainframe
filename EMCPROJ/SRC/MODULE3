@@ -1,0 +1,34 @@
+         GENREG                                                         00001000
+SAMPLE   CSECT                                                          00010000
+         STM   R14,R12,12(R13)                                          00010301
+         BASR  R12,0                                                    00010401
+         USING *,R12                                                    00010501
+                                                                        00010611
+         ST    R13,SAVEAREA+4                                           00010702
+         LR    R2,R13                                                   00010802
+         LA    R13,SAVEAREA                                             00010902
+         ST    R13,8(,R2)                                               00011002
+         LOAD  EP=MODULE5                                               00012413
+         LR    R3,R0                                                    00012512
+         WTO   'HEY1'                                                   00012613
+         LA    R10,RETRN                                                00012813
+         BR    R3                                                       00012911
+         WTO   'HEY2'                                                   00013013
+RETRN    EQU   *                                                        00013111
+         WTO   'HEY0'                                                   00013214
+                                                                        00013315
+                                                                        00013415
+         LOAD  EP=MODULE4                                               00013515
+         LA    R2,RETRN2                                                00013615
+         LR    R3,R0                                                    00013715
+         BR    R3                                                       00013815
+         WTO   'HEY2'                                                   00013915
+RETRN2   EQU   *                                                        00014015
+         WTO   'HEY0'                                                   00014115
+         L     R13,SAVEAREA+4                                           00014211
+                                                                        00014302
+         LM    R14,R12,12(R13)                                          00015000
+         BR    R14                                                      00020000
+FLD      DS    F                                                        00021001
+SAVEAREA DS    18F                                                      00022002
+         END                                                            00030000

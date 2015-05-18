@@ -1,0 +1,85 @@
+#include "spymlib.h"
+
+extern routine ldSVC(char* name,long int* m,long int sar);
+extern int instSVC(routine ptr,long int* m,long int sar);
+extern int stAlien(char* name,long int* m,long int sar);
+extern int wtAlien(t_ecb* ecb,long int* m,long int sar);
+
+char* healDD(char* orig){
+  long int i=0;
+  long int j=0;
+  long int flag = 1;
+  char* s = malloc(64);
+  while(orig[i]!=0){
+    if (orig[i]>='a' && orig[i] <= 'i' ||
+        orig[i]>='j' && orig[i] <= 'r' ||
+        orig[i]>='s' && orig[i] <= 'z'){
+      s[j] = toupper(orig[i]);
+      j++;i++;
+    }
+    else{
+      if (orig[i]>='A' && orig[i] <= 'I' ||
+          orig[i]>='J' && orig[i] <= 'R' ||
+          orig[i]>='S' && orig[i] <= 'Z'){
+        s[j] = orig[i];
+        j++;i++;
+      }
+      else{
+        if (orig[i]==':' && flag){
+          flag = 0;
+          s[j] = orig[i];j++;
+        };
+        i++;
+      };
+    };
+  };
+
+  for(i=j-2;i<8;i++){
+    s[i] = 0x40;        /*name for load should be padded*/
+  };
+  s[8] = 0;
+
+  if (((char*)strstr(&s,"DD:"))==&s){
+    return s;
+  }
+  else{
+    errno = ENOENT;
+    return 0;
+  };
+}
+
+routine loadSVC(char* name){
+  char* temp;
+  char m[128];
+  if (temp = healDD(name)){
+    return ldSVC(temp,&m,0);
+  }
+}
+
+int installSVC(routine ptr){
+  char m[128];
+  if (ptr){
+    return instSVC(ptr,&m,0);
+  }
+  else{
+    return 15;
+  }
+}
+
+int startAlien(char* name,ecb_t* ecb){
+  char* temp;
+  char m[128];
+  if (temp = healDD(name)){
+    return stAlien(temp,ecb,&m,0);
+  }
+}
+
+int waitAlien(t_ecb* ecb){
+  char m[128];
+  if (ptr){
+    return wtAlien(ecb,&m,0);
+  }
+  else{
+    return 15;
+  }
+}

@@ -1,0 +1,45 @@
+//SPYMRUN  PROC MAIN=''                                                 00010014
+//BLDTBL   EXEC PGM=PARSE                                               00030001
+//STEPLIB  DD   DISP=SHR,DSN=DACF.LOADLIB                               00070007
+//DEBUG    DD   DISP=SHR,DSN=DACF.OUTPUT(DEBUG)                         00070112
+//SYSPRINT DD   SYSOUT=*                                                00071008
+//SYSTERM  DD   SYSOUT=*                                                00072009
+//SYSIN    DD   DUMMY                                                   00073010
+//ADATA    DD   DUMMY                                                   00080007
+//ZOUT     DD   DSN=&&SZAPTAB,DISP=(NEW,PASS,DELETE),UNIT=SYSALLDA,     00090014
+//            DCB=(LRECL=80,BLKSIZE=6160,RECFM=FB),                     00100014
+//            SPACE=(CYL,(1,2))                                         00110014
+//SPYM2    DD   DSN=EMCPROJ.LOADLIB(S1),DISP=SHR,                       00112017
+//            DCB=(RECFM=U)                                             00113017
+//SPYM     DD   DSN=&&SPYMTAB,DISP=(NEW,PASS,DELETE),UNIT=SYSALLDA,     00120017
+//            DCB=(BLKSIZE=6144,RECFM=U,DSORG=PS),                      00130017
+//            SPACE=(CYL,(1,2))                                         00140007
+//BACKUP   EXEC PGM=IEBCOPY                                             00150014
+//SYSIN    DD   DUMMY                                                   00160014
+//SYSUT1   DD   DUMMY                                                   00160114
+//SYSUT2   DD   DSN=&&BINCOPY,DISP=(NEW,PASS,DELETE),UNIT=SYSALLDA,     00161014
+//            DCB=(BLKSIZE=6144,RECFM=U,DSORG=PS),                      00162016
+//            SPACE=(CYL,(10,50))                                       00170014
+//SYSPRINT DD   SYSOUT=*                                                00171014
+//ZAP      EXEC PGM=AMASPZAP                                            00180014
+//SYSIN    DD   DSN=&&SZAPTAB,DISP=(SHR,DELETE,DELETE)                  00190014
+//*SYSLIB   DD   DSN=&&BINCOPY,DISP=(SHR,PASS,DELETE),                  00200418
+//*            DCB=(BLKSIZE=6144,RECFM=U,DSORG=PO)                      00200518
+//SYSLIB   DD   DUMMY                                                   00200618
+//SYSPRINT DD   SYSOUT=*                                                00201014
+//GO       EXEC PGM=SPYM,PARM='&MAIN'                                   00210017
+//STEPLIB  DD   DSN=DACF.LOADLIB,DISP=SHR                               00211017
+//         DD   DSN=DACF.BINARY,DISP=SHR                                00211121
+//SYSIN    DD   DUMMY                                                   00212017
+//SPYM$IN  DD   DSN=&&SPYMTAB,DISP=(SHR,DELETE,DELETE),                 00220017
+//            DCB=(BLKSIZE=6144,RECFM=U,DSORG=PS)                       00230017
+//SPYM$SVC DD   DSN=DACF.BINARY(SVC241),DISP=SHR                        00231019
+//SPYM$LIB DD   DSN=&&BINCOPY,DISP=(SHR,PASS)                           00232020
+//SPYM$OUT DD   DUMMY                                                   00240014
+//SYSPRINT DD   SYSOUT=*                                                00241014
+//SYSTERM  DD   SYSOUT=*                                                00242014
+//RESTORE  EXEC PGM=IEBCOPY,PARM='REPLACE'                              00244016
+//SYSUT1   DD   DSN=&&BINCOPY,DISP=(SHR,DELETE,DELETE)                  00246016
+//SYSUT2   DD   DUMMY                                                   00247016
+//SYSPRINT DD   SYSOUT=*                                                00248016
+//         PEND                                                         00250007

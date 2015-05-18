@@ -1,0 +1,157 @@
+#include "stdlib.h"
+#include "stdio.h"
+#include "dirent.h"
+#include "string.h"
+#include "adata.h"
+#define offset 0
+  char cmMDL  = 1;
+  char cmCSCT = 2;
+  char cmINST = 3;
+
+char *  itoa (int value, char * str, int base){
+  char temp[10];
+  long int cur = 0;
+  long int r = 0;
+  long int q = 0;
+  if(value==0){
+    str[0] = 0xF0;
+    str[1] = 0;
+  }
+  else{
+    while(value!=0){
+      r = value%base;
+      value = value/base;
+      temp[cur] = r;
+      cur++;
+    };
+    int i = 0;cur--;
+    while(cur>=0){
+      if (temp[cur]>9){
+        str[i] = temp[cur] + 0xC1 - 10;
+      }
+      else{
+        str[i] = temp[cur] + 0xF0;
+      };
+      cur--;
+      i++;
+    };
+    str[i] = 0;
+  };
+  return str;
+}
+
+void genNAME(srcAnalysisHead* sAH,dirent* adata_memb,
+                  FILE* zout,char* adata_){
+  char result[80]="NAME ";
+  long int loc_counter = sAH->locCounter;
+  long int name_off = sAH->srcRecOffset;
+  strcat  (&result,&adata_memb->d_name);
+  strcat  (&result," ");
+  adata_[name_off+offset+9] = 0;            /*HERE WE CHANGE ADATA!!!*/
+  strcat  (&result,&adata_[name_off+offset]);/*FOR COPYING*/
+  fprintf (zout,"%s \n",result);
+}
+
+
+void genBASE(srcAnalysisHead* sAH,FILE* zout){
+/*fprintf (zout,"BASE %06X \n",sAH->locCounter);*/
+  fprintf (zout,"BASE %06X \n",0);/*why 0 works???*/
+}
+
+void genREP(machineInstrHead* mIH,FILE* zout,long int csect_base){
+  fprintf (zout,"REP  %04X 0AF1 \n",mIH->locCounter-csect_base);
+}
+
+void writeMDL(char* name,FILE* spym){
+  fwrite(&cmMDL,1,1,spym);
+  fwrite(name,1,8,spym);
+}
+
+void writeCSCT(srcAnalysisHead* sAH,dirent* adata_memb,
+                    FILE* spym,char* adata_){
+  long int name_off = sAH->srcRecOffset;
+  fwrite(&cmCSCT,1,1,spym);
+  fwrite(&adata_[name_off],1,8,spym);
+  fwrite(&sAH->locCounter,1,4,spym);
+}
+
+void writeINST(machineInstrHead* mIH,FILE* spym){
+  fwrite(&cmINST,1,1,spym);
+  fwrite(&mIH->locCounter,1,4,spym);
+  fwrite(&mIH->instrLng,1,4,spym);
+  fwrite(&mIH->instr,1,6,spym);
+}
+
+int main(int argc, char *argv[]){
+  DIR*  adata_lib = opendir("dd:adata");
+  FILE* zout      = fopen("dd:zout","w, recfm=fb, lrecl=80");
+  FILE* spym      = fopen("dd:spym","wb, recfm=u");
+  dirent* adata_memb;
+
+  while((adata_memb=readdir(adata_lib))!=0){
+    /*open member*/
+    printf("first readdir\n");
+    char ddname[30] = "dd:adata(";
+    strcat(&ddname,adata_memb->d_name);
+    strcat(&ddname,")");
+    FILE* member = fopen(ddname,"rb, recfm=vb, type=record");
+
+    writeMDL(adata_memb->d_name,spym);
+
+    long int csect_base = 0;
+    while(1-feof(member)){
+   /* printf("read adata\n"); */
+      char adata_[284];
+      long int rec_len = 0;
+      fread(adata_,1,4,member);             /*read rdw*/
+      rec_len = adata_[0]*0x100+adata_[1];  /*calc rec length*/
+      rec_len = rec_len-4;
+      fread(adata_,1,rec_len,member);       /*read ADATA rec*/
+
+      adataHead* adata_head = &adata_;
+      srcAnalysisHead* sAH = &adata_[12];
+      machineInstrHead* mIH = &adata_[12];
+/*    printf("%c \n",(&adata_head->recordType)[1]);*/
+      switch (adata_head->recordType) {
+      case 0x30:if (sAH->srcRecType != 5){   /*check that is no macro*/
+                  switch (sAH->asmOpCode) {
+                    case 0x1C:                                /*CSECT*/
+                              printf("generate NAME\n");
+                              genNAME(sAH,adata_memb,zout,adata_);
+                              genBASE(sAH,zout);
+                              writeCSCT(sAH,adata_memb,spym,adata_);
+                              csect_base = sAH->locCounter;
+                              break;
+                  };
+                };
+                break;
+        case 0x36:
+                  switch (adata_[mIH->instrOffset]){
+                    case 0x7:if(adata_[mIH->instrOffset+1]==0){ /*BR*/
+                               break;        /*exclude cnop*/
+                             };
+                             writeINST(mIH,spym);
+                             genREP(mIH,zout,csect_base);
+                             break;
+          /*        case 0xA:if(adata_[mIH->instrOffset+1]!=8){
+                               break;
+                             };
+                             writeINST(mIH,spym);
+                             genREP(mIH,zout,csect_base);
+                             break;                    */     /*SVC*/
+                    case 0x47:
+                             printf("generate rep\n");
+                             writeINST(mIH,spym);
+                             genREP(mIH,zout,csect_base);
+                             break;
+                  };
+                  break;
+      }                                                        /*B*/
+    };
+    fclose(member);
+  };
+  closedir(adata_lib);
+  fclose(zout);
+  fclose(spym);
+  return 0;
+}

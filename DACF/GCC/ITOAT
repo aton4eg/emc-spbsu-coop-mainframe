@@ -1,0 +1,48 @@
+#include "stdio.h"
+
+char *  itoa (int value, char * str, int base){
+  char temp[10];
+  long int cur = 0;
+  long int r = 0;
+  long int q = 0;
+  if(value==0){
+    str[0] = 0xF0;
+    str[1] = 0;
+  }
+  else{
+    while(value!=0){
+      r = value%base;
+      value = value/base;
+      temp[cur] = r;
+      cur++;
+    };
+    int i = 0;cur--;
+    while(cur>=0){
+      if (temp[cur]>9){
+        str[i] = temp[cur] + 0xC1 - 10;
+      }
+      else{
+        str[i] = temp[cur] + 0xF0;
+      };
+      cur--;
+      i++;
+    };
+    str[i] = 0;
+  };
+  return str;
+}
+
+int main(){
+  long int a = 156;
+  long int b = 16;
+  long int c = 0;
+  long int d = 1;
+  long int e = 13;
+  char result[10];
+  printf("%s\n",itoa(a,&result,16));
+  printf("%s\n",itoa(b,&result,16));
+  printf("%s\n",itoa(c,&result,16));
+  printf("%s\n",itoa(d,&result,16));
+  printf("%s\n",itoa(e,&result,16));
+  return(0);
+}

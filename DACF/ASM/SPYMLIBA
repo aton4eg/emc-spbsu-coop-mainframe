@@ -1,0 +1,259 @@
+        GENREG                                                          00010000
+LDSVC    CSECT                                                          00020000
+LDSVC    AMODE 31                                                       00030000
+LDSVC    RMODE ANY                                                      00040000
+                                                                        00050000
+         ST    R10,12(,R1)                                              00060005
+         L     R10,8(,R1)                                               00070005
+         STM   R11,R9,0(R10)                                            00080000
+         L     R5,0(,R1)                                                00090000
+         L     R6,4(,R1)                                                00091004
+         BASR  12,0                                                     00100000
+         USING *,12                                                     00110000
+                                                                        00120000
+HPG1     EQU   *                                                        00130000
+         LOAD  EPLOC=(R5),GLOBAL=(YES,F),EOM=NO                         00140000
+         LR    R8,R0                                                    00140104
+       MODESET MODE=SUP                                                 00141006
+       MODESET EXTKEY=ZERO,SAVEKEY=(2),WORKREG=3                        00142006
+         ST    R6,12(R8)                                                00143006
+       MODESET KEYREG=2                                                 00144006
+       MODESET MODE=PROB                                                00145006
+         ST    R8,16(R10)                                               00160004
+HPG1EX   EQU   *                                                        00170000
+         LM    R11,R9,0(R10)                                            00180000
+         L     R10,12(,R1)                                              00190005
+         BR    R14                                                      00200000
+         LTORG                                                          00210000
+         DROP  R12                                                      00220000
+                                                                        00230000
+INSTSVC  CSECT                                                          00240000
+INSTSVC  AMODE 31                                                       00250000
+INSTSVC  RMODE ANY                                                      00260000
+                                                                        00270000
+         ST    R10,8(,R1)                                               00280000
+         L     R10,4(,R1)                                               00290000
+         STM   R11,R9,0(R10)                                            00300000
+         L     R5,0(,R1)                                                00310000
+         BASR  12,0                                                     00320000
+         USING *,12                                                     00330000
+                                                                        00340000
+HPG2     EQU   *                                                        00350000
+                                                                        00360000
+       MODESET MODE=SUP                                                 00370000
+       MODESET EXTKEY=ZERO,SAVEKEY=(2),WORKREG=3                        00380000
+      SVCUPDTE 241,REPLACE,TYPE=4,EP=(R5)                               00390000
+       MODESET KEYREG=2                                                 00400000
+       MODESET MODE=PROB                                                00410000
+                                                                        00420000
+HPG2EX   EQU   *                                                        00430000
+         LM    R11,R9,0(R10)                                            00440000
+         L     R10,8(,R1)                                               00450000
+         BR    R14                                                      00460000
+         LTORG                                                          00470000
+         DROP  R12                                                      00480000
+                                                                        00490000
+STALIEN  CSECT                                                          00500000
+STALIEN  AMODE 31                                                       00510000
+STALIEN  RMODE ANY                                                      00520000
+                                                                        00530000
+         ST    R10,16(,R1)                                              00540000
+         L     R10,12(,R1)                                              00550000
+         STM   R11,R9,0(R10)                                            00560000
+         L     R5,0(,R1)      EP                                        00570000
+         L     R6,4(,R1)      LIB                                       00580000
+         L     R7,8(,R1)      ECB                                       00590000
+         BASR  12,0                                                     00600000
+         USING *,12                                                     00610000
+                                                                        00620000
+HPG3     EQU   *                                                        00630000
+                                                                        00640000
+       GETMAIN RU,LV=DCBLNGPO,LOC=BELOW                                 00650000
+         LR    R4,R1                                                    00660000
+         LA    R3,LIB                                                   00670000
+         MVC   0(DCBLNGPO,R4),0(R3)                                     00680000
+         MVC   DCBDDNAM-IHADCB(8,R4),0(R6)                              00690000
+         OPEN  ((R4),INPUT),MODE=31                                     00700000
+                                                                        00710000
+       MODESET MODE=SUP                                                 00720000
+       MODESET EXTKEY=ZERO,SAVEKEY=(2),WORKREG=3                        00730000
+       ATTACHX EPLOC=(R5),SM=PROB,KEY=PROP,ECB=(R7),DCB=(R4)            00740000
+       MODESET KEYREG=2                                                 00750000
+       MODESET MODE=PROB                                                00760000
+         ST    R7,16(R10)                                               00770000
+*        CLOSE ((R4)),MODE=31                                           00780000
+                                                                        00790000
+HPG3EX   EQU   *                                                        00800000
+         LM    R11,R9,0(R10)                                            00810000
+         L     R10,8(,R1)                                               00820000
+         BR    R14                                                      00830000
+LIB      DCB   DSORG=PO,MACRF=(R)                                       00840000
+         LTORG                                                          00850000
+         DROP  R12                                                      00860000
+                                                                        00870000
+WTALIEN  CSECT                                                          00880000
+WTALIEN  AMODE 31                                                       00890000
+WTALIEN  RMODE ANY                                                      00900000
+                                                                        00910000
+         ST    R10,8(,R1)                                               00920000
+         L     R10,4(,R1)                                               00930000
+         STM   R11,R9,0(R10)                                            00940000
+         L     R5,0(,R1)                                                00950000
+         BASR  12,0                                                     00960000
+         USING *,12                                                     00970000
+                                                                        00980000
+HPG4     EQU   *                                                        00990000
+                                                                        01000000
+       MODESET MODE=SUP                                                 01020000
+       MODESET EXTKEY=ZERO,SAVEKEY=(2),WORKREG=3                        01030000
+         WAIT  ECB=(R5)                                                 01040000
+       MODESET KEYREG=2                                                 01050000
+       MODESET MODE=PROB                                                01060000
+         XR    R15,R15                                                  01070000
+         ST    R15,16(R10)                                              01080000
+                                                                        01090000
+HPG4EX   EQU   *                                                        01100000
+         LM    R11,R9,0(R10)                                            01110000
+         L     R10,8(,R1)                                               01120000
+         BR    R14                                                      01130000
+         LTORG                                                          01140000
+         DROP  R12                                                      01150000
+                                                                        01160000
+LDMDL    CSECT                                                          01170000
+LDMDL    AMODE 31                                                       01180000
+LDMDL    RMODE ANY                                                      01190000
+                                                                        01200000
+         ST    R10,8(,R1)                                               01210000
+         L     R10,4(,R1)                                               01220000
+         STM   R11,R9,0(R10)                                            01230000
+         L     R5,0(,R1)                                                01240000
+         BASR  12,0                                                     01250000
+         USING *,12                                                     01260000
+                                                                        01270000
+HPG5     EQU   *                                                        01280000
+         LOAD  EPLOC=(R5)                                               01290000
+         LR    R1,R0                                                    01300000
+         ST    R1,16(R10)                                               01310000
+HPG5EX   EQU   *                                                        01320000
+         LM    R11,R9,0(R10)                                            01330000
+         L     R10,8(,R1)                                               01340000
+         BR    R14                                                      01350000
+         LTORG                                                          01360000
+         DROP  R12                                                      01370000
+                                                                        01371000
+                                                                        01372000
+TESTRT   CSECT                                                          01373000
+TESTRT   AMODE 31                                                       01374000
+TESTRT   RMODE 24                                                       01375000
+         ST    R10,4(,R1)      STORE R10 IN THIRD ARG                   01376004
+         L     R10,0(,R1)      SECOND ARG IS SAVEAREA                   01377004
+         STM   R11,R9,0(R10)   SAVE REGISTERS                           01378000
+         BASR  12,0                                                     01379200
+         USING *,12                                                     01379300
+                                                                        01379400
+HPG7     EQU   *                                                        01379500
+                                                                        01379602
+         WTO   'TESTROUT'                                               01379700
+                                                                        01379800
+         ST    R13,SAREA+4                                              01379900
+         LA    R13,SAREA                                                01380000
+         STM   R0,R14,12(R13)                                           01380100
+         EXTRN INITTRC                                                  01380203
+         L     R11,=A(INITTRC)                                          01380303
+         BASR  R14,R11                                                  01380400
+         LM    R0,R14,12(R13)                                           01380500
+         ST    R15,TRCLST@                                              01380600
+         L     R13,4(R13)                                               01380700
+                                                                        01380800
+       ATTACHX EP=TSTLP                                                 01380900
+         ST    R1,TCB@                                                  01381000
+         WTO   'ATTACHED'                                               01381102
+                                                                        01381200
+       GETMAIN RU,LV=50*MODULE#,LOC=ANY,KEY=8                           01381302
+         ST    R1,MDLLST@                                               01381400
+         OPEN  (DEBUG,OUTPUT),MODE=31                                   01381600
+         CLOSE (DEBUG),MODE=31                                          01381700
+*================UPDMDL TEST                                            01381800
+*        WTO   'CALL UPD'                                               01381902
+*        LA    R1,TCB@                                                  01382002
+*        LA    R2,SPACE                                                 01382102
+*        ST    R2,TREE@                                                 01382202
+*        EXTRN UPDMDL                                                   01382302
+*        L     R6,=A(UPDMDL)                                            01382402
+*        BASR  R14,R6                                                   01382602
+*        WTO   'CALL UPD'                                               01382702
+*        L     R3,MDLLST@                                               01382802
+*        OPEN  (DEBUG,OUTPUT),MODE=31                                   01383002
+*        PUT   DEBUG,(R3)                                               01383102
+*        PUT   DEBUG,TCB@                                               01383202
+*        CLOSE (DEBUG),MODE=31                                          01383302
+                                                                        01383400
+*================CRTRC TEST                                             01383900
+*        L     R1,TCB@                                                  01384002
+*        MVC   TREE@(4),16(R11)                                         01384102
+                                                                        01384200
+*        L     R1,TCBRBP-TCB(R1)                                        01384302
+*        NILH  R1,X'00FF'                                               01384402
+*        L     R1,RBCDE-RBBASIC(R1)                                     01384502
+*        NILH  R1,X'00FF'                                               01384602
+*                                                                       01384702
+*        TM    CDATTR-CDENTRY(R1),CDMIN                                 01384802
+*        BNO   MAJCD                                                    01384902
+*INCD    EQU   *                                                        01385002
+*        L     R1,CDXLMJP-CDENTRY(R1)                                   01385102
+*AJCD    EQU   *                                                        01385202
+*        L     R1,CDXLMJP-CDENTRY(R1)                                   01385302
+*        L     R1,XTLMSBAA-XTLST(R1)                                    01385402
+*        LA    R1,120(,R1)                                              01385502
+*        ST    R1,ADDR@                                                 01385602
+*        LA    R1,SAREA+80                                              01385702
+*        ST    R1,SAREA+76                                              01385802
+*        ST    R13,SAREA+4                                              01385902
+*        LA    R13,SAREA                                                01386002
+*        WTO   'PROC'                                                   01386102
+*        EXTRN CRTRC                                                    01386202
+*        L     R6,=A(CRTRC)                                             01386302
+*        LR    R15,R6                                                   01386402
+*        LA    R1,TCB@                                                  01386502
+*        BASR  R14,R6                                                   01386602
+*        L     R13,4(R13)                                               01386802
+*        LR    R3,R15                                                   01386902
+*        OPEN  (DEBUG,OUTPUT),MODE=31                                   01387002
+*        PUT   DEBUG,(R3)                                               01387102
+*        PUT   DEBUG,TCB@                                               01387202
+*        CLOSE (DEBUG),MODE=31                                          01387302
+                                                                        01387400
+HPG7EX   EQU   *                                                        01387500
+         LM    R11,R9,0(R10)                                            01387600
+         L     R10,4(,R1)                                               01387704
+         BR    R14                                                      01387800
+         LTORG                                                          01387900
+TCB@     DS    F                                                        01388000
+MDLLST@  DS    F                                                        01388100
+TREE@    DS    F                                                        01388200
+TRCLST@  DS    F                                                        01388300
+ADDR@    DS    F                                                        01388400
+SAREA    DS    18F                                                      01388502
+SPACE    DS    300F                                                     01388602
+         DC    X'00'                                                    01388701
+DEBUG    DCB   DDNAME=SPYM$DBG,LRECL=131,DSORG=PS,MACRF=(PM)            01388800
+         DROP  R12                                                      01388900
+                                                                        01389000
+MODULE   DSECT                                                          01390002
+ADDR     DS    F                                                        01391002
+LNG      DS    F                                                        01392002
+NAME     DS    CL9                                                      01392102
+MODULE#  EQU   *-ADDR                                                   01392202
+                                                                        01392302
+                                                                        01393000
+                                                                        01399400
+        IKJTCB                                                          01399500
+         IHARB                                                          01399600
+        IHALLE                                                          01399700
+        IHACDE                                                          01399800
+       IHALPDE                                                          01399900
+      IHAXTLST                                                          01400000
+                                                                        01400100
+         CVT   DSECT=YES                                                01400200
+         DCBD  DSORG=(PO),DEVD=(DA)                                     01401000
+         END                                                            01410000

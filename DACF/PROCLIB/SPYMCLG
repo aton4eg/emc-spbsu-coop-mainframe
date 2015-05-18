@@ -1,0 +1,60 @@
+//SPYMCLG  PROC MAIN=''                                                 00010026
+//ASMCOMP  EXEC PROC=ASMC,                                              00010326
+//  INFILE='DACF.ASM(DIRENTA)',                                         00010427
+//  OUTFILE='DACF.OBJ(DIRENTA)'                                         00010527
+//GCCMCOMP EXEC GCCCL,                                                  00010626
+//  INFILE='DACF.GCC(DIRENT)',                                          00010726
+//  OUTFILE='DACF.NCALIB(DIRENT)'                                       00010826
+//BIND.DACFOBJ DD DISP=SHR,DSN=DACF.OBJ                                 00010926
+//BIND.SYSLIN DD *                                                      00011026
+  INCLUDE OBJSET,DACFOBJ(DIRENTA)                                       00011127
+//GCCPCOMP EXEC GCCCL,                                                  00011226
+//  INFILE='DACF.GCC(PARSE)',                                           00011327
+//  OUTFILE='DACF.LOADLIB(PARSE)',                                      00011426
+//  COPTS='-DLOOP',                                                     00011526
+//  LOPTS='MAP'                                                         00011626
+//BIND.NCALIB DD DISP=SHR,DSN=DACF.NCALIB                               00011726
+//BIND.SYSLIN DD *                                                      00011826
+  INCLUDE OBJSET,NCALIB(DIRENT)                                         00011926
+//BLDTBL   EXEC PGM=PARSE                                               00012026
+//STEPLIB  DD   DISP=SHR,DSN=DACF.LOADLIB                               00012126
+//DEBUG    DD   DISP=SHR,DSN=DACF.OUTPUT(DEBUG)                         00012233
+//SYSIN    DD   DUMMY                                                   00017030
+//SYSPRINT DD   SYSOUT=*                                                00017128
+//SYSTERM  DD   SYSOUT=*                                                00017229
+//ADATA    DD   DUMMY                                                   00017326
+//ZOUT     DD   DSN=&&SZAPTAB,DISP=(NEW,PASS,DELETE),UNIT=SYSALLDA,     00017434
+//            DCB=(LRECL=80,BLKSIZE=6160,RECFM=FB)                      00017534
+//            SPACE=(CYL,(1,2))                                         00017627
+//SPYM     DD   DSN=&&SPYMTAB,DISP=(NEW,PASS,DELETE),UNIT=SYSALLDA,     00017734
+//            DCB=(LRECL=80,BLKSIZE=6160,RECFM=FB),                     00017827
+//            SPACE=(CYL,(1,2))                                         00017927
+//BACKUP   EXEC PGM=IEBCOPY                                             00018026
+//SYSIN    DD   DUMMY                                                   00018126
+//SYSOUT   DD  DSN=&&BINCOPY,DISP=(NEW,PASS,DELETE),UNIT=(3390,1),      00018234
+//            DCB=(BLKSIZE=6160,RECFM=U,DSORG=PO),                      00018334
+//            SPACE=(CYL,(10,50))                                       00018427
+//SYSPRINT DD   SYSOUT=*                                                00018529
+//ZAP      EXEC PGM=AMASPZAP                                            00019026
+//SYSIN    DD   DSN=&&SZAPTAB,DISP=(SHR,DELETE,DELETE),                 00020034
+//            DCB=(LRECL=80,BLKSIZE=6160,RECFM=FB)                      00021034
+//SYSLIB   DD   DSN=&&BINCOPY,DISP=(SHR,PASS),                          00030034
+//            DCB=(BLKSIZE=6160,RECFM=U,DSORG=PO)                       00030134
+//SYSPRINT DD   SYSOUT=*                                                00031029
+//GO       EXEC PGM=IEFBR14,PARM='&MAIN'                                00040026
+//SPYM$IN  DD   DSN=&&SPYMTAB,DISP=(SHR,DELETE,DELETE)                  00050026
+//SPYM$LIB DD   DSN=&&BINCOPY,DISP=(SHR,PASS,DELETE)                    00060034
+//SPYM$OUT DD   DUMMY                                                   00070026
+//SYSIN    DD   DUMMY                                                   00071031
+//SYSPRINT DD   SYSOUT=*                                                00072031
+//SYSTERM  DD   SYSOUT=*                                                00073031
+//RUN      EXEC PGM=MODULE1                                             00074034
+//STEPLIB  DD   DSN=EMCPROJ.LOADLIB,DISP=SHR                            00075034
+//         DD   DSN=EMCPROJ.BINARY,DISP=SHR                             00075135
+//DUMPDD   DD   SYSOUT=*                                                00076034
+//SYSPRINT DD   SYSOUT=*                                                00077034
+//OUTSET   DD   DISP=OLD,DSN=EMCPROJ.OUTPUT(DEBUG),                     00078034
+//             DCB=(DSORG=PS,LRECL=80,BLKSIZE=80,RECFM=FB)              00079034
+//INSET    DD   DISP=SHR,DSN=EMCPROJ.INPUT(DEBUG),                      00079134
+//             DCB=(DSORG=PS,LRECL=80,BLKSIZE=80,RECFM=FB)              00079234
+//         PEND                                                         00090018

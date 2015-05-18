@@ -1,0 +1,38 @@
+         GENREG                                                         00001000
+TSTLP    CSECT                                                          00010003
+TSTLP    AMODE 31                                                       00011003
+TSTLP    RMODE ANY                                                      00012003
+                                                                        00013000
+         STM   R14,R12,12(R13)                                          00014001
+         BASR  R12,0                                                    00030000
+         USING *,R12                                                    00040000
+         LOAD  EP=SVC241                                                00041006
+       GETMAIN RU,LV=DATA#,LOC=ANY                                      00050000
+         LR    R11,R1                                                   00060000
+         USING DATA,R11                                                 00070000
+         LR    R2,R13                                                   00090000
+         ST    R13,SAVEAREA+4                                           00100000
+         LA    R13,SAVEAREA                                             00110000
+         ST    R13,8(R2)                                                00120000
+                                                                        00121000
+         XR    R1,R1                                                    00121105
+         WTOR  'ASK 1 TO STOP',REPL,1,ECB                               00122005
+         WAIT  ECB=ECB                                                  00180003
+                                                                        00180504
+EXITL    LA    R3,LABEL                                                 00180605
+         BR    R3                                                       00180704
+         BR    R3                                                       00180804
+         BR    R3                                                       00180904
+LABEL    EQU   *                                                        00181004
+                                                                        00182005
+         L     R13,4(R13)                                               00190000
+         LM    R14,R12,12(R13)                                          00200000
+         XR    R15,R15                                                  00210000
+         BR    R14                                                      00220000
+         LTORG                                                          00221005
+REPL     DS    10F                                                      00230003
+ECB      DS    F                                                        00231003
+DATA     DSECT                                                          00240000
+SAVEAREA DS    18F                                                      00250000
+DATA#    EQU   *-SAVEAREA                                               00260000
+         END                                                            00270000

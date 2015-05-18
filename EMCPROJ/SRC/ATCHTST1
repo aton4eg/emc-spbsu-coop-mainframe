@@ -1,0 +1,62 @@
+         GENREG                                                         00001003
+ATCHTST1 CSECT                                                          00010000
+         STM   R14,R12,12(R13)                                          00020000
+         BASR  R12,0                                                    00030000
+         USING *,R12                                                    00040000
+                                                                        00041005
+      GETMAIN  R,LV=MYDSECT#                                            00042005
+         LR    R11,R1                                                   00043005
+         USING MYDSECT,R11                                              00044005
+                                                                        00045005
+         ST    R13,SAVEAREA+4                                           00050000
+         LR    R2,R13                                                   00060000
+         LA    R13,SAVEAREA                                             00070000
+         ST    R13,8(R2)                                                00080000
+                                                                        00081005
+       GETMAIN R,LV=CLIST#                                              00082005
+         LR    R2,R1                                                    00083005
+         MVC   0(CLIST#,R2),CLIST                                       00084005
+                                                                        00085005
+*        LA    R3,MYECB                                                 00086005
+*        OILH  R3,X'8000'                                               00087005
+*        ST    R3,8(R2)                                                 00088005
+         LA    R3,MYECB                                                 00088105
+                                                                        00089005
+        ATTACH SF=(E,(R2)),ECB=(R3)                                     00092205
+*                                                                       00092305
+         WTO   'WAIT SOME1'                                             00092405
+LOOP     EQU   *                                                        00092505
+         LR    R1,R1                                                    00092605
+         B     LOOP                                                     00092705
+         WTO   'WAITED SOME1'                                           00092805
+                                                                        00092905
+         ST    R1,TCB                                                   00093005
+         WTO   'WAIT SOME2'                                             00093105
+         LA    R3,4000                                                  00093205
+LLL      DS 0H                                                          00093305
+         BCT   R3,LLL                                                   00093405
+         WTO   'WAITED SOME2'                                           00093505
+         L     R2,TCB                                                   00093605
+        ATTACH DISP=RESET,TCB=(R2)                                      00093705
+                                                                        00093805
+NXTWAIT  EQU   *                                                        00093903
+         XR    R1,R1                                                    00094003
+         ST    R1,MYECB                                                 00094103
+         WAIT  ECB=MYECB                                                00094203
+         NI    MYECB,B'01000000'                                        00094303
+         LT    R1,MYECB                                                 00094403
+         B     NXTWAIT                                                  00094504
+                                                                        00095001
+         WTO   'ATCHTST2 COMPLETED'                                     00099002
+         L     R13,SAVEAREA+4                                           00100000
+         LM    R14,R12,12(R13)                                          00110000
+         BR    R14                                                      00120000
+CLIST   ATTACH DISP=NO,EP=ATCHTST2,SF=L                                 00120105
+CLIST#   EQU   *-CLIST                                                  00120205
+MYECB2   DS    F                                                        00120305
+MYDSECT  DSECT                                                          00120405
+MYECB    DS    F                                                        00121001
+TCB      DS    F                                                        00121101
+SAVEAREA DS    18F                                                      00122001
+MYDSECT# EQU   *-MYECB                                                  00123005
+         END                                                            00130000

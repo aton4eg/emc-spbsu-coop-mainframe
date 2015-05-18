@@ -1,0 +1,320 @@
+         GENREG                                                         00001008
+                                                                        00002009
+         MACRO                                                          00003009
+         OUTPUT                                                         00004009
+         L     R9,DEBUG@                                                00005009
+         PUT   (R9),OUT                                                 00006009
+         MEND                                                           00007009
+                                                                        00007121
+         MACRO                                                          00007221
+*CHANGES R5,R6, OUTPUT IN R5                                            00007321
+         GETABS &RN                                                     00007421
+         GBLA  &N                                                       00007521
+&N       SETA  &N+1                                                     00007621
+         LRA   R5,0(&RN)                                                00007721
+*TRANSLATE ADDR TO ABSOLUTE                                             00007821
+         LGR   R6,R5                                                    00007921
+         NILL  R6,X'E000'                                               00008021
+         LTGR  R6,R6                                                    00008121
+         BNE   M&N.XT#11                 =>EQORH IF R5>=0...01000       00008221
+         OG    R5,PREF                                                  00008321
+*BITS 0-50 IS ZEROS; REPLACE THEM FROM PREFIX                           00008421
+         B     M&N.DSW#1                                                00008521
+M&N.XT#11  CLG   R6,PREF                                                00008621
+         BNE   M&N.XT#12                                                00008721
+         NG    R5,=X'0000000000001FFF'                                  00008821
+*PREF==R6; REPLACE 0-50 WITH ZEROS                                      00008921
+         B     M&N.DSW#1                                                00009021
+M&N.XT#12  EQU   *                                                      00009121
+*R6 DO NOT CONTAIN BIS FROM PREFIX AND NOT ZERO; UNCHANGED              00009221
+M&N.DSW#1  EQU   *                                                      00009321
+         MEND                                                           00009421
+                                                                        00009521
+FIRSTCCW CSECT                                                          00013000
+         AMODE 31                                                       00020000
+         RMODE 24                                                       00030009
+         STM   R14,R12,12(R13)                                          00040000
+                                                                        00041000
+         BASR  R12,0                                                    00060000
+         USING *,R12                                                    00070000
+                                                                        00080000
+       GETMAIN RU,LV=DATA#,LOC=BELOW                                    00081008
+         LR    R11,R1                                                   00082008
+         USING DATA,R11                                                 00083008
+                                                                        00083109
+         XR    R3,R3                                                    00083209
+         ST    R3,0(R11)                                                00083309
+         ST    R3,256(R11)                                              00083409
+         MVC   1(256,R11),0(R11)     FILL AREA WITH 0                   00083509
+         MVC   257(DATA#-255,R11),256(R11)     FILL AREA WITH 0         00083609
+                                                                        00084008
+         LR    R2,R13                                                   00090000
+         ST    R13,SAVEAREA+4                                           00100000
+         LA    R13,SAVEAREA                                             00110000
+         ST    R13,8(R2)                                                00120000
+                                                                        00120111
+       GETMAIN RU,LV=DCBLNGPS,LOC=BELOW                                 00120509
+         ST    R1,DEBUG@                                                00120609
+         MVC   0(DCBLNGPS,R1),DEBUG     GET MEM FOR DCB                 00120709
+                                                                        00120809
+         L     R9,DEBUG@                                                00120909
+         OPEN  ((R9),OUTPUT),MODE=31                                    00121009
+                                                                        00121103
+         WTO   'SAVEARED'                                               00121208
+                                                                        00121312
+*      MODESET MODE=SUP,KEY=ZERO                                        00121421
+*STSCH METHOD                                                           00121512
+         XR    R5,R5                                                    00121612
+         L     R6,=X'00010000'                                          00121712
+LP#31    LR    R1,R6                                                    00121812
+         STSCH SCHIB                                                    00121912
+         BC    B'0011',CHLP#31                                          00122017
+         LH    R5,SCHIB+6                                               00122112
+         C     R5,=X'00000AA5'                                          00122224
+         BNE   CHLP#31                                                  00122312
+         B     ENDLP#31                                                 00122412
+CHLP#31  EQU   *                                                        00122512
+         LA    R6,1(,R6)                                                00122612
+         C     R6,=X'0001FFFF'                                          00122712
+         BNH   LP#31                                                    00122812
+ENDLP#31 EQU   *                                                        00122912
+*        DC    X'0000'                                                  00123021
+         ST    R6,SBCNUM                                                00123113
+         OI    SCHIB+5,X'80'                                            00123213
+         LR    R1,R6                                                    00123313
+         MSCH  SCHIB            ENABLE SBC                              00123417
+                                                                        00123521
+         STPX  PREF+4                                                   00123621
+*/====================================WRITE                             00123724
+         XR    R1,R1                                                    00123824
+         LHI   R1,X'FF'                                                 00123924
+         ST    R1,RECW                                                  00124024
+                                                                        00125021
+*        L     R1,SBCNUM                                                00134924
+*        TSCH  IRB                                                      00135024
+                                                                        00135117
+*        L     R1,SBCNUM                                                00135224
+*        STSCH SCHIB                                                    00135324
+                                                                        00135421
+         LA    R5,CCWW                                                  00135524
+        GETABS R5                                                       00135721
+         ST    R5,MYORB+8                                               00135824
+                                                                        00135921
+         LA    R5,DFPARMW                                               00136024
+        GETABS R5                                                       00136221
+         OILH  R5,X'6300'                                               00136324
+         ST    R5,CCWW                                                  00136424
+                                                                        00136521
+         LA    R5,LRPARMW                                               00136624
+        GETABS R5                                                       00136821
+         OILH  R5,X'4300'                                               00136924
+         ST    R5,CCWW+8                                                00137024
+                                                                        00137121
+         LA    R5,RECW                                                  00137224
+        GETABS R5                                                       00137321
+         OILH  R5,X'4100'                                               00137424
+         ST    R5,CCWW+8+8                                              00137524
+                                                                        00137621
+         L     R1,SBCNUM                                                00137721
+         SSCH  MYORB                        EXECUTE RECV ORB            00137826
+*        DC    X'0000'                                                  00137921
+         BC    B'1000',SKIP#23                                          00138021
+         WTO   'NO OK'                                                  00138121
+SKIP#23  EQU   *                                                        00138221
+         L     R3,=X'0F000000'                                          00138321
+NXT3     LTR   R3,R3                                                    00138421
+         AHI   R3,-X'1'                                                 00138521
+         BNE   NXT3                                                     00138621
+                                                                        00138721
+         L     R1,SBCNUM                                                00138821
+         TSCH  IRB                                                      00138921
+         L     R1,SBCNUM                                                00139221
+         STSCH SCHIB                                                    00139321
+                                                                        00139421
+*/====================================READ                              00139524
+         XR    R1,R1                                                    00139624
+         ST    R1,RECW                                                  00139824
+                                                                        00139924
+*        L     R1,SBCNUM                                                00140024
+*        TSCH  IRB                                                      00140124
+                                                                        00140224
+*        L     R1,SBCNUM                                                00140324
+*        STSCH SCHIB                                                    00140424
+                                                                        00140524
+         LA    R5,CCWR                                                  00140624
+        GETABS R5                                                       00140724
+         ST    R5,MYORB+8                                               00140824
+                                                                        00140924
+         LA    R5,DFPARMR                                               00141024
+        GETABS R5                                                       00141124
+         OILH  R5,X'6300'                                               00141224
+         ST    R5,CCWR                                                  00141324
+                                                                        00141424
+         LA    R5,LRPARMR                                               00141524
+        GETABS R5                                                       00141624
+         OILH  R5,X'4300'                                               00141724
+         ST    R5,CCWR+8                                                00141824
+                                                                        00141924
+         LA    R5,RECW                                                  00142024
+        GETABS R5                                                       00142124
+         OILH  R5,X'4200'                                               00142224
+         ST    R5,CCWR+8+8                                              00142324
+                                                                        00142424
+         L     R1,SBCNUM                                                00142524
+         SSCH  MYORB                        EXECUTE RECV ORB            00142624
+*        DC    X'0000'                                                  00142724
+         BC    B'1000',SKIP#33                                          00142824
+         WTO   'NO OK'                                                  00142924
+SKIP#33  EQU   *                                                        00143024
+         L     R3,=X'10000000'                                          00143124
+NXT4     LTR   R3,R3                                                    00143224
+         AHI   R3,-X'1'                                                 00143324
+         BNE   NXT4                                                     00143424
+                                                                        00143524
+         L     R1,SBCNUM                                                00143624
+         TSCH  IRB                                                      00143724
+         L     R1,SBCNUM                                                00143824
+         STSCH SCHIB                                                    00143924
+                                                                        00144024
+                                                                        00144124
+         MVC   OUT(8),=C'UCBSCAND'                                      00144224
+         MVC   OUT+8(4),URET                                            00144324
+         MVC   OUT+12(4),URSN                                           00144424
+         OUTPUT                                                         00144524
+                                                                        00144624
+         MVC   OUT(8),=C'RECORD  '                                      00144724
+         LA    R4,RECW                                                  00144824
+         MVC   OUT+8(50),0(R4)                                          00144924
+         OUTPUT                                                         00145024
+                                                                        00145124
+         MVC   OUT(8),=C'SCHIB   '                                      00145224
+         MVC   OUT+8(48),SCHIB                                          00145324
+         OUTPUT                                                         00145424
+                                                                        00145524
+         MVC   OUT(8),=C'IRB     '                                      00145624
+         MVC   OUT+8(92),IRB                                            00145724
+         OUTPUT                                                         00145824
+                                                                        00145924
+                                                                        00146024
+         MVC   OUT(8),=C'IOSINFO '                                      00146124
+         MVC   OUT+8(4),IRET                                            00146224
+         MVC   OUT+12(4),SBCNUM                                         00146324
+         OUTPUT                                                         00146424
+                                                                        00146524
+         MVC   OUT(8),=C'PREFIX  '                                      00146624
+         MVC   OUT+8(8),PREF                                            00146724
+         OUTPUT                                                         00146824
+                                                                        00146924
+         MVC   OUT(8),=C'OBTAIN  '                                      00147024
+         MVC   OUT+8(8),LBUFADDR                                        00147124
+         MVC   OUT+12(8),ABUFADDR                                       00147224
+         MVC   OUT+20(4),SRET                                           00147324
+         OUTPUT                                                         00147424
+                                                                        00147524
+         MVC   OUT(8),=C'ORB     '                                      00147624
+         LA    R2,MYORB                                                 00147724
+         MVC   OUT+8(16),0(R2)                                          00147824
+         OUTPUT                                                         00147924
+                                                                        00148024
+         L     R9,DEBUG@                                                00148124
+         CLOSE ((R9)),MODE=31                                           00148224
+                                                                        00148324
+*      MODESET MODE=PROB,KEY=NZERO                                      00148424
+         L     R13,4(R13)                                               00148524
+         LM    R14,R12,12(R13)                                          00149024
+         BR    R14                                                      00150000
+         LTORG                                                          00150108
+DEBUG    DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)                         00150209
+REASON   DC    CL58'CCW WRITING'                                        00150311
+         DS    0F                                                       00150411
+CKD001   DC    CL6'CKD001'                                              00150521
+MYINTCD  DC    X'10101010'                                              00150608
+ABSADDR1 DS    D                                                        00150708
+MYORB    DC    XL4'10101010'  INT PARAM                                 00150824
+         DC    XL4'0000FF00'  SET CHANNEL MASK TO FF                    00150924
+         DC    A(CCWW)                                                  00151024
+         DC    XL4'00000000'                                            00151121
+         DC    XL4'00000000'                                            00151221
+         DC    XL4'00000000'                                            00151321
+         DC    XL4'00000000'                                            00151421
+         DC    XL4'00000000'                                            00151521
+                                                                        00151621
+         DS    0D                                                       00151721
+                                                                        00151824
+CCWW     CCW   X'63',DFPARMW,X'40',X'0010'  DEF EXT                     00154423
+         CCW   X'43',LRPARMW,X'40',X'0008'  LOC REC                     00154524
+         CCW   X'41',RECW,X'00',X'0200'   WRITE RECW                    00154624
+VTOCADDR DC    XL6'0000190000'                                          00154723
+DFPARMW  DC    X'C0' MACK:PERM_WRITE                                    00154824
+         DC    X'00' NOT USED                                           00154924
+         DC    X'0000' BLOCKSIZE STAND(512)                             00155024
+         DC    X'00000028' OFFSET OF FIRST BLOCK IN BLOCKS FROM BEG DEV 00155124
+         DC    X'00000000'  BEGIN OF EXTENT RELATIVE                    00155424
+         DC    X'00000000'  END OF EXTENT   RELATIVE                    00155524
+*DFPARM   DC    XL16'00C10000000000000019000000190000'                  00155623
+                                                                        00155723
+LRPARMW  DC    X'01'  NO MODIFIER,WRITE DATA                            00155824
+         DC    X'00'  AUX BYTE IS ZERO CUZ NO REPL                      00155924
+         DC    X'0001' 1 BLOCK TRANSF                                   00156024
+         DC    X'00000000' REL DISPLACEMENT                             00156124
+*LRPARM   DC    XL16'46000001001900000019000000000000'                  00156623
+*                         83                                            00156723
+*                                                                       00156823
+CCWR     CCW   X'63',DFPARMR,X'40',X'0010'  DEF EXT                     00156924
+         CCW   X'43',LRPARMR,X'40',X'0008'  LOC REC                     00157024
+         CCW   X'42',RECW,X'00',X'0200'    READ RECW                    00157125
+DFPARMR  DC    X'C0' MACK:PERM_READ                                     00157325
+         DC    X'00' NOT USED                                           00157424
+         DC    X'0000' BLOCKSIZE STAND(512)                             00157524
+         DC    X'00000028' OFFSET OF FIRST BLOCK IN BLOCKS FROM BEG DEV 00157624
+         DC    X'00000000'  BEGIN OF EXTENT RELATIVE                    00157724
+         DC    X'00000000'  END OF EXTENT   RELATIVE                    00157824
+*DFPARM   DC    XL16'00C10000000000000019000000190000'                  00157924
+                                                                        00158024
+LRPARMR  DC    X'06'  NO MODIFIER,READ DATA                             00158124
+         DC    X'00'  AUX BYTE IS ZERO CUZ NO REPL                      00158224
+         DC    X'0001' 1 BLOCK TRANSF                                   00158324
+         DC    X'00000000' REL DISPLACEMENT                             00158424
+*LRPARM   DC    XL16'46000001001900000019000000000000'                  00158524
+*                         83                                            00158624
+*                                                                       00158724
+         DS    0D                                                       00158824
+RECW     DC    XL256'0'                                                 00158924
+         DC    XL256'0'                                                 00159024
+         DS    0D                                                       00159124
+         IECDIOCM                                                       00159224
+         IHADCQ                                                         00159324
+         IHAORB                                                         00159424
+         CVT   DSECT=YES                                                00159524
+         IHAPSA                                                         00159624
+         DCBD  DSORG=PS                                                 00159724
+                                                                        00159824
+DATA     DSECT                                                          00159924
+PIN@     DS    F                                                        00160024
+PIN      DS    2F                                                       00160124
+SCHIB    DS    12F                                                      00160224
+IRB      DS    23F                                                      00160324
+VTCADDR@ DS    CL6                                                      00160424
+IRET     DS    F                                                        00160524
+SBCNUM   DS    F                                                        00160624
+DEBUG@   DS    F                                                        00160724
+LBUFADDR DS    F                                                        00160824
+ABUFADDR DS    F                                                        00160924
+LCCWADDR DS    F                                                        00161024
+ACCWADDR DS    F                                                        00161124
+PREF     DS    D                                                        00161224
+ABSADDR2 DS    D                                                        00161324
+SBCNUMP  DS    F                                                        00161424
+SNDORB   DS    F                                                        00161524
+RCVORB   DS    F                                                        00161624
+SAVEAREA DS    18F                                                      00161724
+USWA     DS    CL100                                                    00161824
+*OALUCBP DS    F                                                        00161924
+*OALUCB  DS    CL48                                                     00162024
+URET     DS    F                                                        00162124
+URSN     DS    F                                                        00162224
+SRET     DS    F                                                        00162324
+OUT      DS    CL80                                                     00162424
+DATA#    EQU   *-PIN@                                                   00162524
+                                                                        00163024
+         END                                                            00170023

@@ -1,0 +1,69 @@
+         GENREG                                                         00010000
+TRAPM    CSECT                                                          00020000
+TRAPM    AMODE 31                                                       00030000
+TRAPM    RMODE 24                                                       00040000
+         DS    0H                                                       00050000
+                                                                        00060000
+         BASR  R12,0                                                    00061001
+         USING *,R12                                                    00062001
+*        WTO   'TRAP EXECUTES'                                          00062107
+         L     R15,TRAPSAA-TRAPCB(R15)                                  00063001
+         MVC   TSA(TRAPSA#),0(R15)                                      00064001
+                                                                        00064301
+         LA    R6,RPLST1                                                00064701
+         USING RPLST,R6                                                 00064801
+                                                                        00064901
+         LHI   R2,X'0006'              SET FLAG P AND FLAG R            00065005
+         STH   R2,RPFLAGS                                               00065101
+                                                                        00065201
+         LA    R2,PSW+80-TRAPSA                                         00065305
+         STH   R2,PSWOFFS                                               00065401
+                                                                        00065501
+         LA    R2,AR15+80-TRAPSA                                        00065605
+         STH   R2,AROFFS                                                00065701
+                                                                        00065801
+         LA    R2,GR+120+80-TRAPSA                                      00065905
+         STH   R2,GROFFS                                                00066001
+                                                                        00066104
+         LA    R15,TSA                                                  00066804
+         LMG   R0,R14,GR-TRAPSA(R15)                                    00066905
+         AHI   R15,-80                                                  00067105
+                                                                        00068001
+         RP    0(R15)                                                   00070001
+                                                                        00071005
+RPLST1   DS    CL80                                                     00080005
+TSA      DS    CL256                                                    00081003
+                                                                        00090001
+         DS    0F                                                       00330000
+                                                                        00330100
+TRAPCB   DSECT                                                          00330201
+CBFLAGS  DS    F                                                        00330301
+         DS    2F                                                       00330401
+TRAPSAA  DS    F                                                        00330501
+         DS    F                                                        00330601
+TRAPPAA  DS    F                                                        00330701
+CBUSRFLD DS    2F                                                       00330801
+         DS    8F                                                       00330901
+TRAPCB#  EQU   *-CBFLAGS                                                00331001
+PFLAG    EQU   B'0000000000000100'                                      00331101
+RFLAG    EQU   B'0000000000000010'                                      00331201
+EFLAG    EQU   B'0000000000000001'                                      00331301
+                                                                        00331401
+TRAPSA   DSECT                                                          00331501
+SAFLAGS  DS    F                                                        00331601
+         DS    F                                                        00331701
+SECOP    DS    F                                                        00331801
+AR15     DS    F                                                        00331901
+PSW      DS    4F                                                       00332001
+GR       DS    32F                                                      00332101
+SAUSRFLD DS    2F                                                       00332201
+         DS    22F                                                      00332301
+TRAPSA#  EQU   *-SAFLAGS                                                00332401
+                                                                        00332501
+RPLST    DSECT                                                          00333000
+RPFLAGS  DS    H                                                        00340001
+PSWOFFS  DS    H                                                        00350001
+AROFFS   DS    H                                                        00360001
+GROFFS   DS    H                                                        00370001
+RPLST#   EQU   *-RPFLAGS                                                00380000
+         END                                                            00390000

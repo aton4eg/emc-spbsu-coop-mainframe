@@ -1,0 +1,40 @@
+         MACRO                                                          00010000
+         GETM  &OPT,&LV=0,&LOC=ANY                                      00020003
+         GBLA  &E56                                                     00020103
+&E56     SETA  &E56+1                                                   00020200
+                                                                        00020300
+         B     DT3#&E56                                                 00020400
+MCH&E56  DCB   DDNAME=MEMCHECK,DSORG=PS,MACRF=(PM)                      00020600
+DT3#&E56 EQU   *                                                        00020700
+                                                                        00020800
+         OPEN  (MCH&E56,OUTPUT)                                         00021003
+                                                                        00021103
+         LCLC  &LVTEMP                                                  00021203
+         LCLA  &N                                                       00021303
+&N       SETA  K'&LV-2                                            UMLV  00021403
+&LVTEMP  SETC  '&LV'(2,&N)                                              00021503
+         AIF   ('&LV'(1,1) EQ '(').REGLV                                00021603
+         AIF   ('&LV'(1,1) GE '0' AND '&LV'(1,1) LE '9').NUMLV          00022103
+.FLDLV   ANOP                                                           00022203
+         PUT   MCH&E56,&LV                                              00022303
+         AGO   .ENDLV                                                   00022403
+                                                                        00022503
+.NUMLV   ANOP                                                           00022603
+         B     DT4#&E56                                                 00022703
+FL1#&E56 DC    H'&LV'                                                   00022903
+DT4#&E56 EQU   *                                                        00023003
+         PUT   MCH&E56,FL1#&E56                                         00023103
+         AGO   .ENDLV                                                   00023203
+                                                                        00023303
+.REGLV   ANOP                                                           00023403
+         B     DT5#&E56                                                 00023503
+FL2#&E56 DS    F                                                        00023603
+DT5#&E56 EQU   *                                                        00023703
+         ST    &LVTEMP,FL2#&E56                                         00023803
+         PUT   MCH&E56,FL2#&E56                                         00023903
+.ENDLV   ANOP                                                           00024003
+                                                                        00024103
+         CLOSE (MCH&E56)                                                00024203
+                                                                        00025003
+       GETMAIN &OPT,LV=&LV,LOC=&LOC                                     00030003
+         MEND                                                           00040003

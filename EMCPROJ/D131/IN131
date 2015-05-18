@@ -1,0 +1,1 @@
+Offsets within each record are calculated from the beginning of the header section. The following examples show the format 00010000

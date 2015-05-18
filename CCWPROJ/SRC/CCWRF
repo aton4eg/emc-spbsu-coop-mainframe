@@ -1,0 +1,46 @@
+         GENREG                                                         00211001
+MYPROG   CSECT                                                          00220000
+         AMODE 31                                                       00230001
+         RMODE 24                                                       00240001
+         STM   R14,R12,12(R13)                                          00250001
+                                                                        00260001
+         BASR  R12,0                                                    00270001
+         USING *,R12                                                    00280001
+                                                                        00290001
+       GETMAIN RU,LV=DATA#,LOC=BELOW                                    00300001
+         LR    R11,R1                                                   00310001
+         USING DATA,R11                                                 00320001
+                                                                        00330001
+         XR    R3,R3                                                    00340001
+         ST    R3,0(R11)                                                00350001
+         ST    R3,256(R11)                                              00360001
+         MVC   1(DATA#,R11),0(R11)     FILL AREA WITH 0                 00370001
+                                                                        00390001
+         LR    R2,R13                                                   00400001
+         ST    R13,SAVEAREA+4                                           00410001
+         LA    R13,SAVEAREA                                             00420001
+         ST    R13,8(R2)                                                00430001
+                                                                        00431001
+         MODESET KEY=ZERO,MODE=SUP                                      00432001
+         LOAD  EP=CCWF,GLOBAL=(YES,F),EOM=NO                            00432104
+         LR    R1,R0                                                    00432303
+         BASR  R14,R1                                                   00432403
+         MODESET KEY=NZERO,MODE=PROB                                    00432503
+                                                                        00434001
+*        OPEN  (DEBUG,OUTPUT)                                           00435003
+*        PUT   DEBUG,PREF                                               00435103
+*        CLOSE (DEBUG)                                                  00436003
+                                                                        00440001
+         L     R13,4(R13)                                               00450001
+         LM    R14,R12,12(R13)                                          00460001
+         BR    R14                                                      00470001
+         LTORG                                                          00470101
+DEBUG    DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)                         00470201
+DATA     DSECT                                                          00471001
+PREF     DS    2F                                                       00472001
+DATAL@   DS    2F                                                       00472101
+DATAR@   DS    2F                                                       00472201
+DATAA@   DS    2F                                                       00472301
+SAVEAREA DS    18F                                                      00473001
+DATA#    EQU   *-PREF                                                   00474001
+         END                                                            00480001

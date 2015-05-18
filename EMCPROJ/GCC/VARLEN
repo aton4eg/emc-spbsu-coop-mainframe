@@ -1,0 +1,56 @@
+#include <stdio.h>
+int main(int argc, char **argv){
+  FILE* input131  = fopen("dd:in131","r, lrecl=131");
+  FILE* output131 = fopen("dd:out131","w, lrecl=131");
+  FILE* input80   = fopen("dd:in80","r, lrecl=80");
+  FILE* output80  = fopen("dd:out80","w, lrecl=80");
+  FILE* inputvb  = fopen("dd:invb(s1)","rb, recfm=vb,type=record");
+/*FILE* inputvb  = fopen("dd:invb(DEBUG)","r, lrecl=80");
+  DIR*  inputvb  = opendir("dd:invb");     */
+
+/*char buf131[131];
+  char buf80[80];
+  char adata[200];
+  char adata2[200];    */
+  while(1){};
+  int l1;
+  int l2;
+  printf("aaa");
+/*fgets(buf131,200,input131);
+  fgets(buf80,200,input80); */ /*
+/*fgets(adata,200,inputvb);*/
+/*fgets(adata2,200,inputvb);*/
+
+  char adata[201];
+  unsigned long int ololo = 0;
+  fread(adata,1,4,inputvb);
+  ololo = adata[0]*0x100+adata[1];
+  ololo = ololo-4;
+  fread(adata,1,ololo,inputvb);
+  fwrite(adata,1,ololo,output80);
+
+
+/*fprintf(output131,"%s\n",&buf131);
+  fprintf(output131,"%s\n",&buf80);
+  fprintf(output80,"%s\n",&buf131);
+  fprintf(output80,"%s\n",&buf80);*/
+
+/*fprintf(output80,"%d %d\n",l1,l2); */
+/*dir = readdir(inputvb);  */
+/*fprintf(output80,"%s\n",inputvb->d_name); */
+/*l1 = fread(adata,1,200,inputvb);
+  fwrite(adata,1,80,output80);
+  fprintf(output80,"\n");
+  l1 = fread(adata,1,200,inputvb);
+  fwrite(adata,1,80,output80); */
+/*  fputs(adata,output80);   */
+/*  fputs(adata2,output80);  */
+
+  fclose(input131);
+  fclose(output131);
+  fclose(input80);
+  fclose(output80);
+  fclose(inputvb);
+/*closedir(inputvb);*/
+  return 0;
+}

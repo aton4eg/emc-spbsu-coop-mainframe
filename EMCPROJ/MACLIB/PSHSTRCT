@@ -1,0 +1,52 @@
+         MACRO                                                          00015700
+         PSHSTRCT   &STRUCTNAME,&RECORD@,&LIST@                         00015813
+*R0 R1 R2 R3 R4 R7 R8 R9 MAY CHANGE                                     00015900
+*INSERTS &RECORD IN &LIST TYPE &STRUCTNAME                              00016009
+*&LIST MAY BE RECREATED                                                 00016100
+         GBLA  &E1                                                      00016200
+&E1      SETA  &E1+1                                                    00016300
+         LCLC  &HEADER                                                  00016400
+         LCLC  &RECORD@_                                                00016500
+         LCLC  &LIST@_                                                  00016600
+         LCLA  &N                                                       00016700
+&N       SETA  K'&RECORD@-2                                             00016800
+&RECORD@_ SETC '&RECORD@'(2,&N)                                         00016900
+&N       SETA  K'&LIST@-2                                               00017000
+&LIST@_   SETC '&LIST@'(2,&N)                                           00017100
+                                                                        00017200
+         AIF   ('&STRUCTNAME' NE 'RECB').OK                             00017300
+&HEADER  SETC  'CBHEADE#'                                               00017400
+         AGO   .ENDSTR                                                  00017500
+.OK      ANOP                                                           00017600
+&HEADER  SETC  'CBHEAD#'                                                00017700
+.ENDSTR  ANOP                                                           00017800
+                                                                        00017900
+         USING CBHEAD,&LIST@_                                           00018000
+         L     R3,POS               R3:=POS                             00018100
+         L     R2,LENGTH            R2:=LENGTH                          00018200
+         CR    R2,R3                IF POS=LENGTH THEN EXPAND AND COPY  00018300
+         BNE   COPY#&E1             ELSE COPY                           00018400
+EXP#&E1  EQU   *                                                        00018500
+         WTO   'LIST EXPANDED'                                          00018615
+         SLA   R2,1                 R2:=R2*2                            00018700
+         LR    R4,R2                                                    00018800
+         AHI   R2,&HEADER           +HEADER                             00018900
+       GETMAIN RU,LV=(R2),LOC=ANY    GET MEMORY FOR NEW STRUCT LEN=R2   00019014
+         LR    R9,R1                R9:=R1                              00019100
+         L     R7,LENGTH                                                00019200
+         AHI   R7,&HEADER                                               00019300
+      FASTCOPY (R9),(&LIST@_),(R7)      COPY (&LIST) INTO (R9)          00019400
+         LR    &LIST@_,R9            SET UP NEW LIST                    00019500
+         ST    R4,LENGTH            LENGTH:=R4                          00019600
+COPY#&E1 EQU   *                                                        00019700
+         L     R4,POS               R4:=POS                             00019800
+         LR    R3,R4                R3:=R4                              00019900
+         AHI   R3,&STRUCTNAME.#      R3:=R3+OFFSET FOR NEW MEMBER       00020000
+         ST    R3,POS               POS:=R3                             00020100
+         AR    R4,&LIST@_            R4:=POS + ADDR OF LIST             00020200
+         AHI   R4,&HEADER           ADD HEADER TO R4                    00020300
+         XR    R8,R8                R8:=0                               00020400
+         LHI   R8,&STRUCTNAME.#      R8:=LENGTH OF RECORD               00020500
+      FASTCOPY (R4),(&RECORD@_),(R8)   COPY RECORD INTO STRUCT          00020600
+         DROP  &LIST@_                                                  00020700
+         MEND                                                           00020800

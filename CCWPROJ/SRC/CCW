@@ -1,0 +1,346 @@
+         GENREG                                                         00001008
+                                                                        00002009
+         MACRO                                                          00003009
+         OUTPUT                                                         00004009
+         L     R9,DEBUG@                                                00005009
+         PUT   (R9),OUT                                                 00006009
+         MEND                                                           00007009
+                                                                        00007119
+         MACRO                                                          00007219
+*CHANGES R5,R6, OUTPUT IN R5                                            00007319
+         GETABS &RN                                                     00007419
+         GBLA  &N                                                       00007520
+&N       SETA  &N+1                                                     00007620
+         LRA   R5,0(&RN)                                                00007720
+*TRANSLATE ADDR TO ABSOLUTE                                             00007820
+         LGR   R6,R5                                                    00007920
+         NILL  R6,X'E000'                                               00008120
+         LTGR  R6,R6                                                    00008220
+         BNE   M&N.XT#11                 =>EQORH IF R5>=0...01000       00008320
+         OG    R5,PREF                                                  00008420
+*BITS 0-50 IS ZEROS; REPLACE THEM FROM PREFIX                           00008520
+         B     M&N.DSW#1                                                00008620
+M&N.XT#11  CLG   R6,PREF                                                00008720
+         BNE   M&N.XT#12                                                00008820
+         NG    R5,=X'0000000000001FFF'                                  00008920
+*PREF==R6; REPLACE 0-50 WITH ZEROS                                      00009020
+         B     M&N.DSW#1                                                00009120
+M&N.XT#12  EQU   *                                                      00009220
+*R6 DO NOT CONTAIN BIS FROM PREFIX AND NOT ZERO; UNCHANGED              00009320
+M&N.DSW#1  EQU   *                                                      00009420
+         MEND                                                           00009520
+                                                                        00009620
+FIRSTCCW CSECT                                                          00010000
+         AMODE 31                                                       00020000
+         RMODE 24                                                       00030009
+         STM   R14,R12,12(R13)                                          00040000
+                                                                        00041000
+         BASR  R12,0                                                    00060000
+         USING *,R12                                                    00070000
+                                                                        00080000
+       GETMAIN RU,LV=DATA#,LOC=BELOW                                    00081008
+         LR    R11,R1                                                   00082008
+         USING DATA,R11                                                 00083008
+                                                                        00083109
+         XR    R3,R3                                                    00083209
+         ST    R3,0(R11)                                                00083309
+         ST    R3,256(R11)                                              00083409
+         MVC   1(256,R11),0(R11)     FILL AREA WITH 0                   00083509
+         MVC   257(DATA#-255,R11),256(R11)     FILL AREA WITH 0         00083609
+                                                                        00084008
+         LR    R2,R13                                                   00090000
+         ST    R13,SAVEAREA+4                                           00100000
+         LA    R13,SAVEAREA                                             00110000
+         ST    R13,8(R2)                                                00120000
+                                                                        00120111
+         LA    R1,PIN                                                   00120211
+         ST    R1,PIN@                                                  00120311
+                                                                        00120409
+       GETMAIN RU,LV=DCBLNGPS,LOC=BELOW                                 00120509
+         ST    R1,DEBUG@                                                00120609
+         MVC   0(DCBLNGPS,R1),DEBUG     GET MEM FOR DCB                 00120709
+                                                                        00120809
+         L     R9,DEBUG@                                                00120909
+         OPEN  ((R9),OUTPUT),MODE=31                                    00121009
+                                                                        00121103
+         WTO   'SAVEARED'                                               00121208
+                                                                        00121312
+       MODESET MODE=SUP,KEY=ZERO                                        00121412
+*STSCH METHOD                                                           00121512
+         XR    R5,R5                                                    00121612
+         L     R6,=X'00010000'                                          00121712
+LP#31    LR    R1,R6                                                    00121812
+         STSCH SCHIB                                                    00121912
+         BC    B'0011',CHLP#31                                          00122017
+         LH    R5,SCHIB+6                                               00122112
+         C     R5,=X'00000AA4'                                          00122217
+         BNE   CHLP#31                                                  00122312
+         B     ENDLP#31                                                 00122412
+CHLP#31  EQU   *                                                        00122512
+         LA    R6,1(,R6)                                                00122612
+         C     R6,=X'0001FFFF'                                          00122712
+         BNH   LP#31                                                    00122812
+ENDLP#31 EQU   *                                                        00122912
+*        DC    X'0000'                                                  00123014
+         ST    R6,SBCNUM                                                00123113
+         OI    SCHIB+5,X'80'                                            00123213
+         LR    R1,R6                                                    00123313
+         MSCH  SCHIB            ENABLE SBC                              00123417
+*        DC    X'0000'                                                  00123513
+                                                                        00123612
+*UCBSCAN-IOSINFO METHOD                                                 00123712
+*      UCBSCAN COPY,WORKAREA=USWA,UCBAREA=GOALUCB,VOLSER=CKD001,       X00123814
+               DYNAMIC=YES,RANGE=ALL,DEVCLASS=DASD,                    X00123911
+               RETCODE=URET,RSNCODE=URSN                                00124011
+                                                                        00124109
+*ADDRESS METHOD NOT WORK CUZ IOSINFO RETURNS 0                          00124214
+*P#33    EQU   *                                                        00124315
+*      UCBSCAN ADDRESS,WORKAREA=USWA,UCBPTR=GOALUCBP,DEVN=0,           X00124415
+               DYNAMIC=YES,RANGE=ALL,DEVCLASS=DASD,PIN,TEXT=REASON,    X00124511
+               RETCODE=URET,RSNCODE=URSN,LOC=BELOW,PTOKEN=PIN           00124611
+*        LR    R7,R15                                                   00124715
+*        L     R5,GOALUCBP                                              00124815
+*        CLC   13(3,R5),=CL3'AA4'                                       00124915
+*        BE    FOUND                                                    00125015
+*       UCBPIN UNPIN,PTOKEN=PIN                                         00125115
+*        LTR   R7,R7                                                    00125215
+*        BE    LP#33                                                    00125315
+*OUND    EQU   *                                                        00125415
+*        LA    R5,GOALUCBP                                              00125515
+                                                                        00125611
+*        OILH  R5,X'8000'                                               00125711
+*        LA    R5,GOALUCBP                                              00125814
+*        L     R5,13(R5)                                                00125911
+*        LA    R3,GOALUCB                                               00126011
+*        ST    R3,GOALUCBP                                              00126111
+                                                                        00126211
+*        XR    R2,R2                                                    00126311
+*        LHI   R2,X'0A90'                                               00126411
+*      IOSLOOK DEV=(2),UCB=(R5)                                         00126511
+*        DC    X'0000'                  WORK WITH STATIC UCB?           00126611
+                                                                        00126711
+*      IOSINFO FUNCTN=SUBCHNO,UCB=(R5),OUTPUT=SBCNUM,RTNCODE=IRET       00126815
+*        DC    X'0000'                                                  00126915
+*       UCBPIN UNPIN,PTOKEN=PIN                                         00127015
+         STPX  PREF+4                                                   00127205
+       MODESET MODE=PROB,KEY=NZERO                                      00127320
+         WTO   'STORED PREFIX'                                          00127408
+       STORAGE OBTAIN,LENGTH=130,ADDR=LBUFADDR,BNDRY=PAGE,             X00127520
+               RTCD=SRET,COND=YES,                                     X00127620
+               LINKAGE=SVC,FIX=LONG                                     00127720
+       MODESET MODE=SUP,KEY=ZERO                                        00127820
+         L     R4,LBUFADDR                                              00127909
+        GETABS R4                                                       00128020
+*        STG   R5,ABSADDR1                                              00129409
+         ST    R5,ABUFADDR                                              00129509
+         ST    R4,CCWRZERO+4+8                                          00129620
+         LA    R5,VTOCADDR                                              00129715
+         ST    R5,CCWRZERO+4                                            00129815
+                                                                        00130106
+                                                                        00130206
+       MODESET MODE=PROB,KEY=NZERO                                      00130320
+         XR    R3,R3                                                    00130406
+       GETMAIN RU,LV=ORBEND-ORB,LOC=BELOW                               00130506
+         ST    R1,SNDORB                     GOT SEND ORB               00130606
+         ST    R3,0(R1)                                                 00130706
+         MVC   1(ORBEND-ORB,R1),0(R1)        SET ORB TO 0               00130806
+                                                                        00130906
+       GETMAIN RU,LV=ORBEND-ORB,LOC=BELOW                               00131006
+         ST    R1,RCVORB                    GOR RECV ORB                00131108
+         ST    R3,0(R1)                                                 00131206
+         MVC   1(ORBEND-ORB,R1),0(R1)        SET ORB TO 0               00131306
+       MODESET MODE=SUP,KEY=ZERO                                        00131420
+                                                                        00131506
+         USING ORB,R2                                                   00131608
+*        L     R2,SNDORB                                                00131707
+*        MVC   ORBIP(4),MYINTCD                                         00131807
+*        OI    ORBFLG1,ORBF+ORBP  ORBB=0 CUZ CCW,ORBH=0 CUZ 31 BIT      00131907
+*        MVC   ORBPCA(4),=A(CCWSND)                                     00132007
+                                                                        00132106
+*        L     R2,RECVORB                                               00132207
+*        MVC   ORBIP(4),MYINTCD                                         00132307
+*        OI    ORBFLG1,ORBF+ORBP  ORBB=0 CUZ CCW,ORBH=0 CUZ 31 BIT      00132407
+*        MVC   ORBPCA(4),=A(CCWRCV)                                     00132507
+                                                                        00132606
+         L     R2,RCVORB                                                00132708
+         MVC   ORBIP(4),MYINTCD                                         00132807
+         OI    ORBFLG1,ORBF       ORBF=1 CUZ CCW1                       00132915
+                                                                        00133017
+*      STORAGE OBTAIN,LENGTH=16,ADDR=LCCWADDR,BNDRY=PAGE,LINKAGE=SVC,  X00133120
+               FIX=LONG,LOC=(31,31),RTCD=SRET,COND=YES                  00133220
+         LA    R5,CCWRZERO                                              00133320
+*        L     R4,LBUFADDR                                              00133420
+*        MVC   104(16,R4),CCWRZERO                                      00133520
+*        AHI   R4,X'68'                                                 00133620
+*       GETABS R4                                                       00134020
+         ST    R5,ORBCPA                                                00134617
+                                                                        00134807
+         L     R1,SBCNUM                                                00134917
+         TSCH  IRB                                                      00135020
+                                                                        00135117
+         L     R1,SBCNUM                                                00135217
+         STSCH SCHIB                                                    00135320
+                                                                        00135417
+*        L     R1,SBCNUM                                                00135513
+*        SSCH  SNDORB                        EXECUTE SND ORB            00135613
+         L     R1,SBCNUM                                                00135717
+         SSCH  RCVORB                        EXECUTE RECV ORB           00135817
+         BC    B'0001',SKIP#23                                          00136017
+         WTO   'NO CC3'                                                 00136117
+SKIP#23  EQU   *                                                        00136217
+                                                                        00136317
+         L     R1,SBCNUM                                                00136420
+         TSCH  IRB                                                      00136520
+         L     R1,SBCNUM                                                00136620
+         STSCH SCHIB                                                    00136720
+                                                                        00136817
+                                                                        00136909
+         MVC   OUT(8),=C'UCBSCAND'                                      00137015
+         MVC   OUT+8(4),URET                                            00137115
+         MVC   OUT+12(4),URSN                                           00137220
+         OUTPUT                                                         00137315
+                                                                        00137415
+         MVC   OUT(8),=C'RECORD  '                                      00137515
+         L     R4,LBUFADDR                                              00137615
+         MVC   OUT+8(50),0(R4)                                          00137717
+         OUTPUT                                                         00137815
+                                                                        00137916
+         MVC   OUT(8),=C'SCHIB   '                                      00138016
+         MVC   OUT+8(48),SCHIB                                          00138117
+         OUTPUT                                                         00138216
+                                                                        00138317
+         MVC   OUT(8),=C'IRB     '                                      00138417
+         MVC   OUT+8(92),IRB                                            00138517
+         OUTPUT                                                         00138617
+                                                                        00138717
+*MY UCB SCAN                                                            00138815
+                                                                        00138915
+*P#34    EQU   *                                                        00139015
+*      UCBSCAN ADDRESS,WORKAREA=USWA,UCBPTR=GOALUCBP,DEVN=0,            00139115
+*              DYNAMIC=YES,RANGE=ALL,NOPIN,DEVCLASS=DASD,               00139215
+*              RETCODE=URET,RSNCODE=URSN,LOC=BELOW,SUBCHANNELSET=ALL    00139315
+*        LR    R7,R15                                                   00139415
+*        L     R5,GOALUCBP                                              00139515
+*        MVC   OUT(48),0(R5)                                            00139615
+*        OUTPUT                                                         00139715
+*        LTR   R7,R7                                                    00139815
+*        BE    LP#34                                                    00139915
+*                                                                       00140015
+*        XR    R5,R5                                                    00140115
+*        L     R5,FLCCVT-PSA(R5)                                        00140215
+*        L     R5,CVTUCBA-CVTMAP(R5)                                    00140315
+*P#38    EQU   *                                                        00140415
+*        MVC   OUT(48),0(R5)                                            00140515
+*        OUTPUT                                                         00140615
+*        L     R5,8(R5)      NEXT UCB                                   00140715
+*        LTR   R5,R5                                                    00140815
+*        BNE   LP#38                                                    00140915
+*                                                                       00141015
+*        XR    R5,R5                                                    00141115
+*        L     R5,FLCCVT-PSA(R5)                                        00141215
+*        L     R5,CVTDCQA-CVTMAP(R5)                                    00141315
+*        L     R5,DCQFIRST-DCQHEAD(R5)                                  00141415
+*P#36    EQU   *                                                        00141515
+*        L     R6,DCQUCBAD-DCQELMNT(R5)                                 00141615
+*                                                                       00141715
+*P#37    EQU   *                                                        00141815
+*        MVC   OUT(48),0(R6)                                            00141915
+*        OUTPUT                                                         00142015
+*        L     R6,8(R6)      NEXT UCB                                   00142115
+*        LTR   R6,R6                                                    00142215
+*        BNE   LP#37                                                    00142315
+*                                                                       00142415
+*        L     R5,0(R5)      NEXT DCQ ELEM                              00142515
+*        LTR   R5,R5                                                    00142615
+*        BNE   LP#36                                                    00142715
+*        L     R5,GOALUCBP                                              00142815
+*        L     R5,8(R5)                                                 00142915
+*        MVC   OUT(48),0(R5)                                            00143015
+*        MVC   OUT(48),GOALUCB                                          00143115
+*        OUTPUT                                                         00143215
+*        MVC   OUT(4),GOALUCBP                                          00143315
+*        OUTPUT                                                         00143415
+                                                                        00143515
+         MVC   OUT(8),=C'IOSINFO '                                      00143615
+         MVC   OUT+8(4),IRET                                            00143715
+         MVC   OUT+12(4),SBCNUM                                         00143820
+         OUTPUT                                                         00143915
+                                                                        00144015
+         MVC   OUT(8),=C'PREFIX  '                                      00144115
+         MVC   OUT+8(8),PREF                                            00144215
+         OUTPUT                                                         00144315
+                                                                        00144415
+         MVC   OUT(8),=C'OBTAIN  '                                      00144515
+         MVC   OUT+8(8),LBUFADDR                                        00144615
+         MVC   OUT+12(8),ABUFADDR                                       00144720
+         MVC   OUT+20(4),SRET                                           00144820
+         OUTPUT                                                         00144915
+                                                                        00145015
+         MVC   OUT(8),=C'ORB     '                                      00145115
+         L     R2,RCVORB                                                00145215
+         MVC   OUT+8(16),0(R2)                                          00145315
+         OUTPUT                                                         00145415
+                                                                        00145515
+         L     R9,DEBUG@                                                00145615
+         CLOSE ((R9)),MODE=31                                           00145715
+                                                                        00145815
+       MODESET MODE=PROB,KEY=NZERO                                      00145915
+         L     R13,4(R13)                                               00146015
+         LM    R14,R12,12(R13)                                          00147000
+         BR    R14                                                      00150000
+         LTORG                                                          00150108
+DEBUG    DCB   DDNAME=DEBUG,DSORG=PS,MACRF=(PM)                         00150209
+REASON   DC    CL58'CCW WRITING'                                        00150311
+         DS    0F                                                       00150411
+CKD001   DC    CL6'ZASYS1'                                              00150511
+MYINTCD  DC    X'10101010'                                              00150608
+ABSADDR1 DS    D                                                        00150708
+*CCWSND   EQU   *                                                       00150807
+*        CCW1  'COMM CODE','DATA ADDR','FLAGS','DATACOUNT'              00150904
+*        CCW1  'MMMMMM01','DATA ADDR','1000000','50'                    00151007
+*        CCW1  'MMMMMM01','DATA ADDR','1000000','50'                    00151107
+*CCWRCV   EQU   *                                                       00151207
+*         CCW1  'MMMMMM10','DATA ADDR','1000000','50'                   00151307
+*         CCW1  'MMMMMM10','DATA ADDR','1000000','50'                   00151407
+CCWRZERO CCW1  X'07',X'00000000',X'20',X'006'                           00151515
+         CCW1  X'16',OLOLO,X'00',X'100'                                 00151620
+VTOCADDR DC    X'001900'                                                00151717
+OLOLO    DS    CL100                                                    00151820
+*        IHASDDSQ                                                       00151919
+*        IEA2D420                                                       00152019
+         IECDIOCM                                                       00152115
+         IHADCQ                                                         00152215
+         IHAORB                                                         00152315
+         CVT   DSECT=YES                                                00152415
+         IHAPSA                                                         00152515
+         DCBD  DSORG=PS                                                 00152615
+                                                                        00152715
+DATA     DSECT                                                          00152815
+PIN@     DS    F                                                        00152915
+PIN      DS    2F                                                       00153015
+SCHIB    DS    12F                                                      00153115
+IRB      DS    23F                                                      00153217
+VTCADDR@ DS    CL6                                                      00153315
+IRET     DS    F                                                        00153415
+SBCNUM   DS    F                                                        00153515
+DEBUG@   DS    F                                                        00153615
+LBUFADDR DS    F                                                        00153715
+ABUFADDR DS    F                                                        00153815
+LCCWADDR DS    F                                                        00153920
+ACCWADDR DS    F                                                        00154020
+PREF     DS    D                                                        00154115
+ABSADDR2 DS    D                                                        00154215
+SBCNUMP  DS    F                                                        00154315
+SNDORB   DS    F                                                        00154415
+RCVORB   DS    F                                                        00154515
+SAVEAREA DS    18F                                                      00154600
+USWA     DS    CL100                                                    00154702
+*OALUCBP DS    F                                                        00154817
+*OALUCB  DS    CL48                                                     00154917
+URET     DS    F                                                        00155002
+URSN     DS    F                                                        00155102
+SRET     DS    F                                                        00155209
+OUT      DS    CL80                                                     00155309
+DATA#    EQU   *-PIN@                                                   00155411
+                                                                        00156002
+         END                                                            00160000

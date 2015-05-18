@@ -1,0 +1,233 @@
+         GENREG                                                         00010000
+SVC241   CSECT                                                          00020000
+SVC241   AMODE 31                                                       00030000
+SVC241   RMODE 24                                                       00040000
+         DS    0H                                                       00050000
+*EXPAND BR/B HANDLING FOR BC (CONDITIONAL)                              00051001
+                                                                        00060000
+         USING RBBASIC,R5                                               00070000
+         STM   R13,R7,RBEXSAVE                                          00080003
+         BASR  R12,0                                                    00081000
+         USING *,R12                                                    00082000
+         B     SKIPDATA                                                 00083002
+TREE     DC    F'00000000'                                              00084003
+TRCLST   DS    F'00000000'                                              00085003
+SKIPDATA EQU   *                                                        00086002
+         LR    R9,R4                    R9:=TCB@                        00090000
+                                                                        00100000
+         STCTL R2,R2,RBEXSAVE+40                                        00110001
+         L     R2,RBEXSAVE+40           R2:=CR2                         00120001
+                                                                        00130000
+         SRL   R2,6(0)                                                  00140000
+         SLL   R2,6(0)                  CLEAR LAST 6 BIT                00150000
+                                                                        00160000
+         LA    R3,DUTRPCTL-DUCT(,R2)                                    00170000
+         LURA  R9,R3                    R3:=ADDR OF TRAP CB             00180000
+                                                                        00190000
+         TMLL  R9,X'0001'                                               00200000
+         BO    ESTBLED                  JMP IF TRAP ENABLED             00210000
+*=========================================INITIALIZATION                00220000
+         WTO   'ESTABLE CONNECTION'                                     00221003
+         LA    R9,1(,R9)                                                00230000
+         STURA R9,R3                    SET FLAG OF INITIALIZATION      00240000
+       GETMAIN RU,LV=PROCADDR#,LOC=ANY,KEY=8                            00320003
+         LA    R8,DUPRGM-DUCT(,R2)                                      00330000
+         STURA R1,R8                    R8:=ADDR OF PROC ADDRS          00340000
+         LR    R8,R1                    GOT MEMORY FOR WORK             00350005
+         USING PROCADDR,R8                                              00360000
+                                                                        00360100
+       GETMAIN RU,LV=3000,LOC=ANY,KEY=8                                 00361000
+         ST    R1,MDLDSC@               GOT MEMORY FOR MODULE DESCR     00362005
+         XR    R3,R3                                                    00363003
+         ST    R3,0(R1)                 CREATE MDL DSC                  00364003
+         MVC   1(255,R1),0(R1)          AND FILL WITH ZERO              00365000
+                                                                        00366000
+         MVC   MDLTREE@(4),TREE          STORE TREE ARG                 00367005
+         ST    R4,TCB@                   STORE TCB                      00370005
+*FIND TCB AND LOOK FOR LLE. WE HAVE TCB ADDR IN R4                      00380000
+*        L     R4,TCBOTC-TCB(R4)                                        00390002
+*        L     R4,TCBLLS-TCB(R4)                                        00400002
+*P#3     LTR   R4,R4                                                    00410002
+*        BE    ENDLP#3                                                  00420002
+*        L     R3,LLECDPT-LLE(R4)                                       00430002
+*        CLC   CDNAME-CDENTRY(8,R3),=CL8'INITTRC ' IF CDNAME!='INITTRC' 00440002
+*        BNE   FALSE#3                     JMP FALSE#3                  00450002
+*        MVC   INITTRC@(4),CDENTPT-CDENTRY(R3)  ELSE COPY ADDR          00460002
+*        L     R3,CDENTPT-CDENTRY(R3)                                   00470002
+*        MVC   MDLTREE@(4),16(R3)                                       00480002
+*        MVC   MDLDSC@(4),20(R3)                                        00490002
+*        MVC   CRTRC@(4),24(R3)                                         00500002
+*        B     ENDLP#3                                                  00510002
+*ALSE#3  EQU   *                                                        00520002
+*        L     R4,LLECHN-LLE(R4)                                        00530002
+*        B     LP#3                                                     00540002
+*NDLP#3  EQU   *                                                        00550002
+*CHECK FOR ZERO                                                         00560000
+         LA    R13,SAREA                 CALL INITTRC                   00561005
+         ST    R13,SAREA2+4                                             00570003
+         LA    R13,SAREA2                                               00580003
+         STM   R0,R14,12(R13)                                           00590002
+         EXTRN INITTRC                                                  00591002
+         L     R11,=A(INITTRC)                                          00600002
+         BASR  R14,R11                                                  00610002
+         LM    R0,R14,12(R13)                                           00611002
+         ST    R15,TRCLST@               STORE RESULT AS TRCLIST        00612005
+                                                                        00612103
+         L     R1,TRCLST                 CHECK TRCLIST                  00612205
+         LTR   R1,R1                     IF STORED                      00612305
+         BNE   OK                           JMP OK                      00612405
+         ST    R15,TRCLST                ELSE STORE                     00612505
+OK       EQU   *                         TRCLIST IS TRACE TRACE TABLE   00612605
+         L     R13,4(R13)                                               00613002
+         WTO   'CONNECTION ESTABLISHED'                                 00614003
+*INITIALIZATION ENDS====================================                00620000
+ESTBLED  EQU   *                                                        00630000
+                                                                        00640000
+         LA    R8,DUPRGM-DUCT(,R2)                                      00650000
+         LURA  R8,R8                    R4:=ADDR OF PROC ADDRS          00660000
+         LA    R13,SAREA                                                00670003
+                                                                        00680005
+         LR    R9,R4                                                    00700000
+         L     R9,RBLINK                GET PREV RB                     00710005
+         NILH  R9,X'00FF'               SET FLAGS TO 0                  00711005
+         L     R9,RBOPSWA-RBBASIC(R9)   LOAD PSWADDR                    00720005
+         NILH  R9,X'7FFF'               SET 31 TO ZERO                  00730005
+         AHI   R9,-2                    -1 CUZ NEXT INSTRUCTION         00731005
+         ST    R9,ADDR@                 STORE ADDR                      00740005
+                                                                        00750000
+         WTO   'CALL CREATE TRACE'                                      00751004
+                                                                        00752004
+         LA    R1,SAREA2+80             CALL CREATE TRACE               00760005
+         ST    R1,SAREA2+76                                             00770003
+         ST    R13,SAREA2+4                                             00780003
+         LA    R13,SAREA2                                               00790003
+         EXTRN CRTRC                                                    00801002
+         L     R6,=A(CRTRC)                                             00802002
+         LR    R15,R6                                                   00803002
+         LA    R1,TCB@                                                  00804002
+         BASR  R14,R6                                                   00805002
+         L     R13,4(R13)                                               00806002
+                                                                        00807004
+         LR    R3,R15      GET RES FROM CRTRC R3:=ADDR OF INSTR NODE    00820005
+         USING INSTNODE,R3                                              00830000
+         LTR   R3,R3                    IF INSTR IS NULL                00831005
+         BE    ENDCASE1                 JMP ENDCASE1                    00832005
+         LG    R2,INSTR                 R2:=INSTR                       00850003
+         SRLG  R3,R2,56(0)                                              00851005
+         CHI   R3,X'0007'               IF R2                           00860005
+         BNE   NXT1                     != BR => JMP                    00870005
+         WTO   'BR'                                                     00880003
+*ADDD CHECK FOR AMODE 64                                                00890000
+         SLLG  R2,R2,12(0)           CLEAR LEFT 8 BIT                   00900003
+         SRLG  R2,R2,12+16+32(0)   R3:=NUM OF REGISTER AND CLEAR        00910003
+         SLLG  R2,R2,2(0)            R3*=4                              00910103
+         XR    R3,R3                                                    00910403
+         ST    R3,RETRY@             RETRY@ = 0 CUZ FIRST 4 BYTE PSW    00910505
+         LA    R2,0(R2,R5)           R2:=ADDR OF AIMED REG              00910805
+         MVC   RETRY@+4(4),RBGRSAVE-RBBASIC(R2) SET RETRY FOR PSW REST  00911005
+         MVC   ADDR@(4),RBGRSAVE-RBBASIC(R2)    SET ADDR FOR SETDEST    00911105
+                                                                        00911204
+         NI    ADDR@,X'7F'                                              00911304
+         NI    RETRY@+4,X'7F'                                           00911404
+                                                                        00911504
+         LA    R1,SAREA2+80          CALL SETDEST                       00911605
+         ST    R1,SAREA2+76                                             00911704
+         ST    R13,SAREA2+4                                             00911804
+         LA    R13,SAREA2                                               00911904
+         EXTRN SETDEST                                                  00912004
+         L     R6,=A(SETDEST)                                           00912104
+         LR    R15,R6                                                   00912204
+         LA    R1,TCB@                                                  00912304
+         BASR  R14,R6                                                   00912404
+         L     R13,4(R13)                                               00912504
+*        LTR   R15,R15                                                  00912604
+*        BNE   OK3                                                      00912704
+*        L     R1,ADDR@                                                 00912804
+*        L     R2,MDLDSC@                                               00912904
+*        LG    R3,60(R2)                                                00913004
+*        DC    X'0000'                                                  00913104
+*K3      EQU   *                                                        00913204
+                                                                        00914004
+         LA    R4,RETRY@             LOAD ADDR OF NEW PSW               00920005
+                                                                        00930003
+       IEARBUP WHICHRB=PREV,FUNCTION=UPDATE,AMODE=UNCHANGED,           X00940003
+               PSWBYTE03=NO,ADDRTYPE=ACTUAL,PSWADDR=(R4)                00950000
+         LTR   R15,R15                                                  00951004
+         BE    OK2                                                      00952004
+         WTO   'IEARBUP ERROR'                                          00953004
+OK2      EQU   *                                                        00954004
+         B     ENDCASE1                                                 00960000
+                                                                        00970000
+NXT1     EQU   *                                                        00980000
+         CHI   R3,X'0047'               IF R2                           00990005
+         BNE   NXT2                     != B  => JMP                    01000005
+         WTO   'B'                                                      01010003
+*ADDD CHECK FOR AMODE 64                                                01020000
+         SLLG  R9,R2,16(0)          CLEAR FIRST 12 BIT                  01030003
+         SRLG  R9,R9,16+12+32(0)  R9:=BASE REG NUM  AND CLEAR           01040003
+         SLLG  R9,R9,2(0)            R9*=4                              01041003
+         L     R9,RBGRSAVE(R9)      R9:=BASE REGISTER VALUE             01050000
+         SLLG  R2,R2,20(0)          CLEAR FIRST 20 BIT                  01060003
+         SRLG  R2,R2,20+32(0)       R2:=OFFSET                          01070003
+         LA    R9,0(R2,R9)          R2:=R2+R9                           01080003
+         ST    R9,RETRY@+4                                              01081003
+         ST    R9,ADDR@                                                 01081105
+         NI    RETRY@+4,X'7F'                                           01081205
+         NI    ADDR@,X'7F'                                              01081305
+                                                                        01081505
+         LA    R1,SAREA2+80          CALL SETDEST                       01081605
+         ST    R1,SAREA2+76                                             01081705
+         ST    R13,SAREA2+4                                             01081805
+         LA    R13,SAREA2                                               01081905
+         L     R6,=A(SETDEST)                                           01082005
+         LR    R15,R6                                                   01082105
+         LA    R1,TCB@                                                  01082205
+         BASR  R14,R6                                                   01082305
+         L     R13,4(R13)                                               01082405
+                                                                        01082505
+         XR    R3,R3                                                    01082605
+         ST    R3,RETRY@                                                01082705
+         LA    R4,RETRY@                                                01083003
+                                                                        01090000
+       IEARBUP WHICHRB=PREV,FUNCTION=UPDATE,AMODE=UNCHANGED,           X01100003
+               PSWBYTE03=NO,ADDRTYPE=ACTUAL,PSWADDR=(R4)                01110000
+         B     ENDCASE1                                                 01120000
+NXT2     EQU   *                                                        01130000
+ENDCASE1 EQU   *                                                        01140000
+                                                                        01150000
+         LM    R13,R7,RBEXSAVE                                          01160003
+                                                                        01170000
+         BR    14                                                       01430000
+         DS    0F                                                       01440000
+DLT      DC    F'2'                                                     01450000
+CR2VALUE DS    F     REPLACE WITH GETMAIN                               01451000
+DEBUG    DCB   DDNAME=SPYM$DBG,LRECL=131,DSORG=PS,MACRF=(PM)            01451103
+         LTORG                                                          01452000
+         CVT   DSECT=YES                                                01460000
+       IHAECVT                                                          01470000
+        IKJTCB                                                          01471000
+         IHARB                                                          01480000
+         IKJRB                                                          01490000
+        IHALLE                                                          01500000
+        IHACDE                                                          01510000
+      IHAXTLST                                                          01520000
+                                                                        01530000
+         TRAPKIT                                                        01540000
+PROCADDR DSECT                                                          01550000
+TCB@     DS    F                                                        01560000
+MDLDSC@  DS    F                                                        01580000
+MDLTREE@ DS    F                                                        01581003
+TRCLST@  DS    F                                                        01590002
+ADDR@    DS    F                                                        01600000
+RETRY@   DS    2F                                                       01610003
+SAREA    DS    18F                                                      01630003
+SAREA2   DS    282F                                                     01631003
+PROCADDR# EQU *-TCB@                                                    01640000
+                                                                        01650000
+INSTNODE DSECT                                                          01660000
+OFFSET   DS    F                                                        01670000
+LENGTH   DS    F                                                        01680000
+INSTR    DS    CL6                                                      01690000
+NEXT     DS    F                                                        01700000
+DATA#2   DSECT                                                          01710000
+         END                                                            01730000

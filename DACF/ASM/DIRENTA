@@ -1,0 +1,342 @@
+* & was changed to *                                                    00010000
+         GENREG                                                         00020000
+*SMALL ROUTINE SETDIR================================================== 00030000
+*INPUT: R7=OPENED_DCB R10=SAVEAREA R11=DIR                              00040000
+*OUTPUT: FILLED DIR/R11=0                                               00050000
+*CHANGES: R11,R9,R8,R2,R1,R0,R15                                        00060000
+SETDIR   CSECT                                                          00070000
+SETDIR   AMODE 31                                                       00080000
+SETDIR   RMODE ANY                                                      00090000
+         LR    R3,R12                                                   00100000
+         BASR  R12,0                                                    00110000
+         USING *,R12                                                    00120000
+         USING DIR,R11                                                  00130000
+         LA    R8,68(,R10)           R8:=POINTER ADDRESS FOR DESERV     00140000
+         LA    R9,72(,R10)           RETURN CODE FOR DESERV             00150000
+         LA    R2,74(,R10)          REASON CODE FOR DESERV              00160000
+        DESERV FUNC=GET_ALL,AREAPTR=(R8),DCB=(R7),CONN_INTENT=NONE,    X00170000
+               RETCODE=(R9),RSNCODE=(R2)                                00180000
+                                                                        00190000
+         L     R8,68(,R10)                                              00200000
+         LTR   R8,R8                                                    00210000
+         BNE   ENTRYEX                                                  00220000
+*DESB WAS NOT CREATED. DESTROY DIR                                      00230000
+      FREEMAIN RU,LV=DIR#,A=(R11)                                       00240000
+         XR    R11,R11                                                  00250000
+         B     RETPTR                                                   00260000
+ENTRYEX  EQU   *                                                        00270000
+                                                                        00280000
+         ST    R8,BUFP             SET DESB POINTER                     00290000
+         MVC   CURSMDEN(4),=F'1'      SET CURRENT SMDE NUMBER           00300000
+         ST    R8,CURBUFP          SET CURRENT DESB POINTER             00310000
+                                                                        00320000
+         LA    R8,DESB_DATA-DESB(R8)                                    00330000
+         ST    R8,CURSMDEP            SET CURRENT SMDE POINTER          00340000
+                                                                        00350000
+         ST    R7,LIBDCBP             SET DCB FOR LIBRARY               00360000
+RETPTR   EQU   *                                                        00370000
+         LR    R12,R3                                                   00380000
+         BR    R14                                                      00390000
+         LTORG                                                          00400000
+         DROP  R11                                                      00410000
+         DROP  R12                                                      00420000
+*        DIR* opendir_ (const char *dirname,int* m,int sar); ========== 00430000
+OPENDIR@ CSECT                                                          00440000
+OPENDIR@ AMODE 31                                                       00450000
+OPENDIR@ RMODE ANY                                                      00460000
+                                                                        00470000
+         ST    R10,8(,R1)            store r10 in third arg             00480000
+         L     R10,4(,R1)            second arg is savearea             00490000
+         STM   R11,R9,0(R10)         save registers                     00500000
+         L     R5,0(,R1)                                                00510000
+         BASR  12,0                                                     00520000
+         USING *,12                                                     00530000
+                                                                        00540000
+HPG1     EQU   *                                                        00550000
+*INPUT IS R1, P TO CHAR AND P TO SA => 0(R1)~CHAR; 4(R1)~SA; 8(R1)~INT  00560000
+                                                                        00570000
+       GETMAIN RU,LV=DCBLNGPO,LOC=BELOW                                 00580000
+         BAS   R8,SKIP#89                                               00590000
+         DCB   DSORG=PO,MACRF=(R)                                       00600000
+         DS    0F                                                       00610000
+SKIP#89  EQU   *                                                        00620000
+                                                                        00630000
+         LR    R6,R1            R6:=DEST ADDR                           00640000
+         XR    R7,R7            R7:=0                                   00650000
+         LA    R7,DCBLNGPO(,R7) R7:=DCB LENGTH                          00660000
+         LR    R9,R7            R9:=DCB LENGTH                          00670000
+         MVCL  R6,R8            COPY DCB                                00680000
+         LR    R6,R1                                                    00690000
+*        MVC   0(DCBLNGPO,R6),0(R8)            COPY DCB                 00700000
+                                                                        00710000
+         LH    R9,DCBDDNAM-IHADCB+8(R6) PROTECTION FROM END CHAR        00720000
+         XR    R0,R0                    SET UP END SYMBOL               00730000
+         LR    R7,R6                    SAVE DCB ADDR IN R7             00740000
+         LA    R6,DCBDDNAM-IHADCB(R6)  SET DESTINATION ADDR             00750000
+         MVST  R6,R5                    COPY DDNAME                     00760000
+         LHI   R8,X'0040'                                               00770000
+         STC   R8,0(,R6)                STORE SPACE AT END              00780000
+         STH   R9,DCBDDNAM-IHADCB+8(R7)  PROTECTION FROM END CHAR       00790000
+                                                                        00800000
+*        LA    R6,DCBDDNAM-IHADCB-2(R7)  SET DESTINATION ADDR           00810000
+*        WTO   TEXT=(R6)                                                00820000
+                                                                        00830000
+*        WTO   'INFO:DCB CREATED AND DD COPIED'                         00840000
+*      PREPDCB PO,GET,(R6),EODAD=NO,(R7)                                00850000
+         OPEN  ((R7),INPUT),MODE=31                                     00860000
+                                                                        00870000
+       GETMAIN RU,LV=DIR#,LOC=ANY                                       00880000
+         LR    R11,R1                 GOT MEMORY FOR DIR                00890000
+         USING DIR,R11                                                  00900000
+*        WTO   'DCB OPENED'                                             00910000
+         L     R15,=A(SETDIR)                                           00920000
+         BASR  R14,R15               CALL SETDIR                        00930000
+                                                                        00940000
+         ST    R11,16(,R10)           RETURN POINTER TO DIR             00950000
+*OUTPUT IS R15                                                          00960000
+         LM    R11,R9,0(R10)                                            00970000
+         L     R10,8(,R1)                                               00980000
+         BR    R14                                                      00990000
+*CONSTANTS============================================================= 01000000
+DIREMPTY DC    X'000803F4'                                              01010000
+*====================================================================== 01020000
+         LTORG                                                          01030000
+         DROP  R12                                                      01040000
+         DROP  R11                                                      01050000
+*        struct dirent* readdir_ (DIR *dirp,int* m,int sar);=========== 01060000
+READDIR@ CSECT                                                          01070000
+READDIR@ AMODE 31                                                       01080000
+READDIR@ RMODE ANY                                                      01090000
+         ST    R10,8(,R1)    store r10 in third arg                     01100000
+         L     R10,4(,R1)    second arg is savearea                     01110000
+         STM   R11,R9,0(R10) save registers                             01120000
+         L     R11,0(,R1)                                               01130000
+         BASR  12,0                                                     01140000
+         USING *,12                                                     01150000
+                                                                        01160000
+HPG2     EQU   *                                                        01170000
+*INPUT IS R1, P TO DIR AND P TO SA => 0(R1)~*DIR; 4(R1)~&M; 8(R1)~INT   01180000
+                                                                        01190000
+         USING DIR,R11                                                  01200000
+                                                                        01210000
+         L     R2,CURBUFP                                               01220000
+         USING DESB,R2                                                  01230000
+         LTR   R2,R2                                                    01240000
+         BNE   BUFEX        IF R10!=0                                   01250000
+         WTO   'CURBUF=0'                                               01260000
+         XR    R15,R15                                                  01270000
+         ST    R15,16(,R10)  R15:=ADDR OF RESULT STRING                 01280000
+         B     HPG2EX                                                   01290000
+                                                                        01300000
+BUFEX    EQU   *                                                        01310000
+         L     R3,CURSMDEP                                              01320000
+         LR    R8,R3                 R3 IS SMDE ADDR                    01330000
+         AH    R8,SMDE_NAME_OFF-SMDE(R8) R8 IS ADR OF NAME IN PRM FRMT  01340000
+*        WTO   TEXT=(R8)                                                01350000
+         XR    R9,R9                                                    01360000
+         LH    R9,0(,R8)    R9:=LENGTH OF NAME                          01370000
+         LR    R7,R9        R7:=LENGTH OF NAME                          01380000
+         LA    R8,2(,R8)    R8:=SOURCE ADDR                             01390000
+         LA    R6,CURNAME   R6:=DEST ADDR                               01400000
+         LR    R4,R6        R4:=DEST ADDR                               01410000
+         LR    R5,R7        R5:=LENGTH                                  01420000
+         MVCL  R6,R8        COPY NAME                                   01430000
+                                                                        01440000
+         LA    R1,INO                                                   01450000
+         ST    R1,16(,R10)  R15:=ADDR OF RESULT STRING                  01460000
+         LA    R4,1(R5,R4)  R4:=R4+R5+1                                 01470000
+         MVI   0(R4),X'00'  STORE ZERO AT END OF STRING                 01480000
+                                                                        01490000
+         CLC   DESB_COUNT,CURSMDEN                                      01500000
+         BNE   SMDENEXT     DESB_COUNT!=CURSMDEN => SWITCH              01510000
+                                                                        01520000
+         XR    R1,R1                                                    01530000
+         C     R1,DESB_NEXT                                             01540000
+         BNE   DESBNEXT     DESB_NEXT !=0 => SWITCH                     01550000
+                                                                        01560000
+         ST    R1,CURBUFP   NO NEXT SMDE AND NEXT DESB                  01570000
+         B     HPG2EX                                                   01580000
+                                                                        01590000
+DESBNEXT EQU   *                                                        01600000
+         MVC   CURBUFP(4),DESB_NEXT STORE AS NEW CURRENT                01610000
+         MVC   CURSMDEN,=F'1'  SMDE NUM IS 1                            01620000
+         LA    R9,DESB_DATA                                             01630000
+         ST    R9,CURSMDEP     CURSMDEP:=DESB_DATA ADDR                 01640000
+         B     HPG2EX                                                   01650000
+                                                                        01660000
+SMDENEXT EQU   *                                                        01670000
+         A     R3,SMDE_LEN-SMDE(R3) GO TO NEXT SMDE                     01680000
+         ST    R3,CURSMDEP                                              01690000
+         L     R1,CURSMDEN                                              01700000
+         LA    R1,1(,R1)                                                01710000
+         ST    R1,CURSMDEN      CURSMDEN+1                              01720000
+                                                                        01730000
+*OUTPUT IS R15                                                          01740000
+HPG2EX   EQU   *                                                        01750000
+         LM    R11,R9,0(R10)                                            01760000
+         L     R10,8(,R1)                                               01770000
+         BR    R14                                                      01780000
+         LTORG                                                          01790000
+         DROP  R2                                                       01800000
+         DROP  R12                                                      01810000
+         DROP  R11                                                      01820000
+*SMALL ROUTINE DELDESB================================================= 01830000
+*INPUT: R11=POINTER TO DIR                                              01840000
+*OUTPUT: DELETED DESB                                                   01850000
+*CHANGES: R9,R8,R7,R1,R0,R15,R3                                         01860000
+DELDESB  CSECT                                                          01870000
+DELDESB  AMODE 31                                                       01880000
+DELDESB  RMODE ANY                                                      01890000
+         LR    R3,R12                                                   01900000
+         BASR  R12,0                                                    01910000
+         USING *,R12                                                    01920000
+         USING DIR,R11                                                  01930000
+         L     R9,BUFP                                                  01940000
+LP#33    LTR   R9,R9                                                    01950000
+         BE    ENDLP#33                                                 01960000
+         L     R8,DESB_NEXT-DESB(R9)                                    01970000
+         L     R7,DESB_LEN-DESB(R9)     FIRST BYTE CAN BE INCORRECT     01980000
+      FREEMAIN RU,A=(R9),LV=(R7)                                        01990000
+         LR    R9,R8                                                    02000000
+         B     LP#33                                                    02010000
+ENDLP#33 EQU   *                                                        02020000
+         LR    R12,R3                                                   02030000
+         BR    R14                                                      02040000
+         DROP  R11                                                      02050000
+         DROP  R12                                                      02060000
+*        int closedir_ (DIR *dirp,int* m,int sar);===================== 02070000
+CLSDIR@  CSECT                                                          02080000
+CLSDIR@  AMODE 31                                                       02090000
+CLSDIR@  RMODE ANY                                                      02100000
+         ST    R10,8(,R1)      store r10 in third arg                   02110000
+         L     R10,4(,R1)      second arg is savearea                   02120000
+         STM   R11,R9,0(R10)   save registers                           02130000
+         L     R11,0(,R1)                                               02140000
+         BASR  12,0                                                     02150000
+         USING *,12                                                     02160000
+                                                                        02170000
+HPG3     EQU   *                                                        02180000
+*INPUT IS R1, P TO DIR P TO SA => 0(R1)~*DIR; 4(R1)~&M; 8(R1)~INT       02190000
+                                                                        02200000
+         L     R15,=A(DELDESB)                                          02210000
+         BASR  R14,R15                                                  02220000
+                                                                        02230000
+         L     R9,LIBDCBP-DIR(R11)                                      02240000
+         CLOSE ((R9)),MODE=31                                           02250000
+      FREEMAIN RU,A=(R9),LV=DCBLNGPO                                    02260000
+      FREEMAIN RU,A=(R11),LV=DIR#                                       02270000
+         XR    R15,R15                                                  02280000
+         ST    R15,16(,R10)    RETURN ZERO                              02290000
+*OUTPUT IS RI5                                                          02300000
+HPG3EX   EQU   *                                                        02310000
+         LM    R11,R9,0(R10)                                            02320000
+         L     R10,8(,R1)                                               02330000
+         BR    R14                                                      02340000
+         LTORG                                                          02350000
+         DROP  R12                                                      02360000
+                                                                        02370000
+*        void rewinddir(DIR *dirp);==================================== 02380000
+RWNDDIR@ CSECT                                                          02390000
+RWNDDIR@ AMODE 31                                                       02400000
+RWNDDIR@ RMODE ANY                                                      02410000
+         ST    R10,8(,R1)      store r10 in third arg                   02420000
+         L     R10,4(,R1)      second arg is savearea                   02430000
+         STM   R11,R9,0(R10)   save registers                           02440000
+         L     R11,0(,R1)      R11:=DIR                                 02450000
+         BASR  12,0                                                     02460000
+         USING *,12                                                     02470000
+                                                                        02480000
+HPG4     EQU   *                                                        02490000
+         L     R15,=A(DELDESB)                                          02500000
+         BASR  R14,R15         CALL DELDESB                             02510000
+                                                                        02520000
+         L     R7,LIBDCBP-DIR(R11)                                      02530000
+         L     R15,=A(SETDIR)                                           02540000
+         BASR  R14,R15         CALL DELDESB                             02550000
+                                                                        02560000
+         XR    R15,R15                                                  02570000
+HPG4EX   EQU   *                                                        02580000
+         LM    R11,R9,0(R10)                                            02590000
+         L     R10,8(,R1)                                               02600000
+         BR    R14                                                      02610000
+         LTORG                                                          02620000
+         DROP  R12                                                      02630000
+*        void telldir_ (DIR* dirp,int* m,int sar);                      02640000
+TELLDIR@ CSECT                                                          02650000
+TELLDIR@ AMODE 31                                                       02660000
+TELLDIR@ RMODE ANY                                                      02670000
+         ST    R10,8(,R1)      store r10 in third arg                   02680000
+         L     R10,4(,R1)      second arg is savearea                   02690000
+         STM   R11,R9,0(R10)   save registers                           02700000
+         L     R11,0(,R1)      R11:=DIR                                 02710000
+         BASR  12,0                                                     02720000
+         USING *,12                                                     02730000
+                                                                        02740000
+HPG5     EQU   *                                                        02750000
+         MVC   16(4,R10),CURSMDEP-DIR(R11)                              02760000
+HPG5EX   EQU   *                                                        02770000
+         LM    R11,R9,0(R10)                                            02780000
+         L     R10,8(,R1)                                               02790000
+         BR    R14                                                      02800000
+         LTORG                                                          02810000
+         DROP  R12                                                      02820000
+*        void seekdir_ (DIR* dirp,int loc,int* m,int sar);              02830000
+SEEKDIR@ CSECT                                                          02840000
+SEEKDIR@ AMODE 31                                                       02850000
+SEEKDIR@ RMODE ANY                                                      02860000
+         ST    R10,12(,R1)      store r10 in third arg                  02870000
+         L     R10,8(,R1)      second arg is savearea                   02880000
+         STM   R11,R9,0(R10)   save registers                           02890000
+         L     R11,0(,R1)      R11:=DIR                                 02900000
+         L     R2,4(,R1)                                                02910000
+         BASR  12,0                                                     02920000
+         USING *,12                                                     02930000
+                                                                        02940000
+HPG6     EQU   *                                                        02950000
+         L     R8,BUFP-DIR(R11)                                         02960000
+                                                                        02970000
+LP#43    LTR   R8,R8                                                    02980000
+         BE    ENDLP#43                R8=0 => ENDLP#43                 02990000
+                                                                        03000000
+         L     R7,DESB_COUNT-DESB(R8)  R7:=SMDE_COUNT                   03010000
+         LA    R6,DESB_DATA-DESB(R8)   R6:=FIRST SMDE ADDR              03020000
+LP#42    EQU   *                                                        03030000
+         CR    R6,R2                                                    03040000
+         BNE   NO#44                   SMDE_ADDR!=R2 => NO#44           03050000
+         ST    R8,CURBUFP-DIR(R11)     SMDE_ADDE==R2 => STORE DESBADDR  03060000
+         ST    R6,CURSMDEP-DIR(R11)                     STORE SMDE ADDR 03070000
+         LA    R7,1(,R7)                           R7=+1                03080000
+         S     R7,DESB_COUNT-DESB(R8)              R7 = DESB_COUNT-R7   03090000
+         ST    R7,CURSMDEN-DIR(R11)                     STORE SMDE NUM  03100000
+         B     ENDLP#43                END LOOP                         03110000
+NO#44    EQU   *                                                        03120000
+         A     R6,SMDE_LEN-SMDE(R6)    R6:=NEXT SMDE ADDR               03130000
+         BCT   R7,LP#42                LOOP#42                          03140000
+         L     R8,DESB_NEXT-DESB(R8)   R8:=NEXT DESB ADDR               03150000
+         B     LP#43                   LOOP#43                          03160000
+ENDLP#43 EQU   *                                                        03170000
+                                                                        03180000
+HPG6EX   EQU   *                                                        03190000
+         LM    R11,R9,0(R10)                                            03200000
+         L     R10,12(,R1)                                              03210000
+         BR    R14                                                      03220000
+         LTORG                                                          03230000
+         DROP  R12                                                      03240000
+                                                                        03262300
+DIR      DSECT                                                          03263000
+DIR_     DS    0F                                                       03270000
+LIBDCBP  DS    F                                                        03280000
+CURBUFP  DS    F                                                        03290000
+CURSMDEP DS    F                                                        03300000
+CURSMDEN DS    F                                                        03310000
+INO      DS    F                                                        03320000
+CURNAME  DS    CL1025                                                   03330000
+BUFP     DS    F                                                        03340000
+DIR#     EQU   *-DIR_                                                   03350000
+                                                                        03360000
+* MAKE DCBD                                                             03370000
+                                                                        03380000
+         DCBD  DSORG=(PO),DEVD=(DA)                                     03390000
+        IGWDES                                                          03400000
+       IGWSMDE                                                          03410000
+         END                                                            03420000

@@ -1,0 +1,284 @@
+         GENREG                                                         00020001
+         MACRO                                                          00020106
+         PUSHSA                                                         00020206
+*        ADD MEMORY PARAMETER OR CHECKING                               00020306
+         STM   R14,R12,12(R13)                                          00020406
+       GETMAIN R,LV=72                                                  00020506
+         LR    R2,R1                                                    00020606
+         LR    R3,R13                                                   00020706
+         ST    R13,4(R2)                                                00020806
+         LR    R13,R2                                                   00020906
+         ST    R13,8(R3)                                                00021006
+                                                                        00021106
+         L     R13,4(R13)                                               00021206
+         LM    R14,R12,12(R13)                                          00021306
+         L     R13,8(R13)                                               00021406
+         MEND                                                           00021506
+*=============================================                          00021606
+         MACRO                                                          00021706
+         POPSA                                                          00021806
+*        ADD MEMORY PARAMETER OR CHECKING                               00021906
+         L     R2,4(13)                                                 00022006
+      FREEMAIN R,LV=72,A=(R13)                                          00022106
+         LR    R13,R2                                                   00022206
+         LM    R14,R12,12(R13)                                          00022306
+         MEND                                                           00022406
+*=============================================                          00022505
+         MACRO                                                          00022605
+     TRAPCBGEN &P=1,&R=1,&TRAPSA=,&TRAPPA=                              00023005
+*GETS BIT P, BIT R, TRAP SAVE AREA ADDRESS, TRAP PROGRAM ADDR           00024005
+*RETURNS IN R15 ADDR OF TRAP CONTROL BLOCK                              00025005
+       GETMAIN RU,LV=TRAPCB#,LOC=BELOW                                  00026005
+         LR    R15,R1                 CREATED DATA AREA                 00027005
+         USING TRAPCB,R15                                               00028005
+                                                                        00029005
+         XR    R1,R1                                                    00029105
+         ST    R1,CBFLAGS                                               00029205
+         MVC   1(TRAPCB#-1,R15),0(R15) FILL DATA AREA WITH ZERO         00029305
+                                                                        00029405
+         AIF   (&P EQ 0).ZERO#1                                         00029505
+         OILH  R1,PFLAG                SET P FLAG                       00029605
+.ZERO#1  ANOP                                                           00029705
+                                                                        00029805
+         AIF   (&R EQ 0).ZERO#2                                         00029905
+         OILH  R1,RFLAG                SET R FLAG                       00030005
+.ZERO#2  ANOP                                                           00030105
+                                                                        00030205
+         ST    R1,CBFLAGS                                               00030305
+                                                                        00030405
+         AIF   ('&TRAPSA'(1,1) NE '(').S1                               00030505
+&A       SETA  K'&TRAPSA-2                                              00030605
+&H       SETC  '&TRAPSA'(2,&A)                                          00030705
+         SRL   &H,3(0)                 CLEAR LAST 3 BIT OF TRAPSA       00030805
+         SLL   &H,3(0)                 CLEAR LAST 3 BIT OF TRAPSA       00030905
+         ST    &H,TRAPSAA              SAVE TRAP SAVE AREA ADDRESS      00031005
+         AGO   .S2END                                                   00031105
+.S1      ANOP                                                           00031205
+         L     R1,&TRAPSA                                               00031305
+         SRL   R1,3(0)                 CLEAR LAST 3 BIT OF TRAPSA       00031405
+         SLL   R1,3(0)                 CLEAR LAST 3 BIT OF TRAPSA       00031505
+         ST    R1,TRAPSAA              SAVE TRAP SAVE AREA ADDRESS      00031605
+.S2END   ANOP                                                           00031705
+                                                                        00031805
+         AIF   ('&TRAPPA'(1,1) NE '(').P1                               00031905
+&A       SETA  K'&TRAPPA-2                                              00032005
+&H       SETC  '&TRAPPA'(2,&A)                                          00032105
+         ST    &H,TRAPPAA               SAVE  TRAP PROGRAM ADDRESS      00032205
+         AGO   .P2END                                                   00032305
+.P1      ANOP                                                           00032405
+                                                                        00032505
+         MVC   TRAPPAA(4),&TRAPPA       SAVE  TRAP PROGRAM ADDRESS      00032605
+.P2END   ANOP                                                           00032705
+         DROP  R15                                                      00032805
+         MEND                                                           00032905
+*===================================================================    00033005
+         MACRO                                                          00033105
+     TRAPSAGEN                                                          00033205
+*RETRUNS IN R1 POINTER TO ZEROED SAVE AREA                              00033305
+       GETMAIN RU,LV=TRAPSA#,LOC=BELOW                                  00033405
+         XR    R15,R15                                                  00033505
+         ST    R15,SAFLAGS-TRAPSA(R1)                                   00033605
+         MVC   1(TRAPSA#-1,R1),0(R1)    FILL DATA AREA WITH ZERO        00033705
+                                                                        00033805
+         MEND                                                           00033905
+*===================================================================    00034005
+         MACRO                                                          00034105
+   DUCTSETTING &TRAPCB=                                                 00034205
+         GBLA  &E                                                       00034305
+&E       SETA  &E+1                                                     00034405
+*COPIES &TRAPCB INTO TRAP CONTROL BLOCK AND SETS ENABLE BIT IN DUCT     00034505
+         B     SKP#&E                                                   00034605
+         DS    0D                                                       00034705
+TEMP#&E  DS    2F                                                       00034805
+CR2#&E   DS    2F                                                       00034905
+DUCT#&E  DS    F                                                        00035005
+SKP#&E   EQU   *                                                        00035105
+         STCTL R2,R2,CR2#&E               SAVE CR2 TO CR2#              00035205
+                                                                        00035305
+         AIF   ('&TRAPCB'(1,1) NE '(').P1                               00035405
+&A       SETA  K'&TRAPCB-2                                              00035505
+&H       SETC  '&TRAPCB'(2,&A)                                          00035605
+         LR    R1,&H                      LOAD TRAP CB ADDRESS TO R1    00035705
+         AGO   .P2END                                                   00035805
+.P1      ANOP                                                           00035905
+                                                                        00036005
+         L     R1,&H                      LOAD TRAP CB ADDRESS TO R1    00036105
+.P2END   ANOP                                                           00036205
+                                                                        00036305
+         L     R15,CR2#&E                 LOAD CR2 CONTENT TO R15       00036405
+         SRL   R15,6(0)                   CLEAR LAST 6 BIT OF CR2       00036505
+         SLL   R15,6(0)                   CLEAR LAST 6 BIT OF CR2       00036605
+         SRL   R1,3(0)                    CLEAR LAST 3 BIT OF TRAPCB@   00036705
+         SLL   R1,3(0)                    CLEAR LAST 3 BIT OF TRAPCB@   00036805
+         OILL  R1,B'0000000000000001'     SET TRAP ENABLE FLAG TO 1     00036905
+         NILH  R1,B'0111111111111111'     SET ADDR BIT TO 0             00037005
+                                                                        00037105
+         LA    R15,44(,R15)               R15 = DUCT+44                 00037205
+*        LURA  R2,R15                     SEE INIT IN DUCT              00037305
+         STURA R1,R15                     SAVE TRAPCB ADDRESS TO DUCT   00037405
+*        DEBUG OUTPUT START                                             00037505
+        PUSHSA                                                          00037606
+         LR    R2,R1                                                    00037706
+         LR    R3,R15                                                   00037806
+         OPEN  (OUT,OUTPUT),MODE=31                                     00037908
+*                                                                       00038005
+*        ST    R2,TEMP#&E        PUT   ADDR OF TRAPCB                   00038105
+*        PUT   DEBUG,TEMP#&E                                            00038205
+*                                                                       00038305
+*        ST    R3,TEMP#&E        PUT   ADDR OF DUCT                     00038405
+*        PUT   DEBUG,TEMP#&E                                            00038505
+         PUT   OUT,(R3)                                                 00038708
+         WTO   'PPP'                                                    00038808
+         L     R4,=X'10101010'                                          00038908
+         WTO   'PPP'                                                    00039008
+         ST    R4,28(R3)                                                00039108
+         WTO   'PPP'                                                    00039208
+*                                                                       00039306
+*        LURA  R4,R3             PUT TRAPCB                             00039406
+*        ST    R4,TEMP#&E                                               00039506
+*        PUT   DEBUG,TEMP#&E                                            00039606
+*        SRL   R4,3(0)                                                  00039706
+*        SLL   R4,3(0)                                                  00039806
+*        PUT   DEBUG,(R4)                                               00039906
+*                                                                       00040006
+*        L     R5,TRAPPAA-TRAPCB(R4) PUT TRAP PROGRAM                   00040106
+*        ST    R5,TEMP#&E                                               00040206
+*        PUT   DEBUG,TEMP#&E                                            00040306
+*        PUT   DEBUG,(R5)                                               00040406
+*                                                                       00040506
+*        LA    R5,TRAPSAA-TRAPCB(R4) PUT TRAP SA                        00040606
+*        ST    R5,TEMP#&E                                               00040706
+*        PUT   DEBUG,TEMP#&E                                            00040806
+*        SRL   R5,3(0)                                                  00040906
+*        SLL   R5,3(0)                                                  00041006
+*        PUT   DEBUG,(R5)                                               00041106
+*        WTO   'OUTPUT END'                                             00041206
+         CLOSE (OUT),MODE=31                                            00041308
+         POPSA                                                          00041406
+*        DEBUG OUTPUT END                                               00041506
+                                                                        00041606
+         MEND                                                           00041706
+CSCT1    CSECT                                                          00041806
+CSCT1    RMODE 24                                                       00042002
+CSCT1    AMODE 31                                                       00050000
+         STM   R14,R12,12(R13)                                          00060000
+                                                                        00070000
+         BASR  R12,0                                                    00080000
+         USING *,R12                                                    00090000
+                                                                        00100000
+         LR    R2,R13                                                   00110000
+         ST    R13,SAVEAREA+4                                           00120000
+         LA    R13,SAVEAREA                                             00130000
+         ST    R13,8(R2)                                                00140000
+                                                                        00140107
+       MODESET KEY=ZERO,MODE=SUP                                        00140208
+*    TRAPCBGEN P=1,R=1,TRAPSA=SAVEAREA,TRAPPA=SKPCSCT                   00140409
+*        LR    R10,R15                                                  00140609
+*  DUCTSETTING TRAPCB=(R10)                                             00140709
+*        WTO   'SSSS'                                                   00140809
+*        B     SKPCSCT                                                  00140909
+                                                                        00141002
+         OPEN  (OUT,OUTPUT),MODE=31                                     00142002
+                                                                        00150000
+         WTO   'START CSCTTST'                                          00160000
+        ATTACH EP=CSCTTST,ECB=MYECB                                     00160100
+*        WTOR  'REPLY FOR WRITE',RPLADDR,RPLLNG,MYECB                   00160209
+                                                                        00160301
+         LR    R11,R1               R11=TCB ADDR                        00160402
+         PUT   OUT,=C'TCB'                                              00160502
+         PUT   OUT,(R11)                                                00160602
+         L     R10,TCBRBP-TCB(R11)                                      00160702
+         PUT   OUT,=C'RB'                                               00160802
+         PUT   OUT,(R10)                                                00160902
+         L     R9,RBCDE-RBBASIC(R10)                                    00161002
+         N     R9,=X'00FFFFFF'                                          00161103
+                                                                        00161202
+         XR    R8,R8                                                    00161302
+         LH    R8,CDATTR-CDENTRY(R9)                                    00161402
+         TMLL  R8,B'0000010000000000'     ;CHECK FOR MINORITY           00161502
+         BZ    MAJOR                      ;JMP IF MAJOR                 00161602
+         PUT   OUT,=C'CDE'                                              00161702
+         PUT   OUT,(R9)                                                 00161802
+         L     R9,CDXLMJP-CDENTRY(R9)         ;ELSE SWITCH TO MAJOR     00161902
+MAJOR    EQU   *                                                        00162002
+         PUT   OUT,=C'CDE'                                              00162102
+         PUT   OUT,(R9)                                                 00162202
+                                                                        00162302
+         L     R8,CDXLMJP-CDENTRY(R9)                                   00162402
+         PUT   OUT,=C'XL'                                               00162502
+         PUT   OUT,(R8)                                                 00162602
+         CLOSE (OUT),MODE=31                                            00162702
+         WAIT  ECB=MYECB                                                00162804
+*NEXT CDE                                                               00162902
+*        L     R9,CDCHAIN-CDENTRY(R9)                                   00163002
+*        N     R9,=X'00FFFFFF'                                          00163102
+                                                                        00163202
+*        XR    R8,R8                                                    00163302
+*        LH    R8,CDATTR-CDENTRY(R9)                                    00163402
+*        TMLL  R8,B'0000010000000000'     ;CHECK FOR MINORITY           00163502
+*        BZ    MAJOR                      ;JMP IF MAJOR                 00163602
+*        PUT   OUT,=C'CDE'                                              00163702
+*        PUT   OUT,(R9)                                                 00163802
+*        L     R9,CDXLMJP-CDENTRY(R9)         ;ELSE SWITCH TO MAJOR     00163902
+*AJOR    EQU   *                                                        00164002
+*        PUT   OUT,=C'CDE'                                              00164102
+*        PUT   OUT,(R9)                                                 00164202
+                                                                        00164302
+*        L     R8,CDXLMJP-CDENTRY(R9)                                   00164402
+*        PUT   OUT,=C'XL'                                               00164502
+*        PUT   OUT,(R8)                                                 00164602
+         WTO   'END CSCTTST'                                            00164700
+SKPCSCT  EQU   *                                                        00164806
+*       DETACH (R11)                                                    00164903
+                                                                        00170000
+         L     R13,4(R13)                                               00180000
+         LM    R14,R12,12(R13)                                          00190000
+         XR    R15,R15                                                  00200000
+         BR    R14                                                      00210000
+         LTORG                                                          00211002
+SAVEAREA DS    18F                                                      00220001
+MYECB    DC    F'00'                                                    00230000
+OUT      DCB   DDNAME=DEBUG,MACRF=(PM),DSORG=PS                         00231002
+         DCBD  DSORG=(PO),DEVD=(DA)                                     00231110
+        IKJTCB                                                          00232002
+         IHARB                                                          00233002
+        IHACDE                                                          00234002
+DUCT     DSECT                                                          00235008
+DUIBM1   DS    F                                                        00236008
+DUIBM2   DS    F                                                        00237008
+         DS    F                                                        00238008
+DUIBM4   DS    F                                                        00239008
+DUALD    DS    F                                                        00239108
+         DS    2F                                                       00239208
+DUPRGM   DS    F                                                        00239308
+DUBSAADR DS    F                                                        00239408
+DUBSAPSW DS    F                                                        00239508
+         DS    F                                                        00239608
+DUTRPCTL DS    F                                                        00239708
+         DS    4F                                                       00239808
+DUCT#    EQU   *-DUIBM1                                                 00239908
+                                                                        00240008
+TRAPCB   DSECT                                                          00241008
+CBFLAGS  DS    F                                                        00242008
+         DS    2F                                                       00243008
+TRAPSAA  DS    F                                                        00244008
+         DS    F                                                        00245008
+TRAPPAA  DS    F                                                        00246008
+CBUSRFLD DS    2F                                                       00247008
+         DS    8F                                                       00248008
+TRAPCB#  EQU   *-CBFLAGS                                                00249008
+PFLAG    EQU   B'0000000000000100'                                      00249108
+RFLAG    EQU   B'0000000000000010'                                      00249208
+EFLAG    EQU   B'0000000000000001'                                      00249308
+                                                                        00249408
+TRAPSA   DSECT                                                          00249508
+SAFLAGS  DS    F                                                        00249608
+         DS    F                                                        00249708
+SECOP    DS    F                                                        00249808
+AR15     DS    F                                                        00249908
+PSW      DS    4F                                                       00250008
+GR       DS    32F                                                      00251008
+SAUSRFLD DS    2F                                                       00252008
+         DS    22F                                                      00253008
+TRAPSA#  EQU   *-SAFLAGS                                                00254008
+         END                                                            00260001

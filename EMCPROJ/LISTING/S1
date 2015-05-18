@@ -1,0 +1,278 @@
+¯
+                                         High Level Assembler Option Summary                   (PTF UK37157)   Page    1
+                                                                                            HLASM R6.0  2015/02/05 06.00
+²  No Overriding ASMAOPT Parameters
+²  Overriding Parameters-  ADATA
+²  No Process Statements
+
+
+  Options for this Assembly
+²3   ADATA
+²    ALIGN
+²  NOASA
+²    BATCH
+²    CODEPAGE(047C)
+²  NOCOMPAT
+²  NODBCS
+²  NODECK
+²    DXREF
+²    ESD
+²  NOEXIT
+²    FLAG(0,ALIGN,CONT,EXLITW,NOIMPLEN,NOPAGE0,PUSH,RECORD,NOSUBSTR,USING0)
+²  NOFOLD
+²  NOGOFF
+²  NOINFO
+²    LANGUAGE(EN)
+²  NOLIBMAC
+²    LINECOUNT(60)
+²    LIST(121)
+²    MACHINE(,NOLIST)
+²    MXREF(SOURCE)
+²    OBJECT
+²    OPTABLE(UNI,NOLIST)
+²  NOPCONTROL
+²  NOPESTOP
+²  NOPROFILE
+²  NORA2
+²  NORENT
+²    RLD
+²    RXREF
+²    SECTALGN(8)
+²    SIZE(MAX)
+²  NOSUPRWARN
+²    SYSPARM()
+²  NOTERM
+²  NOTEST
+²    THREAD
+²  NOTRANSLATE
+²    TYPECHECK(MAGNITUDE,REGISTER)
+²    USING(NOLIMIT,MAP,WARN(15))
+²  NOWORKFILE
+²    XREF(SHORT,UNREFS)
+
+²  No Overriding DD Names
+¯
+                                              External Symbol Dictionary                                       Page    2
+Symbol   Type   Id     Address  Length   Owner Id Flags Alias-of                            HLASM R6.0  2015/02/05 06.00
+²MYPROGR1  SD 00000001 00000000 000001CC             00
+²MYPROGR2  ER 00000002
+²RET1      LD          0000002A           00000001
+¯
+²                                                                                                               Page    3
+  Active Usings: None
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2015/02/05 06.00
+²000000                00000 001CC     1 MYPROGR1 CSECT                                                          00010001
+²                                      2          EXTRN MYPROGR2                                                 00012001
+²000000 90EC D00C            0000C     3          STM   14,12,12(13)                                             00020000
+²000004 05C0                           4          BALR  RBASE,0                                                  00030000
+²                 R:C  00006           5          USING *,RBASE                                                  00040000
+²000006 50D0 C16E            00174     6          ST    13,SAVEAREA+4                                            00050000
+²00000A 182D                           7          LR    2,13                                                     00060000
+²00000C 41D0 C16A            00170     8          LA    13,SAVEAREA                                              00070000
+²000010 50D0 2008            00008     9          ST    13,8(,2)                                                 00080000
+²                                     10 *---------------------------                                            00090000
+²                                     11          WTO   'START S1'                                               00100000
+²000014                               13+         CNOP  0,4                                                      01-WTO
+²000014 A715 0008            00024    14+         BRAS  1,IHB0001A               BRANCH AROUND MESSAGE      @LCC 01-WTO
+²000018 000C                          15+         DC    AL2(12)                  TEXT LENGTH            @YA17152 01-WTO
+²00001A 0000                          16+         DC    B'0000000000000000'      MCSFLAGS                        01-WTO
+²00001C E2E3C1D9E340E2F1              17+         DC    C'START S1'              MESSAGE TEXT               @L6C 01-WTO
+²000024                               18+IHB0001A DS    0H                                                       01-WTO
+²000024 0A23                          19+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+²000026 5820 C166            0016C    20          L     2,MYPROGR3                                               00101001
+²                                     21 *        BR    2                                                        00110001
+²                      0002A          22 RET1     EQU   *                                                        00120001
+²                                     23          ENTRY RET1                                                     00121002
+²00002A 1733                          24          XR    3,3                                                      00122002
+²00002C A738 0004            00004    25          LHI   3,X'0004'                                                00123002
+²000030 1853                          26          LR    5,3                                                      00124002
+²000032 4120 C1B2            001B8    27          LA    2,STR1                                                   00130102
+²000036 4140 C1BC            001C2    28          LA    4,STR2                                                   00130202
+²                                     29          WTO   TEXT=(4)                                                 00131002
+²00003A 0700                          31+         CNOP  0,4                                                      01-WTO
+²00003C A715 003A            000B0    32+         BRAS  1,IHB0003A               BRANCH AROUND MESSAGE      @LCC 01-WTO
+²000040 0008                          33+         DC    AL2(8)                   TEXT LENGTH            @YA17152 01-WTO
+²000042 0010                          34+         DC    B'0000000000010000'      MCSFLAGS                        01-WTO
+²000044 00000000                      35+         DC    AL4(0)                   MESSAGE TEXT ADDRESS       @L5A 01-WTO
+²000048 02                            36+         DC    AL1(2)                   VERSION LEVEL              @PJC 01-WTO
+²000049 00                            37+         DC    B'00000000'              MISCELLANEOUS FLAGS        @L2A 01-WTO
+²00004A 00                            38+         DC    AL1(0)                   REPLY LENGTH               @L2A 01-WTO
+²00004B 68                            39+         DC    AL1(104)                 LENGTH OF WPX              @L5C 01-WTO
+²00004C 0080                          40+         DC    B'0000000010000000'      EXTENDED MCS FLAGS         @L2A 01-WTO
+²00004E 0000                          41+         DC    AL2(0)                   RESERVED                   @L2A 01-WTO
+²000050 00000000                      42+         DC    AL4(0)                   REPLY BUFFER ADDRESS       @P7C 01-WTO
+²000054 00000000                      43+         DC    AL4(0)                   REPLY ECB ADDRESS          @P7C 01-WTO
+²000058 00000000                      44+         DC    AL4(0)                   CONNECT ID                 @01C 01-WTO
+²00005C 0000                          45+         DC    B'0000000000000000'      DESCRIPTOR CODES           @L2A 01-WTO
+²00005E 0000                          46+         DC    AL2(0)                   RESERVED                   @L2A 01-WTO
+²000060 0000000000000000              47+         DC    XL16'00000000000000000000000000000000'                  X01-WTO
+²000068 0000000000000000                +                                        EXTENDED ROUTING CODES     @L2A
+²000070 0000                          48+         DC    B'0000000000000000'      MESSAGE TYPE               @L2A 01-WTO
+²000072 0000                          49+         DC    AL2(0)                   MESSAGE'S PRIORITY         @L2A 01-WTO
+²000074 4040404040404040              50+         DC    CL8'        '            JOB ID                     @L2A 01-WTO
+²00007C 4040404040404040              51+         DC    CL8'        '            JOB NAME                   @L2A 01-WTO
+²000084 4040404040404040              52+         DC    CL8'        '            RETRIEVAL KEY              @L2A 01-WTO
+²00008C 00000000                      53+         DC    AL4(0)                   TOKEN FOR DOM              @P1C 01-WTO
+²000090 00000000                      54+         DC    AL4(0)                   CONSOLE ID                 @P1C 01-WTO
+²000094 4040404040404040              55+         DC    CL8'        '            SYSTEM NAME                @L2A 01-WTO
+i00009C 4040404040404040              56+         DC    CL8'        '            CONSOLE NAME               @L3A 01-WTO
+²                                                                                                               Page    4
+  Active Usings: MYPROGR1+X'6',R12
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2015/02/05 06.00
+²0000A4 00000000                      57+         DC    AL4(0)                   REPLY CONSOLE NAME/ID ADDR @L3A 01-WTO
+²0000A8 00000000                      58+         DC    AL4(0)                   CART ADDRESS               @L4C 01-WTO
+²0000AC 00000000                      59+         DC    AL4(0)                   WSPARM ADDRESS             @L6C 01-WTO
+²0000B0                               60+IHB0003A DS    0H                                                       01-WTO
+²0000B0 18E1                          61+         LR    14,1                     FIRST BYTE OF PARM LIST    @L2A 01-WTO
+²0000B2 1BFF                          62+         SR    15,15                    CLEAR REGISTER 15          @L2A 01-WTO
+²0000B4 4AF1 0000            00000    63+         AH    15,0(1,0)                ADD LENGTH OF TEXT + 4     @L2A 01-WTO
+²0000B8 1AEF                          64+         AR    14,15                    FIRST BYTE AFTER TEXT      @L2A 01-WTO
+²0000BA 5040 1004            00004    65+         ST    4,4(0,1)                 STORE TEXT ADDR INTO PLIST @L5A 01-WTO
+²0000BE 0A23                          66+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+²0000C0 1700                          67          XR    0,0                                                      00131101
+²                                     68 *        LA    2,2(,2)                                                  00131202
+²                                     69 *        MVST  3,2                                                      00132002
+²0000C2 0E42                          70          MVCL  4,2        CHANGES R2 AND R4                             00132102
+²0000C4 0000                          71          DC    X'0000'                                                  00132202
+²                                     72 *        LA    4,STR2                                                   00132302
+²                                     73 *        MVC   0(5,4),0(2)                                              00132402
+²                                     74          WTO   TEXT=(4)                                                 00133002
+²0000C6 0700                          76+         CNOP  0,4                                                      01-WTO
+²0000C8 A715 003A            0013C    77+         BRAS  1,IHB0005A               BRANCH AROUND MESSAGE      @LCC 01-WTO
+²0000CC 0008                          78+         DC    AL2(8)                   TEXT LENGTH            @YA17152 01-WTO
+²0000CE 0010                          79+         DC    B'0000000000010000'      MCSFLAGS                        01-WTO
+²0000D0 00000000                      80+         DC    AL4(0)                   MESSAGE TEXT ADDRESS       @L5A 01-WTO
+²0000D4 02                            81+         DC    AL1(2)                   VERSION LEVEL              @PJC 01-WTO
+²0000D5 00                            82+         DC    B'00000000'              MISCELLANEOUS FLAGS        @L2A 01-WTO
+²0000D6 00                            83+         DC    AL1(0)                   REPLY LENGTH               @L2A 01-WTO
+²0000D7 68                            84+         DC    AL1(104)                 LENGTH OF WPX              @L5C 01-WTO
+²0000D8 0080                          85+         DC    B'0000000010000000'      EXTENDED MCS FLAGS         @L2A 01-WTO
+²0000DA 0000                          86+         DC    AL2(0)                   RESERVED                   @L2A 01-WTO
+²0000DC 00000000                      87+         DC    AL4(0)                   REPLY BUFFER ADDRESS       @P7C 01-WTO
+²0000E0 00000000                      88+         DC    AL4(0)                   REPLY ECB ADDRESS          @P7C 01-WTO
+²0000E4 00000000                      89+         DC    AL4(0)                   CONNECT ID                 @01C 01-WTO
+²0000E8 0000                          90+         DC    B'0000000000000000'      DESCRIPTOR CODES           @L2A 01-WTO
+²0000EA 0000                          91+         DC    AL2(0)                   RESERVED                   @L2A 01-WTO
+²0000EC 0000000000000000              92+         DC    XL16'00000000000000000000000000000000'                  X01-WTO
+²0000F4 0000000000000000                +                                        EXTENDED ROUTING CODES     @L2A
+²0000FC 0000                          93+         DC    B'0000000000000000'      MESSAGE TYPE               @L2A 01-WTO
+²0000FE 0000                          94+         DC    AL2(0)                   MESSAGE'S PRIORITY         @L2A 01-WTO
+²000100 4040404040404040              95+         DC    CL8'        '            JOB ID                     @L2A 01-WTO
+²000108 4040404040404040              96+         DC    CL8'        '            JOB NAME                   @L2A 01-WTO
+²000110 4040404040404040              97+         DC    CL8'        '            RETRIEVAL KEY              @L2A 01-WTO
+²000118 00000000                      98+         DC    AL4(0)                   TOKEN FOR DOM              @P1C 01-WTO
+²00011C 00000000                      99+         DC    AL4(0)                   CONSOLE ID                 @P1C 01-WTO
+²000120 4040404040404040             100+         DC    CL8'        '            SYSTEM NAME                @L2A 01-WTO
+²000128 4040404040404040             101+         DC    CL8'        '            CONSOLE NAME               @L3A 01-WTO
+²000130 00000000                     102+         DC    AL4(0)                   REPLY CONSOLE NAME/ID ADDR @L3A 01-WTO
+²000134 00000000                     103+         DC    AL4(0)                   CART ADDRESS               @L4C 01-WTO
+²000138 00000000                     104+         DC    AL4(0)                   WSPARM ADDRESS             @L6C 01-WTO
+²00013C                              105+IHB0005A DS    0H                                                       01-WTO
+²00013C 18E1                         106+         LR    14,1                     FIRST BYTE OF PARM LIST    @L2A 01-WTO
+²00013E 1BFF                         107+         SR    15,15                    CLEAR REGISTER 15          @L2A 01-WTO
+²000140 4AF1 0000            00000   108+         AH    15,0(1,0)                ADD LENGTH OF TEXT + 4     @L2A 01-WTO
+²000144 1AEF                         109+         AR    14,15                    FIRST BYTE AFTER TEXT      @L2A 01-WTO
+²000146 5040 1004            00004   110+         ST    4,4(0,1)                 STORE TEXT ADDR INTO PLIST @L5A 01-WTO
+i00014A 0A23                         111+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+²                                                                                                               Page    5
+  Active Usings: MYPROGR1+X'6',R12
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2015/02/05 06.00
+²                                    112 *        LOAD  EP=S2                                                    00140001
+²                                    113 *        LR    3,0                                                      00180001
+²                                    114 *        LA    14,END                                                   00200001
+²                                    115 *        BR    3                                                        00210001
+²                                    116 *ND      EQU   *                                                        00220001
+²                                    117          WTO   'FINISH S1'                                              00230000
+²00014C                              119+         CNOP  0,4                                                      01-WTO
+²00014C A715 0009            0015E   120+         BRAS  1,IHB0007A               BRANCH AROUND MESSAGE      @LCC 01-WTO
+²000150 000D                         121+         DC    AL2(13)                  TEXT LENGTH            @YA17152 01-WTO
+²000152 0000                         122+         DC    B'0000000000000000'      MCSFLAGS                        01-WTO
+²000154 C6C9D5C9E2C840E2             123+         DC    C'FINISH S1'             MESSAGE TEXT               @L6C 01-WTO
+²00015E                              124+IHB0007A DS    0H                                                       01-WTO
+²00015E 0A23                         125+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+²                                    126 *---------------------------                                            00270000
+²000160 58D0 C16E            00174   127          L     13,SAVEAREA+4                                            00280000
+²000164 98EC D00C            0000C   128          LM    14,12,12(13)                                             00290000
+²000168 17FF                         129          XR    15,15                                                    00300000
+²00016A 07FE                         130          BR    14                                                       00310000
+²                                    131 *---------------------------                                            00320000
+²00016C 00000000                     132 MYPROGR3 DC    A(MYPROGR2)                                              00330001
+²                      0000C         133 RBASE    EQU   12                                                       00350000
+²000170                              134 SAVEAREA DS    18F                                                      00360000
+²0001B8 0008                         135 STR1     DC    X'0008'                                                  00361001
+²0001BA C1C2C340404040               136          DC    CL7'ABC    '                                             00361101
+²0001C1 00                           137          DC    X'00'                                                    00361201
+²0001C2 0008                         138 STR2     DC    X'0008'                                                  00362001
+²0001C4 4040404040404040             139          DC    CL8'        '                                            00363001
+²                                    140          END                                                            00370000
+¯
+                                                 Relocation Dictionary                                         Page    6
+   Pos.Id   Rel.Id   Address  Type  Action                                                  HLASM R6.0  2015/02/05 06.00
+²  00000001 00000002 0000016C   A 4     +
+¯
+                               Ordinary Symbol and Literal Cross Reference                                     Page    7
+Symbol   Length   Value     Id    R Type Asm  Program   Defn References                     HLASM R6.0  2015/02/05 06.00
+²IHB0001A      2 00000024 00000001     H  H                18   14B
+²IHB0003A      2 000000B0 00000001     H  H                60   32B
+²IHB0005A      2 0000013C 00000001     H  H               105   77B
+²IHB0007A      2 0000015E 00000001     H  H               124  120B
+²MYPROGR2      1 00000000 00000002     T                    2  132
+²MYPROGR3      4 0000016C 00000001     A  A               132   20
+²RBASE         1 0000000C 00000001 A   U                  133    4M    5U
+²RET1          1 0000002A 00000001     U                   22   23
+²SAVEAREA      4 00000170 00000001     F  F               134    6M    8   127
+²STR1          2 000001B8 00000001     X  X               135   27
+²STR2          2 000001C2 00000001     X  X               138   28
+¯
+                                  Unreferenced Symbols Defined in CSECTs                                       Page    8
+  Defn  Symbol                                                                              HLASM R6.0  2015/02/05 06.00
+²     1  MYPROGR1
+¯
+                                          Macro and Copy Code Source Summary                                   Page    9
+ Con Source                                        Volume    Members                        HLASM R6.0  2015/02/05 06.00
+²  L1 SYS1.MACLIB                                   ZARES1    SYSSTATE WTO
+¯
+                                                      Using Map                                                Page   10
+²                                                                                            HLASM R6.0  2015/02/05 06.00
+²  Stmt  -----Location----- Action ----------------Using----------------- Reg Max     Last Label and Using Text
+          Count      Id           Type          Value    Range     Id        Disp    Stmt
+²     5  00000006  00000001 USING  ORDINARY    00000006 00001000 00000001  12 001BC    127 *,RBASE
+¯
+                                   General Purpose Register Cross Reference                                    Page   11
+ Register  References (M=modified, B=branch, U=USING, D=DROP, N=index)                      HLASM R6.0  2015/02/05 06.00
+²    0(0)       3    67M   67   128M
+²    1(1)       3    14M   32M   61    63N   65    77M  106   108N  110   120M  128M
+²    2(2)       3     7M    9    20M   27M   70M  128M
+²    3(3)       3    24M   24    25M   26    70M  128M
+²    4(4)       3    28M   65    70M  110   128M
+²    5(5)       3    26M   70M  128M
+²    6(6)       3   128M
+²    7(7)       3   128M
+²    8(8)       3   128M
+²    9(9)       3   128M
+²   10(A)       3   128M
+²   11(B)       3   128M
+²   12(C)       3     4M    5U  128M
+²   13(D)       3     6     7     8M    9   127M  128
+²   14(E)       3    61M   64M  106M  109M  128M  130B
+²   15(F)       3    62M   62    63M   64   107M  107   108M  109   128M  129M  129
+¯
+                                  Diagnostic Cross Reference and Assembler Summary                             Page   12
+                                                                                            HLASM R6.0  2015/02/05 06.00
+²     No Statements Flagged in this Assembly
+HIGH LEVEL ASSEMBLER, 5696-234, RELEASE 6.0, PTF UK37157
+SYSTEM: z/OS 01.10.00              JOBNAME: S1          STEPNAME: COMPILE    PROCSTEP: (NOPROC)
+²Data Sets Allocated for this Assembly
+² Con DDname   Data Set Name                                Volume  Member
+²  P1 SYSIN    EMCPROJ.SRC                                  ZAIMS1  S1
+²  L1 SYSLIB   SYS1.MACLIB                                  ZARES1
+²     SYSADATA EMCPROJ.ADATA                                ZAIMS1  S1
+²     SYSLIN   EMCPROJ.OBJ                                  ZAIMS1  S1
+²     SYSPRINT EMCPROJ.LISTING                              ZAIMS1  S1
+²
+²  32096K allocated to Buffer Pool       Storage required     344K
+²     50 Primary Input Records Read         3410 Library Records Read                  0 Work File Reads
+²      0 ASMAOPT Records Read                278 Primary Print Records Written         0 Work File Writes
+     12 Object Records Written              307 ADATA Records Written
+²Assembly Start Time: 06.00.44 Stop Time: 06.00.44 Processor Time: 00.00.00.2452
+²Return Code 000

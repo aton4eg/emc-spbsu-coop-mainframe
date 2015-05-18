@@ -1,0 +1,117 @@
+#include "dirent.h"
+#include "errno.h"
+#include "ctype.h"
+#include "string.h"
+
+extern DIR* opendir_(const char* dirname,long int* m,long int sar);
+extern dirent* readdir_ (DIR* dirp,long int* m,long int sar);
+extern long int clsdir_ (DIR* dirp,long int* m,long int sar);
+extern void rwnddir_ (DIR* dirp,long int* m,long int sar);
+extern long int telldir_ (DIR* dirp,long int* m,long int sar);
+extern void seekdir_ (DIR* dirp,long int loc,long int* m,long int sar);
+
+DIR* opendir (const char* dirname){
+  long int m[128];
+  long int i=0;
+  long int j=0;
+  long int flag = 1;
+  char s[64];
+  while(dirname[i]!=0){
+    if (dirname[i]>='a' && dirname[i] <= 'i' ||
+        dirname[i]>='j' && dirname[i] <= 'r' ||
+        dirname[i]>='s' && dirname[i] <= 'z'){
+      s[j] = toupper(dirname[i]);
+      j++;i++;
+    }
+    else{
+      if (dirname[i]>='A' && dirname[i] <= 'I' ||
+          dirname[i]>='J' && dirname[i] <= 'R' ||
+          dirname[i]>='S' && dirname[i] <= 'Z'){
+        s[j] = dirname[i];
+        j++;i++;
+      }
+      else{
+        if (dirname[i]==':' && flag){
+          flag = 0;
+          s[j] = dirname[i];j++;
+        };
+        i++;
+      };
+    };
+  };
+  if (((char*)strstr(&s,"DD:"))==&s){
+    return opendir_(&s[3]      ,&m,0);
+  }
+  else{
+    errno = ENOENT;
+    return 0;
+  };
+}
+
+dirent* readdir (DIR* dirp){
+  long int m[128];
+  if (dirp!=0){
+    return readdir_(dirp,&m,0);
+  }
+  else{
+    errno = EBADF;
+    return 0;
+  }
+}
+
+long int closedir (DIR* dirp){
+  long int m[128];
+  if (dirp!=0){
+    return clsdir_ (dirp,&m,0);
+  }
+  else{
+    errno = EBADF;
+    return 0;
+  }
+}
+
+long int rddir_r (DIR *dirp, dirent *entry, dirent **result){
+  if(dirp!=0){
+    dirent* temp = readdir (dirp);
+    if (temp){
+      entry->d_ino = temp->d_ino;
+      strcpy(&entry->d_name,&temp->d_name);
+      (*result) = entry;
+    }
+    else{
+      (*result) = 0;
+    };
+    return 0;
+  }
+  else{
+    errno = EBADF;
+    return EBADF;
+  }
+}
+
+void rewinddir(DIR *dirp){
+  long int m[128];
+  if (dirp!=0){
+    rwnddir_(dirp,&m,0);
+  }
+  else{
+    errno = EBADF;
+  };
+}
+
+long int telldir (DIR *dirp){
+  long int m[128];
+  if (dirp!=0){
+    return telldir_(dirp,&m,0);
+  }
+  else{
+    return 0;
+  };
+}
+
+void seekdir(DIR *dirp, long int loc){
+  long int m[128];
+  if (dirp!=0){
+    seekdir_(dirp,loc,&m,0);
+  }
+}

@@ -1,0 +1,62 @@
+         COPY  DALLOC                                                   00040100
+                                                                        00040200
+                                                                        00040300
+                                                                        00040400
+                                                                        00040500
+         GENREG                                                         00040900
+         GBLC  &CSECT                                                   00041000
+&CSECT   SETC  ''                                                       00041100
+                                                                        00041200
+MYPROGRM CSECT                                                          00041300
+MYPROGRM AMODE 31                                                       00041400
+MYPROGRM RMODE 24                                                       00042000
+                                                                        00053100
+*PROC MACRO SYSTEM MACRO INITIALIZATION                                 00053300
+         STM   R14,R12,12(R13)                                          00053900
+         BASR  R12,0                                                    00054000
+         USING *,R12                                                    00054100
+         LR    R2,R13                                                   00054200
+         ST    R13,SAVEAREA+4                                           00054300
+         LA    R13,SAVEAREA                                             00055000
+         ST    R13,8(R2)                                                00060000
+                                                                        00060100
+         LA    R0,TESTNUM                                               00060200
+         L     R1,=X'00000001'                                          00060300
+      PROCCALL NAME=CNVTOHEX,(R10)                                      00060400
+         LGR   R2,R0                                                    00060500
+         STG   R2,TESTNUM2                                              00060600
+         OPEN  (OUT,OUTPUT)                                             00060700
+         PUT   OUT,TESTNUM2                                             00060800
+         CLOSE (OUT)                                                    00060900
+                                                                        00061000
+         L     R13,4(R13)                                               00080000
+         LM    R14,R12,12(R13)                                          00090000
+         BR    R14                                                      00100000
+         LTORG                                                          00100200
+TESTNUM  DC    CL15'FFFF 0000 FFFF'                                     00100300
+TESTNUM2 DS    2FD                                                      00100400
+SAVEAREA DS    18F                                                      00100500
+OUT      DCB   DDNAME=OUTSET,MACRF=PM,DSORG=PS                          00101000
+IN       DCB   DDNAME=INSET,MACRF=GM,DSORG=PS                           00101100
+         DS    F                                                        00101200
+TEMPAREA DS    XL98                                                     00101300
+SD       DS    XL18                                                     00101400
+NAME     DC    CL8'OUTSET  '                                            00101500
+TEST     DC    CL255'OLOLO'                                             00101600
+         DC    CL255'OLOLO'                                             00101700
+TEST2    DC    CL255'OLOLH'                                             00101800
+         DC    CL255'OLOLH'                                             00101900
+RECORD   DC    CL8'OLOLOSHA'                                            00102000
+*       DSTACK                                                          00102100
+SZRECB   DC    X'00000040'                                              00102200
+RECB@    DS    F                                                        00102300
+         DCBD  DSORG=(BS),DEVD=(DA)                                     00102400
+RECB     DSECT                                                          00102500
+LENGTH   DS    F                                                        00102600
+POS      DS    F                                                        00102700
+NEXT@    DS    F                                                        00102800
+ID@      DS    F                                                        00102900
+OFFSET   DS    FD                                                       00103000
+INSTR    DS    FD                                                       00103100
+RECB#    EQU   *-OFFSET                                                 00104000
+         END                                                            00110000

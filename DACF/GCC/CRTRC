@@ -1,0 +1,175 @@
+#include "spym.h"
+#include "stdio.h"
+extern void updMdl(int tcb,moduleDsc* module_list,int* m,long int sar);
+void updateList(int tcb,moduleDsc* module_list){
+  int m[80];
+  updMdl(tcb,module_list,m,0);
+}
+
+char* addrExists(moduleDsc* module_list,long int* addr){
+  int i = 0;
+  while(module_list[i].addr!=0 && (*addr<module_list[i].addr ||
+        *addr>module_list[i].addr+module_list[i].lng)){i++;}
+
+  if(module_list[i].addr!=0){
+    *addr -= module_list[i].addr;
+    return module_list[i].name;
+  }
+  else{
+    __asm__("wto 'no module'");
+    return 0;
+  }
+}
+
+char* getCsect(moduleNode* tree,char* mdl_name,long int addr){
+  moduleNode* tz_m = tree;
+  csectNode* tz_c = 0;
+  while (tz_m){
+    if(!strcmp(tz_m->name,mdl_name)){
+      tz_c = tz_m->firstCsect;
+      while(tz_c->next){
+        if(tz_c->base<=addr && tz_c->next->base>addr){
+          break;
+        }
+        else{
+          tz_c = tz_c->next;
+        }
+      }
+      break;
+    }
+    else{
+      tz_m = tz_m->next;
+    }
+  }
+  if (tz_c->next && tz_c->next->base<addr) tz_c = tz_c->next;
+  return tz_c->name;
+}
+
+instrNode* getInstr(moduleNode* tree,char* mdl_name,
+                    char* csct_name,long int addr){
+  moduleNode* tz_m = tree;
+  csectNode* tz_c = 0;
+  instrNode* tz_i = 0;
+  while (tz_m){
+    if(!strcmp(tz_m->name,mdl_name)){
+      tz_c = tz_m->firstCsect;
+      while(tz_c){
+        if(!strcmp(tz_c->name,csct_name)){
+          tz_i = tz_c->firstInstr;
+          while(tz_i){
+            if(tz_i->offset==addr){
+    __asm__("wto 'exist'");
+
+              break;
+            }
+            else{
+              tz_i = tz_i->next;
+            }
+          }
+          break;
+        }
+        else{
+          tz_c = tz_c->next;
+        }
+      }
+      break;
+    }
+    else{
+      tz_m = tz_m->next;
+    }
+  }
+  return tz_i;
+}
+
+insertRec(traceList* trace_list,char* mdl_name,
+          char* csct_name,long int addr){
+  if (trace_list->list == 0){
+    __asm__("wto 'cr list'");
+    trace_list->list = malloc(list_length*sizeof(traceRecord));
+    trace_list->lastBlock = trace_list->list;
+    trace_list->lastNum = -1;
+  }
+  if (trace_list->lastNum<list_length-1){
+    __asm__("wto 'incr'");
+    trace_list->lastNum++;
+  }
+  else{
+    __asm__("wto 'next'");
+    traceRecord* new_block = malloc(list_length*sizeof(traceRecord));
+    memset(trace_list->lastBlock[list_length-1].mdlName,0,9);
+    trace_list->lastBlock[list_length-1].offset =
+                         (long int)new_block;
+    trace_list->lastBlock  = new_block;
+    trace_list->lastNum = 0;
+  }
+    __asm__("wto 'copy'");
+  int i = trace_list->lastNum;
+  trace_list->lastBlock[i].offset = addr;
+  memcpy(trace_list->lastBlock[i].mdlName,mdl_name,9);
+  memcpy(trace_list->lastBlock[i].csectName,csct_name,9);
+  trace_list->lastBlock[i].Doffset =0;
+  memset(trace_list->lastBlock[i].DmdlName,0,9);
+  memset(trace_list->lastBlock[i].DcsectName,0,9);
+
+  i++;
+
+  trace_list->lastBlock[i].offset =0;
+  memset(trace_list->lastBlock[i].mdlName,0,9);
+  memset(trace_list->lastBlock[i].csectName,0,9);
+}
+
+long int setDest(long int tcb,moduleDsc* module_list,
+       moduleNode* tree,traceList* trace_list,long int addr){
+  char* mdl_name;
+  char* csct_name;
+  if (mdl_name = addrExists(module_list,&addr)){
+    __asm__("wto 'setdest'");
+    csct_name = getCsect(tree,mdl_name,addr);
+/*  if (csct_name==0){return addr;}; */
+    int i = trace_list->lastNum;
+    trace_list->lastBlock[i].Doffset = addr;
+    memcpy(trace_list->lastBlock[i].DmdlName,mdl_name,9);
+    memcpy(trace_list->lastBlock[i].DcsectName,csct_name,9);
+    return tree->next->next->firstCsect->name;
+  }      /*                                         */
+  else{
+    __asm__("wto 'no dest'");
+    return 0;
+  }
+}
+
+instrNode* crTrc (long int tcb,moduleDsc* module_list,
+                 moduleNode* tree,traceList* trace_list,long int addr){
+
+/*updateList(tcb,module_list);
+  FILE* dbg = fopen("dd:spym$dbg","w");
+  fwrite(module_list,80,1,dbg);
+  fclose(dbg);*/
+
+  updateList(tcb,module_list);
+  char* mdl_name;
+  char* csct_name;
+  if (mdl_name = addrExists(module_list,&addr)){
+
+    csct_name = getCsect(tree,mdl_name,addr);
+    insertRec(trace_list,mdl_name,
+              csct_name,addr);
+    return getInstr(tree,mdl_name,csct_name,addr);
+  }      /*                                         */
+  else{
+    updateList(tcb,module_list);
+    __asm__("wto 'not exist'");
+    if (mdl_name = addrExists(module_list,&addr)){/*changes addr*/
+      csct_name = getCsect(tree,mdl_name,addr);
+      insertRec(trace_list,mdl_name,
+                csct_name,addr);
+      return getInstr(tree,mdl_name,csct_name,addr);
+    }
+    else{
+      insertRec(trace_list,"LOST TR ","LOST    ",0);
+      return 0;
+    }
+  }
+}
+
+int main(){return 1;}

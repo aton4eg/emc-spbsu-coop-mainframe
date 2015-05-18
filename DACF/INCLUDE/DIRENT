@@ -1,0 +1,20 @@
+#ifndef DIRENT_H
+#define DIRENT_H
+#define ENOENT 1
+#define EBADF  2
+typedef long int ino_t;
+typedef struct dirent dirent;
+struct dirent{
+  long int  d_ino;    /*file serial number*/
+  char   d_name[9]; /*name of entry*/
+};
+typedef  int* DIR;
+long int closedir  (DIR*);
+DIR*     opendir   (const char*);
+dirent*  readdir   (DIR *);
+long int rddir_r   (DIR *dirp, dirent *entry, dirent **result);
+void     rewinddir (DIR *dirp);
+long int telldir   (DIR *dirp);
+void     seekdir   (DIR *dirp, long int loc);
+
+#endif

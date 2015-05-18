@@ -1,0 +1,201 @@
+¯
+                                         High Level Assembler Option Summary                   (PTF UK37157)   Page    1
+                                                                                            HLASM R6.0  2014/10/02 18.19
+²  No Overriding ASMAOPT Parameters
+²  No Overriding Parameters
+²  No Process Statements
+
+
+  Options for this Assembly
+²  NOADATA
+²    ALIGN
+²  NOASA
+²    BATCH
+²    CODEPAGE(047C)
+²  NOCOMPAT
+²  NODBCS
+²  NODECK
+²    DXREF
+²    ESD
+²  NOEXIT
+²    FLAG(0,ALIGN,CONT,EXLITW,NOIMPLEN,NOPAGE0,PUSH,RECORD,NOSUBSTR,USING0)
+²  NOFOLD
+²  NOGOFF
+²  NOINFO
+²    LANGUAGE(EN)
+²  NOLIBMAC
+²    LINECOUNT(60)
+²    LIST(121)
+²    MACHINE(,NOLIST)
+²    MXREF(SOURCE)
+²    OBJECT
+²    OPTABLE(UNI,NOLIST)
+²  NOPCONTROL
+²  NOPESTOP
+²  NOPROFILE
+²  NORA2
+²  NORENT
+²    RLD
+²    RXREF
+²    SECTALGN(8)
+²    SIZE(MAX)
+²  NOSUPRWARN
+²    SYSPARM()
+²  NOTERM
+²  NOTEST
+²    THREAD
+²  NOTRANSLATE
+²    TYPECHECK(MAGNITUDE,REGISTER)
+²    USING(NOLIMIT,MAP,WARN(15))
+²  NOWORKFILE
+²    XREF(SHORT,UNREFS)
+
+²  No Overriding DD Names
+¯
+                                              External Symbol Dictionary                                       Page    2
+Symbol   Type   Id     Address  Length   Owner Id Flags Alias-of                            HLASM R6.0  2014/10/02 18.19
+²          PC 00000001 00000000 00000000             00
+²SAMPLE    SD 00000002 00000000 000000A2             00
+¯
+²                                                                                                               Page    3
+  Active Usings: None
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/10/02 18.19
+²                                      1          GENREG                                                         00001000
+²                      00000           2+R0       EQU   0                                                        01-GENRE
+²                      00001           3+R1       EQU   1                                                        01-GENRE
+²                      00002           4+R2       EQU   2                                                        01-GENRE
+²                      00003           5+R3       EQU   3                                                        01-GENRE
+²                      00004           6+R4       EQU   4                                                        01-GENRE
+²                      00005           7+R5       EQU   5                                                        01-GENRE
+²                      00006           8+R6       EQU   6                                                        01-GENRE
+²                      00007           9+R7       EQU   7                                                        01-GENRE
+²                      00008          10+R8       EQU   8                                                        01-GENRE
+²                      00009          11+R9       EQU   9                                                        01-GENRE
+²                      0000A          12+R10      EQU   10                                                       01-GENRE
+²                      0000B          13+R11      EQU   11                                                       01-GENRE
+²                      0000C          14+R12      EQU   12                                                       01-GENRE
+²                      0000D          15+R13      EQU   13                                                       01-GENRE
+²                      0000E          16+R14      EQU   14                                                       01-GENRE
+²                      0000F          17+R15      EQU   15                                                       01-GENRE
+²000000                00000 000A2    18 SAMPLE   CSECT                                                          00010000
+000000 90EC D00C            0000C    19          STM   R14,R12,12(R13)                                          00010113
+²000004 0DC0                          21          BASR  R12,0                                                    00010313
+                 R:C  00006          22          USING *,R12                                                    00010413
+²000006 50D0 C042            00048    24          ST    R13,SAVEAREA+4                                           00010613
+²00000A 182D                          25          LR    R2,R13                                                   00010713
+²00000C 41D0 C03E            00044    26          LA    R13,SAVEAREA                                             00010813
+000010 50D2 0008            00008    27          ST    R13,8(R2)                                                00010913
+²                                     29          ESTAE MYESTAE,CT,XCTL=YES                                      00011113
+²                                     31+*    MACDATE   10/01/94                                        @G860P1C
+²000014                               33+         CNOP  0,4                     ESTAB. FULL WD. BOUND. ALIGN.    01-ESTAE
+²000014 A715 000E            00030    34+         BRAS  1,*+28                  LIST ADDR IN REG1 SKIP LIST @L3C 01-ESTAE
+²000018 16                            35+         DC    AL1(22)                 FLAGS FOR TCB, PURGE,           X01-ESTAE
+²                                       +                                       ASYNCH AND CANCEL           @D1C
+²000019 000000                        36+         DC    AL3(0)                  FIELD NO LONGER USED  @G860P38   01-ESTAE
+²00001C 00000000                      37+         DC    A(0)                    SPACE FOR PARM LIST ADDR         01-ESTAE
+²000020 00000000                      38+         DC    A(0)                    SPACE FOR TCB ADDR               01-ESTAE
+²000024 00                            39+         DC    AL1(0)                  FLAGS FOR TERM,RECORD,SDWALOC31  01-ESTAE
+²000025 01                            40+         DC    AL1(1)                  THIRD FLAG BYTE       @G860P1C   01-ESTAE
+²000026 0000                          41+         DC    AL2(0)                  RESERVED              @G860P1C   01-ESTAE
+²000028 00000000                      42+         DC    A(0)                    SPACE FOR TOKEN       @G81CP2F   01-ESTAE
+²00002C 0000008C                      43+         DC    AL4(MYESTAE)            FOUR BYTE EXIT ADDR   @G860P1C   01-ESTAE
+²000030 4100 0100            00100    44+         LA    0,256(0,0)              CREATE & PARMLST EQ 0   @ZMD0006 01-ESTAE
+²000034 0A3C                          45+         SVC   60                      ISSUE STAE SVC                   01-ESTAE
+000036 0000                          46          DC    X'0000'                                                  00011213
+²000038 58D0 C042            00048    48          L     R13,SAVEAREA+4                                           00011413
+²00003C 98EC D00C            0000C    49          LM    R14,R12,12(R13)                                          00011513
+²000040 07FE                          50          BR    R14                                                      00011613
+000044                               51 SAVEAREA DS    18F                                                      00012013
+²                      0008C          53 MYESTAE  EQU   *                                                        00012213
+²                                     54          WTO   'MODULE ESTAE'                                           00012313
+²00008C                               56+         CNOP  0,4                                                      01-WTO
+i00008C A715 000A            000A0    57+         BRAS  1,IHB0005A               BRANCH AROUND MESSAGE      @LCC 01-WTO
+²                                                                                                               Page    4
+  Active Usings: SAMPLE+X'6',R12
+  Loc  Object Code    Addr1 Addr2  Stmt   Source Statement                                  HLASM R6.0  2014/10/02 18.19
+²000090 0010                          58+         DC    AL2(16)                  TEXT LENGTH            @YA17152 01-WTO
+²000092 0000                          59+         DC    B'0000000000000000'      MCSFLAGS                        01-WTO
+²000094 D4D6C4E4D3C540C5              60+         DC    C'MODULE ESTAE'          MESSAGE TEXT               @L6C 01-WTO
+²0000A0                               61+IHB0005A DS    0H                                                       01-WTO
+²0000A0 0A23                          62+         SVC   35                       ISSUE SVC 35               @L6A 01-WTO
+²                                     63          END                                                            00012410
+¯
+                                                 Relocation Dictionary                                         Page    5
+   Pos.Id   Rel.Id   Address  Type  Action                                                  HLASM R6.0  2014/10/02 18.19
+²  00000002 00000002 0000002C   A 4     +
+¯
+                               Ordinary Symbol and Literal Cross Reference                                     Page    6
+Symbol   Length   Value     Id    R Type Asm  Program   Defn References                     HLASM R6.0  2014/10/02 18.19
+²IHB0005A      2 000000A0 00000002     H  H                61   57B
+²MYESTAE       1 0000008C 00000002     U                   53   43
+²R12           1 0000000C 00000001 A   U                   14   19    21M   22U   49M
+²R13           1 0000000D 00000001 A   U                   15   19    24    25    26M   27    48M   49
+²R14           1 0000000E 00000001 A   U                   16   19    49M   50B
+²R2            1 00000002 00000001 A   U                    4   25M   27
+²SAVEAREA      4 00000044 00000002     F  F                51   24M   26    48
+¯
+                                  Unreferenced Symbols Defined in CSECTs                                       Page    7
+  Defn  Symbol                                                                              HLASM R6.0  2014/10/02 18.19
+²     2  R0
+²     3  R1
+²    12  R10
+²    13  R11
+²    17  R15
+²     5  R3
+²     6  R4
+²     7  R5
+²     8  R6
+²     9  R7
+²    10  R8
+²    11  R9
+²    18  SAMPLE
+¯
+                                          Macro and Copy Code Source Summary                                   Page    8
+ Con Source                                        Volume    Members                        HLASM R6.0  2014/10/02 18.19
+²  L1 SYS1.MACLIB                                   ZARES1    ESTAE    SPLEVEL  SYSSTATE WTO
+²  L2 EMCPROJ.MACLIB                                ZAIMS1    GENREG
+¯
+                                                      Using Map                                                Page    9
+²                                                                                            HLASM R6.0  2014/10/02 18.19
+²  Stmt  -----Location----- Action ----------------Using----------------- Reg Max     Last Label and Using Text
+          Count      Id           Type          Value    Range     Id        Disp    Stmt
+²    22  00000006  00000002 USING  ORDINARY    00000006 00001000 00000002  12 00042     48 *,R12
+¯
+                                   General Purpose Register Cross Reference                                    Page   10
+ Register  References (M=modified, B=branch, U=USING, D=DROP, N=index)                      HLASM R6.0  2014/10/02 18.19
+²    0(0)      19    44M   49M
+²    1(1)      19    34M   49M   57M
+²    2(2)      19    25M   27N   49M
+²    3(3)      19    49M
+²    4(4)      19    49M
+²    5(5)      19    49M
+²    6(6)      19    49M
+²    7(7)      19    49M
+²    8(8)      19    49M
+²    9(9)      19    49M
+²   10(A)      19    49M
+²   11(B)      19    49M
+²   12(C)      19    21M   22U   49M
+²   13(D)      19    24    25    26M   27    48M   49
+²   14(E)      19    49M   50B
+²   15(F)      19    49M
+¯
+                                  Diagnostic Cross Reference and Assembler Summary                             Page   11
+                                                                                            HLASM R6.0  2014/10/02 18.19
+²     No Statements Flagged in this Assembly
+HIGH LEVEL ASSEMBLER, 5696-234, RELEASE 6.0, PTF UK37157
+SYSTEM: z/OS 01.10.00              JOBNAME: SAMPLE      STEPNAME: COMPILE    PROCSTEP: (NOPROC)
+²Data Sets Allocated for this Assembly
+² Con DDname   Data Set Name                                Volume  Member
+²  P1 SYSIN    EMCPROJ.SRC                                  ZAIMS1  MODULE4
+²  L1 SYSLIB   SYS1.MACLIB                                  ZARES1
+²  L2          EMCPROJ.MACLIB                               ZAIMS1
+²     SYSLIN   EMCPROJ.OBJ                                  ZAIMS1  MODULE4
+²     SYSPRINT EMCPROJ.LISTING                              ZAIMS1  MODULE4
+²
+²  32128K allocated to Buffer Pool       Storage required     432K
+²     23 Primary Input Records Read         4135 Library Records Read                  0 Work File Reads
+²      0 ASMAOPT Records Read                201 Primary Print Records Written         0 Work File Writes
+      6 Object Records Written                0 ADATA Records Written
+²Assembly Start Time: 18.19.02 Stop Time: 18.19.02 Processor Time: 00.00.00.2180
+²Return Code 000
